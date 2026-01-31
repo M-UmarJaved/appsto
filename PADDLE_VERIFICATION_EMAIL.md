@@ -84,7 +84,7 @@ I have created comprehensive legal pages that are clearly accessible from the we
 
 **Business Name:** Appsto.Software  
 **Legal Owner:** Muhammad Umar Javed (Sole Proprietor)  
-**Business Address:** Street Nazir, Tehsil Lalian, District Chiniot, Pakistan  
+**Business Address:** GLOSIX, LC 67, Phase 2 Dream Gardens Defense Road Lahore Pakistan  
 **Support Email:** support@appsto.software  
 **Website:** https://appsto.software  
 
@@ -141,6 +141,7 @@ Thank you for your support and patience as I begin this journey.
 
 Muhammad Umar Javed  
 Founder, Appsto.Software  
+GLOSIX, LC 67, Phase 2 Dream Gardens Defense Road Lahore Pakistan  
 Email: support@appsto.software  
 Website: https://appsto.software
 

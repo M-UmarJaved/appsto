@@ -8,7 +8,7 @@ export default function TermsOfServicePage() {
   const sections = [
     {
       title: 'Business Information',
-      content: 'This website is operated by Muhammad Umar Javed, trading as Appsto.Software, with business address at Street Nazir, Tehsil Lalian, District Chiniot, Pakistan. For support inquiries, contact us at support@appsto.software.',
+      content: 'This website is operated by Muhammad Umar Javed, trading as Appsto.Software, with business address at GLOSIX, LC 67, Phase 2 Dream Gardens Defense Road Lahore Pakistan. For support inquiries, contact us at support@appsto.software.',
       highlight: true
     },
     {
@@ -66,7 +66,7 @@ export default function TermsOfServicePage() {
     },
     {
       title: '9. Contact Information',
-      content: 'For questions about these Terms, contact us at support@appsto.software or write to us at: Muhammad Umar Javed (Appsto.Software), Street Nazir, Tehsil Lalian, District Chiniot, Pakistan.'
+      content: 'For questions about these Terms, contact us at support@appsto.software or write to us at: Muhammad Umar Javed (Appsto.Software), GLOSIX, LC 67, Phase 2 Dream Gardens Defense Road Lahore Pakistan.'
     }
   ];
 

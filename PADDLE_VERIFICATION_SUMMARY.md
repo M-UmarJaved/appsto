@@ -12,7 +12,7 @@
 
 **✅ Added:**
 - **Business Operator Statement** (highlighted at top): "This website is operated by Muhammad Umar Javed, trading as Appsto.Software"
-- **Physical Business Address:** Street Nazir, Tehsil Lalian, District Chiniot, Pakistan
+- **Physical Business Address:** GLOSIX, LC 67, Phase 2 Dream Gardens Defense Road Lahore Pakistan
 - **Governing Law Section:** Clearly states laws of Pakistan apply
 - **Complete Contact Information:** support@appsto.software + physical address
 
@@ -263,7 +263,7 @@ When Paddle asks about your business model, here's the clear explanation:
 - Refer to your business details:
   - Business: Appsto.Software
   - Owner: Muhammad Umar Javed
-  - Address: Street Nazir, Tehsil Lalian, District Chiniot, Pakistan
+  - Address: GLOSIX, LC 67, Phase 2 Dream Gardens Defense Road Lahore Pakistan
   - Email: support@appsto.software
 
 **Common Follow-up Questions:**

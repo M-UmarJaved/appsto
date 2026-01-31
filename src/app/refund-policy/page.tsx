@@ -202,7 +202,7 @@ export default function RefundPolicyPage() {
               <div className="text-[#9CA3AF] space-y-2">
                 <p><strong className="text-[#0B1220] dark:text-[#E5E7EB]">Business Name:</strong> Appsto.Software</p>
                 <p><strong className="text-[#0B1220] dark:text-[#E5E7EB]">Operated by:</strong> Muhammad Umar Javed</p>
-                <p><strong className="text-[#0B1220] dark:text-[#E5E7EB]">Address:</strong> Street Nazir, Tehsil Lalian, District Chiniot, Pakistan</p>
+                <p><strong className="text-[#0B1220] dark:text-[#E5E7EB]">Address:</strong> GLOSIX, LC 67, Phase 2 Dream Gardens Defense Road Lahore Pakistan</p>
                 <p><strong className="text-[#0B1220] dark:text-[#E5E7EB]">Email:</strong> support@appsto.software</p>
               </div>
             </div>          </motion.div>
