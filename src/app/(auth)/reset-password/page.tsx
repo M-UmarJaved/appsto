@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Lock, Eye, EyeOff, AlertCircle, Check } from 'lucide-react'
+import { Lock, Eye, EyeOff, AlertCircle, Check, ArrowLeft } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { Suspense } from 'react'
 
@@ -95,15 +97,46 @@ function ResetPasswordForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-[#F9FAFB] via-white to-[#EFF6FF] dark:from-[#0B1220] dark:via-[#0F172A] dark:to-[#0B1220] flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 overflow-hidden relative">
+      {/* Background orbs */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-md"
-      >
-        {/* Card */}
-        <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-xl border border-[#E5E7EB] dark:border-[#1F2937] p-8">
+        className="absolute top-20 left-20 w-96 h-96 bg-[#3B82F6]/10 dark:bg-[#3B82F6]/20 rounded-full blur-[120px] pointer-events-none"
+        animate={{ y: [0, -30, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute bottom-20 right-20 w-96 h-96 bg-[#22D3EE]/10 dark:bg-[#22D3EE]/15 rounded-full blur-[120px] pointer-events-none"
+        animate={{ y: [0, 30, 0], scale: [1, 1.1, 1] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+      />
+
+      <div className="max-w-md w-full relative z-10">
+        {/* Logo */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10"
+        >
+          <Link href="/" className="inline-block">
+            <Image
+              src="/Logo.png"
+              alt="Appsto"
+              width={200}
+              height={50}
+              className="h-[50px] w-auto object-contain mx-auto"
+              priority
+            />
+          </Link>
+        </motion.div>
+
+        {/* Reset Password Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="bg-white dark:bg-[#111827] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-[#1F2937] p-8 md:p-10"
+        >
           {/* Icon */}
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#2563EB] flex items-center justify-center mx-auto mb-6">
             <Lock className="w-8 h-8 text-white" />
@@ -111,12 +144,22 @@ function ResetPasswordForm() {
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-2">
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-3xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-2"
+            >
               Reset Your Password
-            </h1>
-            <p className="text-[#9CA3AF]">
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-[#9CA3AF]"
+            >
               Enter your new password below
-            </p>
+            </motion.p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -250,8 +293,19 @@ function ResetPasswordForm() {
               </li>
             </ul>
           </div>
-        </div>
-      </motion.div>
+
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-[#E5E7EB] dark:border-[#1F2937] text-center">
+            <Link
+              href="/signin"
+              className="inline-flex items-center gap-2 text-[#9CA3AF] hover:text-[#3B82F6] transition-colors text-sm font-medium"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Sign In
+            </Link>
+          </div>
+        </motion.div>
+      </div>
     </div>
   )
 }
@@ -259,10 +313,10 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#F9FAFB] dark:bg-[#0B1220]">
+      <div className="min-h-screen bg-gradient-to-br from-[#F9FAFB] via-white to-[#EFF6FF] dark:from-[#0B1220] dark:via-[#0F172A] dark:to-[#0B1220] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3B82F6] mx-auto"></div>
+          <p className="mt-4 text-[#9CA3AF]">Loading...</p>
         </div>
       </div>
     }>

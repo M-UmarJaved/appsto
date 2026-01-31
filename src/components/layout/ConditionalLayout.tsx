@@ -8,7 +8,10 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
   const pathname = usePathname()
   
   // Hide navbar and footer on auth pages
-  const isAuthPage = pathname?.startsWith('/signin') || pathname?.startsWith('/signup')
+  const isAuthPage = pathname?.startsWith('/signin') || 
+                     pathname?.startsWith('/signup') ||
+                     pathname?.startsWith('/forgot-password') ||
+                     pathname?.startsWith('/reset-password')
 
   if (isAuthPage) {
     return <>{children}</>
