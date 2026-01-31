@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  // Redirect to home page after successful authentication
-  return NextResponse.redirect(new URL('/', requestUrl.origin))
+  // Use the public site URL instead of requestUrl.origin to avoid localhost:8080 issues on DigitalOcean
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://appsto.software'
+  return NextResponse.redirect(new URL('/', siteUrl))
 }
