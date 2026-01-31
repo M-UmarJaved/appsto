@@ -96,7 +96,7 @@ export default function Navbar() {
               const isActive = pathname === link.href
               return (
                 <motion.div
-                  key={link.href}
+                  key={`${link.href}-${pathname}`}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + i * 0.05 }}
@@ -106,6 +106,7 @@ export default function Navbar() {
                     className="relative block"
                   >
                     <motion.span
+                      animate={{ backgroundColor: isActive ? 'rgb(59, 130, 246)' : 'transparent', color: isActive ? 'white' : undefined }}
                       className={`px-4 py-2 text-sm font-medium block rounded-3xl transition-colors duration-200 ${
                         isActive 
                           ? 'bg-[#3B82F6] text-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1)]' 
@@ -286,22 +287,29 @@ export default function Navbar() {
               </div>
 
               <nav className="space-y-2">
-                {navLinks.map((link, i) => (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                  >
-                    <Link
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block px-4 py-3 text-[#0B1220] dark:text-[#E5E7EB] font-medium rounded-xl hover:bg-[#0B1220]/5 dark:hover:bg-[#E5E7EB]/5 transition-colors"
+                {navLinks.map((link, i) => {
+                  const isActive = pathname === link.href
+                  return (
+                    <motion.div
+                      key={`mobile-${link.href}-${pathname}`}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
                     >
-                      {link.label}
-                    </Link>
-                  </motion.div>
-                ))}
+                      <Link
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`block px-4 py-3 font-medium rounded-xl transition-colors ${
+                          isActive
+                            ? 'bg-[#3B82F6] text-white'
+                            : 'text-[#0B1220] dark:text-[#E5E7EB] hover:bg-[#0B1220]/5 dark:hover:bg-[#E5E7EB]/5'
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    </motion.div>
+                  )
+                })}
               </nav>
 
               <div className="mt-8 space-y-3">

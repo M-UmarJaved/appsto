@@ -174,38 +174,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section ref={statsRef} className="py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <motion.div 
-                key={index}
-                initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(59, 130, 246, 0.15)' }}
-                className="bg-white dark:bg-[#111827] rounded-2xl p-8 text-center border border-[#E5E7EB] dark:border-[#1F2937] shadow-lg"
-              >
-                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#3B82F6] to-[#22D3EE] bg-clip-text text-transparent mb-3">
-                  {statsInView && (
-                    <CountUp 
-                      end={stat.number} 
-                      duration={2.5} 
-                      decimals={stat.decimals || 0}
-                      suffix={stat.suffix}
-                    />
-                  )}
-                </div>
-                <div className="text-[#9CA3AF] font-semibold text-sm uppercase tracking-wide">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Stats Section removed as requested */}
 
       {/* What We Do Section */}
       <section className="py-20">

@@ -72,7 +72,7 @@ export default function ProductDetailPage() {
     // Check if user is authenticated
     if (!user) {
       // Redirect to login page with return URL
-      router.push(`/auth/login?redirect=/products/${params.slug}`)
+      router.push(`/signin?redirect=/products/${params.slug}`)
       return
     }
 

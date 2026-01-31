@@ -93,34 +93,7 @@ export default function Footer() {
             </p>
             
             {/* Social Media Icons */}
-            <div className="flex gap-3">
-              {socialLinks.map((social, i) => {
-                const Icon = social.icon
-                return (
-                  <motion.a 
-                    key={social.label}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                    className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[#9CA3AF] hover:text-white transition-all"
-                    whileHover={{ 
-                      scale: 1.1, 
-                      backgroundColor: social.color,
-                      borderColor: social.color,
-                      color: '#ffffff'
-                    }}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </motion.a>
-                )
-              })}
-            </div>
+              {/* Social Media Icons hidden - no links available */}
           </motion.div>
 
           {/* Products */}
@@ -263,12 +236,12 @@ export default function Footer() {
                   Terms
                 </motion.span>
               </Link>
-              <motion.span
-                className="text-[#9CA3AF]"
-                whileHover={{ scale: 1.1, color: '#22D3EE' }}
-              >
-                Made with ❤️
-              </motion.span>
+                <motion.span
+                  className="text-[#9CA3AF]"
+                  whileHover={{ scale: 1.1, color: '#22D3EE' }}
+                >
+                  Crafted for professionals
+                </motion.span>
             </div>
           </div>
         </motion.div>
