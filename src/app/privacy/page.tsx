@@ -7,6 +7,11 @@ import { motion } from 'motion/react';
 export default function PrivacyPolicyPage() {
   const sections = [
     {
+      title: 'Business Information',
+      content: 'This website (appsto.software) is operated by Muhammad Umar Javed, trading as Appsto.Software. Business address: Street Nazir, Tehsil Lalian, District Chiniot, Pakistan. For privacy-related inquiries, contact us at support@appsto.software.',
+      highlight: true
+    },
+    {
       title: '1. Introduction',
       content: 'Welcome to appsto.software ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.'
     },
@@ -25,7 +30,7 @@ export default function PrivacyPolicyPage() {
     },
     {
       title: '4. Payment Processing',
-      content: 'All payments are processed through Paddle, our trusted payment provider. We do not store credit card details. Paddle handles all payment data in compliance with PCI-DSS standards.'
+      content: 'All payments on our website are securely processed through Paddle.com, our trusted Merchant of Record and payment service provider. We DO NOT store, process, or have access to your credit card information. Paddle handles all payment data in full compliance with PCI-DSS (Payment Card Industry Data Security Standard) requirements. When you make a purchase, your payment information is transmitted directly to Paddle\'s secure servers. We only receive confirmation of successful transactions along with your name and email address for order fulfillment and customer support purposes.'
     },
     {
       title: '5. Data Security',
@@ -33,11 +38,15 @@ export default function PrivacyPolicyPage() {
     },
     {
       title: '6. Your Rights',
-      content: 'Depending on your location, you may have the right to access your personal data, correct inaccurate data, delete your data, object to processing of your data, and data portability. Contact us at privacy@appsto.software to exercise these rights.'
+      content: 'Depending on your location, you may have the right to access your personal data, correct inaccurate data, delete your data, object to processing of your data, and data portability. Contact us at support@appsto.software to exercise these rights.'
     },
     {
-      title: '7. Contact Us',
-      content: 'For questions about this Privacy Policy or our practices, contact us at privacy@appsto.software.'
+      title: '7. Data Retention',
+      content: 'We retain your personal information only for as long as necessary to fulfill the purposes outlined in this Privacy Policy, unless a longer retention period is required by law. Purchase records and license information are retained for accounting and support purposes.'
+    },
+    {
+      title: '8. Contact Us',
+      content: 'For questions about this Privacy Policy or our data practices, contact us at support@appsto.software or write to us at: Muhammad Umar Javed (Appsto.Software), Street Nazir, Tehsil Lalian, District Chiniot, Pakistan.'
     }
   ];
 
@@ -107,11 +116,12 @@ export default function PrivacyPolicyPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
+                  className={section.highlight ? 'bg-[#3B82F6]/10 dark:bg-[#3B82F6]/20 rounded-xl p-6 border border-[#3B82F6]/30 mb-8' : ''}
                 >
-                  <h2 className="text-2xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-4">
+                  <h2 className={`text-2xl font-bold mb-4 ${section.highlight ? 'text-[#3B82F6]' : 'text-[#0B1220] dark:text-[#E5E7EB]'}`}>
                     {section.title}
                   </h2>
-                  <p className="text-[#9CA3AF] leading-relaxed mb-4">
+                  <p className={`leading-relaxed mb-4 ${section.highlight ? 'text-[#0B1220] dark:text-[#E5E7EB] font-medium' : 'text-[#9CA3AF]'}`}>
                     {section.content}
                   </p>
                   {section.subsections && (

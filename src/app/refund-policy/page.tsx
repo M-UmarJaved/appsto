@@ -83,6 +83,21 @@ export default function RefundPolicyPage() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="bg-white dark:bg-[#111827] rounded-3xl p-8 md:p-12 border border-[#E5E7EB] dark:border-[#1F2937] shadow-xl"
           >
+            {/* Money-Back Guarantee */}
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-6">
+                Our Commitment to You
+              </h2>
+              
+              <div className="prose prose-lg text-[#9CA3AF] max-w-none mb-8">
+                <p className="text-lg leading-relaxed">
+                  We offer a <strong className="text-[#10B981]">full money-back guarantee</strong> for all purchases made on our website. 
+                  If you are not satisfied with the product that you have purchased from us, you can get your money back no questions asked. 
+                  You are eligible for a full reimbursement within <strong className="text-[#10B981]">14 calendar days</strong> of your purchase.
+                </p>
+              </div>
+            </div>
+
             {/* One-Time Purchase */}
             <div className="mb-12">
               <div className="flex items-center gap-3 mb-6">
@@ -98,24 +113,24 @@ export default function RefundPolicyPage() {
                 <div className="flex items-start gap-3 p-4 bg-[#10B981]/10 dark:bg-[#10B981]/20 rounded-xl border border-[#10B981]/30">
                   <CheckCircle className="w-5 h-5 text-[#10B981] flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Eligible for Refund</p>
-                    <p className="text-[#9CA3AF] text-sm">Request within 14 days of purchase with valid reason</p>
+                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Full Refund Eligible</p>
+                    <p className="text-[#9CA3AF] text-sm">Request within 14 calendar days of purchase - no questions asked</p>
                   </div>
                 </div>
                 
                 <div className="flex items-start gap-3 p-4 bg-[#10B981]/10 dark:bg-[#10B981]/20 rounded-xl border border-[#10B981]/30">
                   <CheckCircle className="w-5 h-5 text-[#10B981] flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Technical Issues</p>
-                    <p className="text-[#9CA3AF] text-sm">Software doesn&apos;t work as described on your system</p>
+                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">All Reasons Accepted</p>
+                    <p className="text-[#9CA3AF] text-sm">Not satisfied with the product? Technical issues? Changed your mind? We honor all refund requests within the 14-day window</p>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-3 p-4 bg-[#EF4444]/10 dark:bg-[#EF4444]/20 rounded-xl border border-[#EF4444]/30">
-                  <XCircle className="w-5 h-5 text-[#EF4444] flex-shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 p-4 bg-[#F59E0B]/10 dark:bg-[#F59E0B]/20 rounded-xl border border-[#F59E0B]/30">
+                  <AlertCircle className="w-5 h-5 text-[#F59E0B] flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Not Eligible</p>
-                    <p className="text-[#9CA3AF] text-sm">After 14 days, license already activated and used extensively, or no valid reason provided</p>
+                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">After 14 Days</p>
+                    <p className="text-[#9CA3AF] text-sm">Refund requests submitted after 14 calendar days from purchase date will be reviewed on a case-by-case basis</p>
                   </div>
                 </div>
               </div>
@@ -148,17 +163,17 @@ export default function RefundPolicyPage() {
             </div>
 
             {/* How to Request */}
-            <div>
+            <div className="mb-12">
               <h2 className="text-2xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-6">
                 How to Request a Refund
               </h2>
               
               <div className="space-y-4">
                 {[
-                  { step: '1', title: 'Email Us', desc: 'Send an email to refunds@appsto.software' },
-                  { step: '2', title: 'Provide Details', desc: 'Include your purchase email, order ID, and reason for refund' },
-                  { step: '3', title: 'Wait for Response', desc: 'We review all requests within 2-3 business days' },
-                  { step: '4', title: 'Receive Refund', desc: 'Approved refunds are processed within 5-10 business days' }
+                  { step: '1', title: 'Email Us', desc: 'Send an email to support@appsto.software' },
+                  { step: '2', title: 'Provide Details', desc: 'Include your purchase email, order ID, and reason for refund (optional)' },
+                  { step: '3', title: 'Wait for Response', desc: 'We process all refund requests within 2-3 business days' },
+                  { step: '4', title: 'Receive Refund', desc: 'Approved refunds are processed within 5-10 business days to your original payment method' }
                 ].map((item, index) => (
                   <motion.div
                     key={index}
@@ -179,7 +194,18 @@ export default function RefundPolicyPage() {
                 ))}
               </div>
             </div>
-          </motion.div>
+            {/* Business Contact Information */}
+            <div className="pt-8 border-t border-[#E5E7EB] dark:border-[#1F2937]">
+              <h3 className="text-lg font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-4">
+                Business Contact Information
+              </h3>
+              <div className="text-[#9CA3AF] space-y-2">
+                <p><strong className="text-[#0B1220] dark:text-[#E5E7EB]">Business Name:</strong> Appsto.Software</p>
+                <p><strong className="text-[#0B1220] dark:text-[#E5E7EB]">Operated by:</strong> Muhammad Umar Javed</p>
+                <p><strong className="text-[#0B1220] dark:text-[#E5E7EB]">Address:</strong> Street Nazir, Tehsil Lalian, District Chiniot, Pakistan</p>
+                <p><strong className="text-[#0B1220] dark:text-[#E5E7EB]">Email:</strong> support@appsto.software</p>
+              </div>
+            </div>          </motion.div>
 
           {/* Contact CTA */}
           <motion.div

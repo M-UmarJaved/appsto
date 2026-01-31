@@ -7,6 +7,11 @@ import { motion } from 'motion/react';
 export default function TermsOfServicePage() {
   const sections = [
     {
+      title: 'Business Information',
+      content: 'This website is operated by Muhammad Umar Javed, trading as Appsto.Software, with business address at Street Nazir, Tehsil Lalian, District Chiniot, Pakistan. For support inquiries, contact us at support@appsto.software.',
+      highlight: true
+    },
+    {
       title: '1. Agreement to Terms',
       content: 'By accessing or using appsto.software (the "Service"), you agree to be bound by these Terms of Service ("Terms"). If you disagree with any part of these Terms, you may not access the Service.'
     },
@@ -56,8 +61,12 @@ export default function TermsOfServicePage() {
       content: 'We reserve the right to modify these Terms at any time. Continued use of the Service after changes constitutes acceptance of the new Terms.'
     },
     {
-      title: '8. Contact',
-      content: 'For questions about these Terms, contact us at legal@appsto.software.'
+      title: '8. Governing Law and Jurisdiction',
+      content: 'These Terms shall be governed by and construed in accordance with the laws of Pakistan. Any disputes arising from these Terms or your use of the Service shall be subject to the exclusive jurisdiction of the courts of Pakistan.'
+    },
+    {
+      title: '9. Contact Information',
+      content: 'For questions about these Terms, contact us at support@appsto.software or write to us at: Muhammad Umar Javed (Appsto.Software), Street Nazir, Tehsil Lalian, District Chiniot, Pakistan.'
     }
   ];
 
@@ -143,11 +152,12 @@ export default function TermsOfServicePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
+                  className={section.highlight ? 'bg-[#3B82F6]/10 dark:bg-[#3B82F6]/20 rounded-xl p-6 border border-[#3B82F6]/30 mb-8' : ''}
                 >
-                  <h2 className="text-2xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-4">
+                  <h2 className={`text-2xl font-bold mb-4 ${section.highlight ? 'text-[#3B82F6]' : 'text-[#0B1220] dark:text-[#E5E7EB]'}`}>
                     {section.title}
                   </h2>
-                  <p className="text-[#9CA3AF] leading-relaxed mb-4">
+                  <p className={`leading-relaxed mb-4 ${section.highlight ? 'text-[#0B1220] dark:text-[#E5E7EB] font-medium' : 'text-[#9CA3AF]'}`}>
                     {section.content}
                   </p>
                   {section.subsections && (
