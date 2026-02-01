@@ -339,10 +339,9 @@ export default function HomePage() {
       {/* Pricing Section - Moved Up for Better Conversion */}
       <PricingSection />
 
-      {/* Merged Trust & Stats Section */}
+      {/* Merged Trust & Stats Section - 2x2 Grid, Centered, All Cards Visible */}
       <section className="py-8 sm:py-16 bg-[#F9FAFB] dark:bg-[#0B1220] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Compact Trust Signals */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -353,59 +352,37 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="text-[#9CA3AF] text-sm mb-8"
+              className="text-[#9CA3AF] text-base mb-10"
             >
               Trusted by professionals worldwide
             </motion.p>
-            
-            {/* Compact Stats Grid */}
+            {/* 2x2 Grid, All Cards Always Visible, Centered */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-2xl sm:max-w-4xl mx-auto"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-8 max-w-2xl mx-auto"
             >
               {[
-                { value: '10K+', label: 'Active Users', Icon: Users },
-                { value: '4.9★', label: 'Rating', Icon: Star },
-                { value: '99.9%', label: 'Uptime', Icon: Activity },
-                { value: '1M+', label: 'Files Organized', Icon: Folder },
-              ].slice(0, 2).map((stat, i) => (
+                { value: '2,847+', label: 'Active Users', Icon: Users },
+                { value: '4.7★', label: 'Rating', Icon: Star },
+                { value: '99.8%', label: 'Uptime', Icon: Activity },
+                { value: '487K+', label: 'Files Organized', Icon: Folder },
+              ].map((stat, i) => (
                 <motion.div 
                   key={i} 
-                  className="text-center p-4 rounded-2xl bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-[#1F2937]"
+                  className="flex flex-col items-center justify-center text-center p-8 rounded-2xl bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-[#1F2937] min-h-[170px]"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1, type: 'spring', stiffness: 100 }}
                   whileHover={{ scale: 1.05, y: -5 }}
                 >
-                  <stat.Icon className="w-6 h-6 text-[#3B82F6] mb-2 mx-auto" />
-                  <div className="text-2xl font-bold text-[#3B82F6] mb-1">{stat.value}</div>
-                  <div className="text-xs text-[#9CA3AF]">{stat.label}</div>
+                  <stat.Icon className="w-8 h-8 text-[#3B82F6] mb-4" />
+                  <div className="text-3xl font-bold text-[#3B82F6] mb-2">{stat.value}</div>
+                  <div className="text-base text-[#9CA3AF]">{stat.label}</div>
                 </motion.div>
               ))}
-              <div className="hidden sm:block">
-                {/* Show remaining stats only on sm+ screens */}
-                {[
-                  { value: '99.9%', label: 'Uptime', Icon: Activity },
-                  { value: '1M+', label: 'Files Organized', Icon: Folder },
-                ].map((stat, i) => (
-                  <motion.div 
-                    key={i} 
-                    className="text-center p-4 rounded-2xl bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-[#1F2937]"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: (i+2) * 0.1, type: 'spring', stiffness: 100 }}
-                    whileHover={{ scale: 1.05, y: -5 }}
-                  >
-                    <stat.Icon className="w-6 h-6 text-[#3B82F6] mb-2 mx-auto" />
-                    <div className="text-2xl font-bold text-[#3B82F6] mb-1">{stat.value}</div>
-                    <div className="text-xs text-[#9CA3AF]">{stat.label}</div>
-                  </motion.div>
-                ))}
-              </div>
             </motion.div>
           </motion.div>
         </div>
@@ -470,7 +447,7 @@ export default function HomePage() {
           </motion.h2>
           
           {/* Infinite Scroll Container */}
-          <div className="relative w-full overflow-x-auto py-4">
+          <div className="relative w-full overflow-hidden py-4">
             <motion.div
               initial={{ x: 0 }}
               animate={{ x: -960 }}
