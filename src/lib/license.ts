@@ -13,13 +13,28 @@ const productDB = createClient(
 );
 
 /**
- * Generate a unique, human-friendly license key
- * Format: XXXX-XXXX-XXXX-XXXX (e.g., DS24-K7M9-P3R6-Q8WN)
+ * Generate a unique, human-friendly license key based on plan
+ * Format: PREFIX-XXXX-XXXX-XXXX-XXXX
+ * - Solo Plan: SOLO-XXXX-XXXX-XXXX-XXXX
+ * - Squad Plan: SQAD-XXXX-XXXX-XXXX-XXXX
+ * - Studio Plan: STDO-XXXX-XXXX-XXXX-XXXX
  */
-export function generateLicenseKey(): string {
+export function generateLicenseKey(plan: string = 'solo'): string {
   const nanoid = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 4);
+  
+  // Determine prefix based on plan
+  let prefix = 'SOLO';
+  const planLower = plan.toLowerCase();
+  
+  if (planLower.includes('squad')) {
+    prefix = 'SQAD';
+  } else if (planLower.includes('studio')) {
+    prefix = 'STDO';
+  }
+  
   const parts = [
-    'DS' + nanoid(2), // DS prefix + 2 chars
+    prefix,
+    nanoid(4),
     nanoid(4),
     nanoid(4),
     nanoid(4),
@@ -28,15 +43,15 @@ export function generateLicenseKey(): string {
 }
 
 /**
- * Generate multiple unique license keys
+ * Generate multiple unique license keys based on plan
  */
-export async function generateLicenseKeys(count: number): Promise<string[]> {
+export async function generateLicenseKeys(count: number, plan: string = 'solo'): Promise<string[]> {
   const keys: string[] = [];
   const maxAttempts = count * 3; // Prevent infinite loop
   let attempts = 0;
 
   while (keys.length < count && attempts < maxAttempts) {
-    const key = generateLicenseKey();
+    const key = generateLicenseKey(plan);
     
     // Check if key already exists in database
     const { data: existing } = await appsto
@@ -67,13 +82,14 @@ export async function createLicenses(params: {
   productId: string;
   userId: string;
   count: number;
+  plan?: string;
   licenseType?: 'standard' | 'trial' | 'lifetime';
   expiresAt?: Date | null;
 }) {
-  const { purchaseId, productId, userId, count, licenseType = 'standard', expiresAt = null } = params;
+  const { purchaseId, productId, userId, count, plan = 'solo', licenseType = 'standard', expiresAt = null } = params;
 
-  // Generate unique license keys
-  const licenseKeys = await generateLicenseKeys(count);
+  // Generate unique license keys based on plan
+  const licenseKeys = await generateLicenseKeys(count, plan);
 
   // Create license records
   const licenses = licenseKeys.map((key) => ({

@@ -128,6 +128,7 @@ async function handleTestPurchase(req: NextRequest) {
       productId: product.id,
       userId: userId,
       count: pricingPlan.devices,
+      plan: pricingPlan.plan_name, // Pass plan name for prefix generation
       licenseType: 'standard',
     });
 
