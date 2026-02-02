@@ -37,7 +37,35 @@ export default function HomePage() {
   }, [])
 
   return (
-    <div className="overflow-hidden bg-[#F9FAFB] dark:bg-[#0B1220]">
+    <>
+      {/* JSON-LD Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Appsto',
+            url: 'https://appsto.software',
+            description: 'The premier marketplace for student entrepreneurs and solo developers to buy and sell software tools like DeskSweep.',
+            publisher: {
+              '@type': 'Organization',
+              name: 'Appsto.Software',
+              logo: {
+                '@type': 'ImageObject',
+                url: 'https://appsto.software/Logo.png',
+              },
+            },
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: 'https://appsto.software/products?search={search_term_string}',
+              'query-input': 'required name=search_term_string',
+            },
+          }),
+        }}
+      />
+
+      <div className="overflow-hidden bg-[#F9FAFB] dark:bg-[#0B1220]">
       {/* Hero Section - Matching Template */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-16">
         {/* Clean gradient background - Light mode: soft white with subtle blue tints, Dark mode: deep navy */}
@@ -763,6 +791,7 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   )
 }
