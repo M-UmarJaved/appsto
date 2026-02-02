@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect, useRef } from 'react'
-import { Menu, Package, X, User, LogOut, Settings, LayoutDashboard, ChevronDown } from 'lucide-react'
+import { Menu, Package, X, User, LogOut, Settings, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
@@ -179,14 +179,6 @@ export default function Navbar() {
                       </div>
                       <div className="p-2">
                         <Link
-                          href="/dashboard"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#F9FAFB] dark:hover:bg-[#1F2937] transition-colors"
-                        >
-                          <LayoutDashboard className="w-4 h-4 text-[#9CA3AF]" />
-                          <span className="text-sm font-medium text-[#0B1220] dark:text-[#E5E7EB]">Dashboard</span>
-                        </Link>
-                        <Link
                           href="/account"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#F9FAFB] dark:hover:bg-[#1F2937] transition-colors"
@@ -342,14 +334,6 @@ export default function Navbar() {
                         </div>
                       </div>
                     </div>
-                    <Link
-                      href="/dashboard"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-[#0B1220] dark:text-[#E5E7EB] font-medium rounded-xl hover:bg-[#0B1220]/5 dark:hover:bg-[#E5E7EB]/5 transition-colors"
-                    >
-                      <LayoutDashboard className="w-5 h-5" />
-                      Dashboard
-                    </Link>
                     <Link
                       href="/account"
                       onClick={() => setMobileMenuOpen(false)}

@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createLicenses, syncPurchaseLicenses } from '@/lib/license';
 import { sendPurchaseConfirmationEmail } from '@/lib/purchase-email';
+import { sendPurchaseNotification } from '@/lib/discord';
 import { validateRequest, TestPurchaseSchema } from '@/lib/validation';
 import { withRateLimit } from '@/lib/ratelimit';
+import { DESKSWEEP_PRICING, type Currency } from '@/lib/currency';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,9 +56,13 @@ async function handleTestPurchase(req: NextRequest) {
       );
     }
     
-    const { userId, productSlug, planSlug, email, name } = validation.data;
+    const { userId, productSlug, planSlug, email, name, currency } = validation.data;
 
-    console.log('🧪 Creating test purchase:', { userId, productSlug, planSlug });
+    console.log('🧪 Creating test purchase:', { userId, productSlug, planSlug, currency });
+
+    // Get the actual price for the selected plan and currency
+    const selectedPlan = DESKSWEEP_PRICING.find(p => p.id === planSlug);
+    const actualPrice = selectedPlan ? selectedPlan.prices[currency as Currency] : 0;
 
     // Get product
     const { data: product, error: productError } = await supabase
@@ -97,12 +103,12 @@ async function handleTestPurchase(req: NextRequest) {
         product_id: product.id,
         pricing_plan_id: pricingPlan.id,
         paddle_transaction_id: testTransactionId,
-        amount: 0, // Free with TEST100 coupon
-        currency: 'USD',
+        amount: actualPrice,
+        currency: currency,
         status: 'completed',
         customer_email: email,
         customer_name: name || 'Test Customer',
-        billing_country: 'US',
+        billing_country: currency === 'PKR' ? 'PK' : currency === 'INR' ? 'IN' : 'US',
         licenses_count: pricingPlan.devices,
         purchased_at: new Date().toISOString(),
         metadata: {
@@ -149,14 +155,29 @@ async function handleTestPurchase(req: NextRequest) {
       customerEmail: email,
       productName: product.name,
       planName: pricingPlan.plan_name,
-      amount: 0,
-      currency: 'USD',
+      amount: actualPrice,
+      currency: currency,
       licenseKeys: licenses.map((l) => l.license_key),
       downloadUrl,
       downloadExpiryDays: 7,
     });
 
     console.log('✅ Purchase email sent');
+
+    // Send Discord notification for instant mobile alert
+    await sendPurchaseNotification({
+      customerName: name || 'Test Customer',
+      customerEmail: email,
+      productName: product.name,
+      planName: pricingPlan.plan_name,
+      amount: actualPrice,
+      currency: currency,
+      licensesCount: pricingPlan.devices,
+      purchaseId: purchase.id,
+      productImage: `${process.env.NEXT_PUBLIC_SITE_URL}/DeskSweep/DeskSweep.png`,
+    });
+
+    console.log('✅ Discord notification sent');
 
     return NextResponse.json({
       success: true,

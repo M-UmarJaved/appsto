@@ -249,6 +249,18 @@
         </select>
       </div>
 
+      <div class="form-group">
+        <label for="currency">Currency *</label>
+        <select id="currency" required>
+          <option value="USD">USD - United States Dollar ($9 / $29 / $79)</option>
+          <option value="INR">INR - Indian Rupee (₹299 / ₹999 / ₹2,999)</option>
+          <option value="PKR">PKR - Pakistani Rupee (Rs. 2,500 / Rs. 8,000 / Rs. 22,000)</option>
+        </select>
+        <div class="helper-text">
+          Email will show amount in this currency
+        </div>
+      </div>
+
       <button type="submit" id="submitBtn">
         Create Test Purchase (FREE)
       </button>
@@ -276,6 +288,7 @@
         name: document.getElementById('name').value.trim() || 'Test User',
         productSlug: 'desksweep',
         planSlug: document.getElementById('planSlug').value,
+        currency: document.getElementById('currency').value,
       };
 
       try {

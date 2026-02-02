@@ -61,14 +61,14 @@ export default function AboutPage() {
     },
     {
       title: 'Instant License Delivery',
-      description: 'No waiting, no hassle. Purchase DeskSweep and receive your license key instantly via email. Our streamlined activation process gets you up and running in minutes. Access your licenses anytime from your account dashboard, with easy device management and transfer options when you need them.',
+      description: 'No waiting, no hassle. Purchase DeskSweep and receive your license key instantly via email. Our streamlined activation process gets you up and running in minutes. Access your licenses anytime from your email or account, with easy device management and transfer options when you need them.',
       icon: Settings
     },
   ];
 
   const roadmap = [
     { title: 'Expanded Product Catalog', desc: 'Launching new productivity tools across categories: design software, developer utilities, creative applications, and business automation tools—all hand-picked for quality and value' },
-    { title: 'Enhanced User Dashboard', desc: 'Complete license management portal with download history, device tracking, renewal reminders, and one-click reinstallation for all your purchased software' },
+    { title: 'User License Management', desc: 'Complete license management system with easy access to your purchase history, download links, device tracking, and one-click reinstallation for all your purchased software' },
     { title: 'Multi-Currency Support', desc: 'Already supporting USD, INR, and PKR with automatic location detection. Expanding to EUR, GBP, and more currencies to serve customers in every corner of the globe' },
     { title: 'Customer Review System', desc: 'Verified buyer reviews, star ratings, and detailed feedback to help you make informed decisions. Authentic testimonials from real users building trust in our community' },
     { title: 'Team & Volume Licensing', desc: 'Special pricing for businesses, educational institutions, and organizations. Centralized billing, easy seat management, and flexible license transfers for growing teams' },

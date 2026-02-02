@@ -21,6 +21,11 @@ export const PlanSlugSchema = z.enum(['solo', 'squad', 'studio'], {
   errorMap: () => ({ message: 'Plan must be solo, squad, or studio' })
 });
 
+// Currency validation
+export const CurrencySchema = z.enum(['USD', 'INR', 'PKR'], {
+  errorMap: () => ({ message: 'Currency must be USD, INR, or PKR' })
+});
+
 // License key validation
 export const LicenseKeySchema = z.string().regex(/^DS24-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/, 'Invalid license key format');
 
@@ -31,6 +36,7 @@ export const TestPurchaseSchema = z.object({
   name: z.string().min(1).max(100).trim().optional(),
   productSlug: ProductSlugSchema.default('desksweep'),
   planSlug: PlanSlugSchema.default('solo'),
+  currency: CurrencySchema.default('USD'),
 });
 
 // License Activation Request Schema

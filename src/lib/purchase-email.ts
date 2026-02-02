@@ -1,5 +1,6 @@
 import * as nodemailer from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
+import { formatPrice, type Currency } from './currency';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -120,7 +121,7 @@ export async function sendPurchaseConfirmationEmail(data: PurchaseEmailData) {
                   <tr>
                     <td style="color: #6b7280; padding: 8px 0; border-top: 1px solid #e5e7eb; padding-top: 12px;">Amount Paid:</td>
                     <td align="right" style="color: #6366f1; font-weight: 700; font-size: 20px; padding: 8px 0; border-top: 1px solid #e5e7eb; padding-top: 12px;">
-                      ${currency} ${amount.toFixed(2)}
+                      ${formatPrice(amount, currency as Currency)}
                     </td>
                   </tr>
                 </table>
@@ -232,7 +233,7 @@ Order Summary:
 - Product: ${productName}
 - Plan: ${planName}
 - Licenses: ${licenseKeys.length}
-- Amount: ${currency} ${amount.toFixed(2)}
+- Amount: ${formatPrice(amount, currency as Currency)}
 
 Your License Keys:
 ${licenseKeys.map((key, i) => `${i + 1}. ${key}`).join('\n')}
@@ -339,7 +340,7 @@ export async function sendRefundConfirmationEmail(data: {
 
               <div style="background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 8px; padding: 20px; margin: 20px 0;">
                 <p style="color: #991b1b; margin: 0;">
-                  <strong>Refund Amount:</strong> ${currency} ${amount.toFixed(2)}
+                  <strong>Refund Amount:</strong> ${formatPrice(amount, currency as Currency)}
                 </p>
                 ${reason ? `<p style="color: #991b1b; margin: 10px 0 0 0;"><strong>Reason:</strong> ${reason}</p>` : ''}
               </div>
