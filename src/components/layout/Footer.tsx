@@ -52,6 +52,7 @@ export default function Footer() {
   const legalLinks = [
     { href: '/privacy', label: 'Privacy Policy', icon: Shield },
     { href: '/terms', label: 'Terms of Service', icon: FileText },
+    { href: '/refund-policy', label: 'Refund Policy', icon: Book },
   ]
 
   return (
@@ -234,6 +235,14 @@ export default function Footer() {
                   whileHover={{ y: -2 }}
                 >
                   Terms
+                </motion.span>
+              </Link>
+              <Link href="/refund-policy">
+                <motion.span 
+                  className="hover:text-[#3B82F6] transition-colors"
+                  whileHover={{ y: -2 }}
+                >
+                  Refund Policy
                 </motion.span>
               </Link>
                 <motion.span

@@ -430,8 +430,8 @@ export default function ProductDetailPage() {
               },
               {
                 icon: <Clock className="w-8 h-8 text-[#10B981]" />,
-                title: 'Scheduled Cleaning',
-                description: 'Set it to run every day at 6 PM or any time you choose. Completely automated desktop maintenance.'
+                title: 'Daily Clean-up',
+                description: 'Schedule automated organization that safely moves files to specific folders based on your rules. No files are ever permanently deleted—they are simply sorted to keep your workspace clutter-free.'
               },
               {
                 icon: <FolderSync className="w-8 h-8 text-[#8B5CF6]" />,
@@ -491,10 +491,10 @@ function getMockProduct(slug: string): Product {
     features: [
       'One-Click Clean: Instantly scan and solve desktop chaos',
       'Auto-Pilot Mode: Silent background file organization',
-      'Scheduled Cleaning: Daily automation at your chosen time',
+      'Daily Clean-up: Schedule automated file organization at your chosen time',
       'Smart Rules Engine: Sort by type, name, size, or date',
       'Preview Mode: See changes before they happen',
-      'Non-Destructive: Files moved, never deleted',
+      'Non-Destructive: Files are moved to folders, never permanently deleted',
       'Activity History: Complete log of every file moved',
       'Tray Agent: Minimizes to system tray',
       'Auto-Startup: Launches with Windows',
