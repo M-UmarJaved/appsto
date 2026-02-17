@@ -166,7 +166,7 @@ async function handleTransactionCompleted(data: any) {
       const licenses = await createLicenses({
         purchaseId: purchase.id,
         productId: product.id,
-        userId: user?.id || null,
+        userId: user?.id || undefined,
         count: pricingPlan.devices,
         plan: pricingPlan.plan_name,
         licenseType: 'standard',
