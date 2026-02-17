@@ -3,11 +3,11 @@
 import { motion } from 'framer-motion';
 import { CheckCircle, ArrowUpRight, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { useCurrency } from '@/components/ui/CurrencySwitcher';
-import { DESKSWEEP_PRICING, formatPrice } from '@/lib/currency';
+import { DESKSWEEP_PRICING } from '@/lib/currency';
+import { usePaddlePrices, PADDLE_PRICE_IDS } from '@/hooks/usePaddlePrices';
 
 export function PricingSection() {
-  const { currency, isLoading } = useCurrency();
+  const { prices: paddlePrices, isLoading } = usePaddlePrices();
 
   return (
     <section className="py-24 bg-[#F9FAFB] dark:bg-[#0B1220] relative overflow-hidden">
@@ -46,9 +46,11 @@ export function PricingSection() {
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {DESKSWEEP_PRICING.map((plan, index) => {
-            const price = plan.prices[currency];
-            const originalPrice = plan.originalPrices?.[currency];
             const isPopular = plan.popular;
+            
+            // Get Paddle price for this plan
+            const paddlePriceId = PADDLE_PRICE_IDS[plan.id as keyof typeof PADDLE_PRICE_IDS];
+            const paddlePrice = paddlePrices.get(paddlePriceId);
 
             return (
               <motion.div
@@ -115,17 +117,18 @@ export function PricingSection() {
                 {/* Pricing */}
                 <div className="mb-6">
                   <div className="flex items-baseline gap-2">
-                    {!isLoading && (
+                    {!isLoading && paddlePrice ? (
                       <span
                         className={`text-5xl font-bold ${
                           isPopular ? 'text-white' : 'text-[#0B1220] dark:text-[#E5E7EB]'
                         }`}
                       >
-                        {formatPrice(price, currency)}
+                        {paddlePrice.formattedPrice}
                       </span>
-                    )}
-                    {isLoading && (
-                      <span className="text-5xl font-bold text-[#9CA3AF]">...</span>
+                    ) : (
+                      <span className="text-5xl font-bold text-[#9CA3AF]">
+                        {isLoading ? 'Loading...' : 'N/A'}
+                      </span>
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
@@ -136,15 +139,6 @@ export function PricingSection() {
                     >
                       one-time payment
                     </span>
-                    {originalPrice && !isLoading && (
-                      <span
-                        className={`text-sm line-through ${
-                          isPopular ? 'text-white/50' : 'text-[#9CA3AF]'
-                        }`}
-                      >
-                        {formatPrice(originalPrice, currency)}
-                      </span>
-                    )}
                   </div>
                   {plan.badge && (
                     <motion.p

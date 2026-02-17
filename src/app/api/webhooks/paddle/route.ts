@@ -1,51 +1,72 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServiceSupabase } from '@/lib/supabase'
-import { generateLicenseToken } from '@/lib/crypto'
-import { sendLicenseEmail } from '@/lib/email'
+import { createClient } from '@supabase/supabase-js'
+import { createLicenses, syncPurchaseLicenses } from '@/lib/license'
+import { sendPurchaseConfirmationEmail } from '@/lib/purchase-email'
+import { sendPurchaseNotification } from '@/lib/discord'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 /**
  * Paddle Webhook Handler
  * 
  * This endpoint receives webhook events from Paddle when a purchase is completed.
- * CRITICAL: This only triggers license generation for ONE-TIME PURCHASE products.
+ * Handles the complete purchase flow:
+ * 1. Creates purchase record in database
+ * 2. Generates license keys (for one-time purchases)
+ * 3. Sends confirmation email with licenses and download link
+ * 4. Sends Discord notification
  * 
  * Paddle Webhook Events:
- * - transaction.completed: Payment successful
+ * - transaction.completed: Payment successful (main event)
  * - transaction.updated: Payment updated
- * - subscription.created: Subscription created (we don't generate tokens for this)
+ * - subscription.created: Subscription created
  */
 export async function POST(req: NextRequest) {
   try {
+    console.log('🎯 Paddle webhook received!')
+    
     // Get the webhook signature from headers
     const signature = req.headers.get('paddle-signature')
     const rawBody = await req.text()
 
+    console.log('📧 Webhook signature:', signature ? 'Present' : 'Missing')
+    console.log('📦 Webhook body preview:', rawBody.substring(0, 200))
+
     // Verify webhook signature (important for security)
     if (!verifyPaddleWebhook(signature, rawBody)) {
-      console.error('Invalid Paddle webhook signature')
+      console.error('❌ Invalid Paddle webhook signature')
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
+
+    console.log('✅ Webhook signature verified')
 
     // Parse the webhook payload
     const event = JSON.parse(rawBody)
     
-    console.log('Paddle webhook received:', event.event_type)
+    console.log('📨 Paddle webhook event type:', event.event_type)
+    console.log('📨 Full event data:', JSON.stringify(event, null, 2))
 
     // Handle transaction completed event
     if (event.event_type === 'transaction.completed') {
+      console.log('🎯 Processing transaction.completed event')
       await handleTransactionCompleted(event.data)
     }
 
     // Handle subscription events (for future subscription products)
     if (event.event_type === 'subscription.created') {
+      console.log('🎯 Processing subscription.created event')
       await handleSubscriptionCreated(event.data)
     }
 
+    console.log('✅ Webhook processed successfully')
     return NextResponse.json({ received: true })
   } catch (error) {
-    console.error('Webhook error:', error)
+    console.error('❌ Webhook error:', error)
     return NextResponse.json(
-      { error: 'Webhook processing failed' },
+      { error: 'Webhook processing failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
@@ -53,22 +74,30 @@ export async function POST(req: NextRequest) {
 
 /**
  * Handle transaction completed webhook
+ * Same logic as test purchase - creates purchase, generates licenses, sends emails
  */
 async function handleTransactionCompleted(data: any) {
-  const supabase = getServiceSupabase()
-
   try {
+    console.log('🎯 Processing Paddle transaction:', data.id)
+
     // Extract transaction data
     const transactionId = data.id
+    const customerId = data.customer_id
     const customerEmail = data.customer.email
-    const customerName = data.customer.name || ''
+    const customerName = data.customer.name || 'Customer'
+    const billingCountry = data.billing_details?.country_code || data.address?.country_code || 'US'
     const items = data.items || []
+    const customData = data.custom_data || {}
 
     // Process each item in the transaction
     for (const item of items) {
+      const paddlePriceId = item.price.id
       const paddleProductId = item.price.product_id
-      const amount = parseFloat(item.price.unit_price.amount)
-      const currency = item.price.unit_price.currency_code
+      const amount = parseFloat(item.totals.total) / 100 // Convert cents to dollars
+      const currency = data.currency_code
+      const planSlug = customData.plan_slug || item.price.description?.toLowerCase() || 'solo'
+
+      console.log('📦 Processing item:', { paddlePriceId, paddleProductId, amount, currency, planSlug })
 
       // Get product from database
       const { data: product, error: productError } = await supabase
@@ -78,71 +107,127 @@ async function handleTransactionCompleted(data: any) {
         .single()
 
       if (productError || !product) {
-        console.error('Product not found:', paddleProductId)
+        console.error('❌ Product not found:', paddleProductId, productError)
         continue
       }
+
+      // Get pricing plan
+      const { data: pricingPlan, error: planError } = await supabase
+        .from('pricing_plans')
+        .select('*')
+        .eq('product_id', product.id)
+        .eq('plan_slug', planSlug)
+        .single()
+
+      if (planError || !pricingPlan) {
+        console.error('❌ Pricing plan not found:', planSlug, planError)
+        continue
+      }
+
+      // Try to get user_id from auth by email
+      const { data: authUser } = await supabase.auth.admin.listUsers()
+      const user = authUser?.users?.find(u => u.email === customerEmail)
 
       // Create purchase record
       const { data: purchase, error: purchaseError } = await supabase
         .from('purchases')
         .insert({
+          user_id: user?.id || null,
           product_id: product.id,
-          user_email: customerEmail,
-          user_name: customerName,
+          pricing_plan_id: pricingPlan.id,
+          paddle_transaction_id: transactionId,
+          paddle_subscription_id: data.subscription_id || null,
+          paddle_customer_id: customerId,
           amount: amount,
           currency: currency,
-          paddle_transaction_id: transactionId,
           status: 'completed',
-          metadata: data,
+          customer_email: customerEmail,
+          customer_name: customerName,
+          billing_country: billingCountry,
+          licenses_count: pricingPlan.devices,
+          payment_method: data.payment_method_type || 'card',
+          purchased_at: new Date(data.created_at).toISOString(),
+          metadata: {
+            paddle_data: data,
+            custom_data: customData,
+          },
         })
         .select()
         .single()
 
-      if (purchaseError) {
-        console.error('Failed to create purchase record:', purchaseError)
+      if (purchaseError || !purchase) {
+        console.error('❌ Failed to create purchase:', purchaseError)
         continue
       }
 
-      // ⚠️ CRITICAL: Only generate license token for ONE-TIME PURCHASE products
-      if (product.product_type === 'one_time') {
-        // Generate unique license token
-        const licenseToken = generateLicenseToken()
+      console.log('✅ Purchase record created:', purchase.id)
 
-        // Create license record
-        const { data: license, error: licenseError } = await supabase
-          .from('licenses')
-          .insert({
-            token: licenseToken,
-            product_id: product.id,
-            user_email: customerEmail,
-            paddle_transaction_id: transactionId,
-            is_used: false,
-          })
-          .select()
-          .single()
+      // Generate licenses (same as test purchase)
+      const licenses = await createLicenses({
+        purchaseId: purchase.id,
+        productId: product.id,
+        userId: user?.id || null,
+        count: pricingPlan.devices,
+        plan: pricingPlan.plan_name,
+        licenseType: 'standard',
+      })
 
-        if (licenseError) {
-          console.error('Failed to create license:', licenseError)
-          continue
-        }
+      console.log(`✅ Generated ${licenses.length} licenses`)
 
-        // Send email with license token and download link
-        await sendLicenseEmail({
-          to: customerEmail,
+      // Sync licenses to product database
+      await syncPurchaseLicenses(purchase.id)
+      console.log('✅ Licenses synced to product database')
+
+      // Generate download URL
+      const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/download?token=${Buffer.from(`${product.id}:${purchase.id}`).toString('base64')}`
+
+      console.log('📧 Sending purchase confirmation email...')
+      
+      // Send purchase confirmation email (same as test purchase)
+      try {
+        await sendPurchaseConfirmationEmail({
+          purchaseId: purchase.id,
+          customerName: customerName,
+          customerEmail: customerEmail,
           productName: product.name,
-          licenseToken: licenseToken,
-          downloadUrl: product.download_url || `${process.env.NEXT_PUBLIC_SITE_URL}/download/${product.slug}`,
-          demoVideoUrl: product.demo_video_url,
+          planName: pricingPlan.plan_name,
+          amount: amount,
+          currency: currency,
+          licenseKeys: licenses.map((l) => l.license_key),
+          downloadUrl,
+          downloadExpiryDays: 7,
         })
-
-        console.log(`License generated and email sent for ${product.name} to ${customerEmail}`)
-      } else {
-        // For subscription products, just send a confirmation email (no license token)
-        console.log(`Subscription purchase recorded for ${product.name} - No license token generated`)
+        console.log('✅ Purchase confirmation email sent to', customerEmail)
+      } catch (emailError) {
+        console.error('❌ Failed to send email:', emailError)
+        // Don't throw - continue to Discord notification
       }
+
+      console.log('📢 Sending Discord notification...')
+      
+      // Send Discord notification
+      try {
+        await sendPurchaseNotification({
+          customerName: customerName,
+          customerEmail: customerEmail,
+          productName: product.name,
+          planName: pricingPlan.plan_name,
+          amount: amount,
+          currency: currency,
+          licensesCount: pricingPlan.devices,
+          purchaseId: purchase.id,
+          productImage: `${process.env.NEXT_PUBLIC_SITE_URL}/DeskSweep/DeskSweep.png`,
+        })
+        console.log('✅ Discord notification sent')
+      } catch (discordError) {
+        console.error('❌ Failed to send Discord notification:', discordError)
+        // Don't throw - purchase is complete
+      }
+
+      console.log(`🎉 Transaction ${transactionId} processed successfully!`)
     }
   } catch (error) {
-    console.error('Error handling transaction:', error)
+    console.error('❌ Error handling transaction:', error)
     throw error
   }
 }
@@ -166,6 +251,13 @@ async function handleSubscriptionCreated(data: any) {
  * and haven't been tampered with. Critical for preventing fraudulent transactions.
  */
 function verifyPaddleWebhook(signature: string | null, body: string): boolean {
+  // In development, optionally skip verification for testing
+  // Set SKIP_WEBHOOK_VERIFICATION=true in .env for local testing only
+  if (process.env.NODE_ENV === 'development' && process.env.SKIP_WEBHOOK_VERIFICATION === 'true') {
+    console.warn('⚠️ WARNING: Webhook verification skipped in development mode')
+    return true
+  }
+
   if (!signature) {
     console.error('⚠️ Missing webhook signature header')
     return false
@@ -181,13 +273,6 @@ function verifyPaddleWebhook(signature: string | null, body: string): boolean {
     if (!ts || !h1) {
       console.error('⚠️ Invalid signature format')
       return false
-    }
-
-    // In development, optionally skip verification for testing
-    // Set SKIP_WEBHOOK_VERIFICATION=true in .env for local testing only
-    if (process.env.NODE_ENV === 'development' && process.env.SKIP_WEBHOOK_VERIFICATION === 'true') {
-      console.warn('⚠️ WARNING: Webhook verification skipped in development mode')
-      return true
     }
 
     // PRODUCTION: Verify signature using webhook secret

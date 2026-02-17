@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Script from 'next/script'
 import Button from '@/components/ui/Button'
 import Badge from '@/components/ui/Badge'
 import { Card, CardContent } from '@/components/ui/Card'
@@ -11,6 +12,7 @@ import { useCurrency } from '@/components/ui/CurrencySwitcher'
 import { DESKSWEEP_PRICING, formatPrice } from '@/lib/currency'
 import { getRegionalReviews, formatReviewText } from '@/lib/reviews'
 import { useAuth } from '@/contexts/AuthContext'
+import { fetchPaddlePrices } from '@/lib/paddle-api'
 import {
   Package,
   Download,
@@ -28,19 +30,148 @@ import {
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
+// Declare Paddle types
+declare global {
+  interface Window {
+    Paddle?: any
+  }
+}
+
 export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const [product, setProduct] = useState<Product | null>(null)
+  const [pricingPlans, setPricingPlans] = useState<any[]>([])
+  const [paddlePrices, setPaddlePrices] = useState<Map<string, any>>(new Map())
+  const [fetchingPrices, setFetchingPrices] = useState(false)
+  const [paddleReady, setPaddleReady] = useState(false)
   const [loading, setLoading] = useState(true)
   const [purchasing, setPurchasing] = useState(false)
   const { currency, isLoading: currencyLoading } = useCurrency()
   const regionalReviews = getRegionalReviews(currency)
   const { user } = useAuth()
 
+  // Load product and pricing on mount
   useEffect(() => {
+    console.log('🔄 useEffect: Loading product and pricing plans')
     loadProduct()
+    loadPricingPlans()
   }, [params.slug])
+
+  // Initialize Paddle when component mounts
+  useEffect(() => {
+    console.log('🎯 Checking for Paddle.js...')
+    let attempts = 0
+    const maxAttempts = 50 // 5 seconds
+    
+    const checkPaddle = setInterval(() => {
+      attempts++
+      console.log(`🔍 Attempt ${attempts}: Checking for window.Paddle...`)
+      
+      if (window.Paddle) {
+        clearInterval(checkPaddle)
+        console.log('✅ Paddle.js found! Initializing...')
+        initializePaddle()
+      } else if (attempts >= maxAttempts) {
+        clearInterval(checkPaddle)
+        console.error('❌ Paddle.js failed to load after 5 seconds')
+      }
+    }, 100)
+
+    return () => clearInterval(checkPaddle)
+  }, [])
+
+  // Fetch Paddle prices when Paddle is ready and pricing plans are loaded
+  useEffect(() => {
+    console.log('🔄 useEffect: Paddle ready?', paddleReady, 'Plans loaded?', pricingPlans.length)
+    if (paddleReady && pricingPlans.length > 0 && !fetchingPrices) {
+      console.log('✅ Conditions met, fetching Paddle prices...')
+      fetchPaddlePricesForPlans()
+    }
+  }, [paddleReady, pricingPlans])
+
+  function initializePaddle() {
+    console.log('🚀 initializePaddle called!')
+    
+    if (typeof window === 'undefined' || !window.Paddle) {
+      console.error('❌ Paddle not available')
+      return
+    }
+
+    try {
+      console.log('🚀 Initializing Paddle Billing v2...')
+      
+      const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN
+      if (!token) {
+        console.error('❌ NEXT_PUBLIC_PADDLE_CLIENT_TOKEN not set')
+        return
+      }
+
+      console.log('🔑 Using client token:', token)
+      
+      // Initialize Paddle Billing with client-side token + Custom Theme
+      window.Paddle.Initialize({
+        token: token,
+        
+        // 🎨 OVERLAY CHECKOUT SETTINGS (Limited Customization - Only theme & basic settings)
+        // ⚠️ Note: Overlay checkouts CANNOT customize button colors, fonts, or detailed styling
+        // For full branding control, need inline checkout + Paddle Dashboard brand settings
+        checkout: {
+          settings: {
+            displayMode: 'overlay', // Keeps overlay (better UX than inline for SaaS)
+            variant: 'one-page', // ✅ Single-page checkout (better conversion than multi-page)
+            theme: 'light', // Can be 'dark' or 'light' only
+            locale: 'en', // Auto-detect: navigator.language if not set
+            allowLogout: false, // ✅ Prevent email changes (reduce friction)
+            showAddDiscounts: true, // ✅ Allow discount codes
+            showAddTaxId: false, // Hide tax number for B2C focus
+            successUrl: `${window.location.origin}/purchase/success`,
+          }
+        },
+        
+        // 🎨 CUSTOM PWA APPEARANCE (Paddle Billing v2)
+        pwCustomer: {
+          enableCheckoutTheme: true,
+        },
+        
+        eventCallback: function(event: any) {
+          console.log('🎯 Paddle event:', event.name, event)
+          
+          // Handle checkout events
+          if (event.name === 'checkout.closed') {
+            setPurchasing(false)
+          } else if (event.name === 'checkout.error') {
+            console.error('Checkout error:', event)
+            setPurchasing(false)
+          } else if (event.name === 'checkout.completed') {
+            console.log('🎉 Purchase completed!', event)
+            // Optional: Track conversion
+            if (typeof window !== 'undefined' && (window as any).gtag) {
+              (window as any).gtag('event', 'purchase', {
+                transaction_id: event.data?.id,
+                value: event.data?.amount,
+                currency: event.data?.currency
+              })
+            }
+          } else if (event.name === 'checkout.loaded') {
+            console.log('✅ Paddle checkout loaded successfully')
+          }
+        }
+      })
+
+      // Set environment to sandbox
+      if (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === 'sandbox') {
+        window.Paddle.Environment.set('sandbox')
+        console.log('✅ Paddle initialized in SANDBOX mode')
+      } else {
+        console.log('✅ Paddle initialized in PRODUCTION mode')
+      }
+
+      setPaddleReady(true)
+    } catch (error) {
+      console.error('❌ Paddle initialization error:', error)
+    }
+  }
 
   async function loadProduct() {
     try {
@@ -53,58 +184,214 @@ export default function ProductDetailPage() {
 
       if (error) {
         console.error('Error loading product:', error)
-        // Use mock data for demo
-        setProduct(getMockProduct(params.slug as string))
+        setProduct(null)
       } else {
         setProduct(data)
       }
     } catch (err) {
       console.error('Error:', err)
-      setProduct(getMockProduct(params.slug as string))
+      setProduct(null)
     } finally {
       setLoading(false)
     }
   }
 
-  async function handlePurchase() {
+  async function loadPricingPlans() {
+    try {
+      const { data, error } = await supabase
+        .from('pricing_plans')
+        .select('*')
+        .order('price_usd', { ascending: true })
+
+      if (error) {
+        console.error('Error loading pricing plans:', error)
+      } else {
+        console.log('Loaded pricing plans:', data)
+        setPricingPlans(data || [])
+      }
+    } catch (err) {
+      console.error('Error loading pricing plans:', err)
+    }
+  }
+
+  /**
+   * Fetch live prices from Paddle API
+   * This gets the exact price customer will pay including regional overrides
+   */
+  async function fetchPaddlePricesForPlans() {
+    if (fetchingPrices) return
+    
+    setFetchingPrices(true)
+    console.log('💰 Fetching live prices from Paddle...')
+    console.log('💱 Current currency:', currency)
+    
+    try {
+      // Get all Paddle price IDs from pricing plans
+      // Each price ID has regional pricing configured in Paddle
+      const priceIds = pricingPlans
+        .map(plan => plan.paddle_price_id_usd) // Single price ID with regional pricing
+        .filter(Boolean)
+      
+      if (priceIds.length === 0) {
+        console.warn('⚠️ No Paddle price IDs found in database')
+        return
+      }
+      
+      // Fetch prices from Paddle (includes regional overrides)
+      // DON'T pass currency - let Paddle auto-detect based on customer's IP location
+      const prices = await fetchPaddlePrices(priceIds)
+      
+      if (prices.size > 0) {
+        console.log('✅ Paddle prices fetched successfully:', prices)
+        setPaddlePrices(prices)
+      } else {
+        console.log('ℹ️ Using fallback database prices')
+      }
+      
+    } catch (error) {
+      console.error('❌ Error fetching Paddle prices:', error)
+      console.log('ℹ️ Falling back to database prices')
+    } finally {
+      setFetchingPrices(false)
+    }
+  }
+
+  async function handlePurchase(planSlug: string) {
     if (!product) return
 
-    // Check if user is authenticated
-    if (!user) {
-      // Redirect to login page with return URL
-      router.push(`/signin?redirect=/products/${params.slug}`)
+    // Check if Paddle is ready
+    if (!paddleReady) {
+      alert('Payment system is still loading. Please wait a moment and try again.')
       return
     }
+
+    // ✅ GUEST CHECKOUT ENABLED - No sign-in required!
+    // Users can purchase with or without an account
+    // If signed in: Better experience with saved payment methods and dashboard access
+    // If guest: Simple checkout, license keys sent via email
+
+    // Find the selected pricing plan
+    const selectedPlan = pricingPlans.find(p => p.plan_slug === planSlug)
+    if (!selectedPlan) {
+      console.error('❌ Pricing plan not found:', planSlug)
+      alert('Please select a pricing plan')
+      return
+    }
+
+    // Get Paddle price ID (single ID with regional pricing configured in Paddle)
+    const paddlePriceId = selectedPlan.paddle_price_id_usd
+
+    if (!paddlePriceId) {
+      console.error('❌ No Paddle price ID found for plan:', selectedPlan)
+      alert('Pricing configuration error. Please contact support.')
+      return
+    }
+
+    console.log('🌍 Paddle will auto-detect region and apply price overrides')
+
+    console.log('🚀 Opening Paddle checkout:', {
+      priceId: paddlePriceId,
+      plan: selectedPlan.plan_name,
+      email: user?.email || 'Guest (Paddle will prompt)',
+      currency,
+      guestCheckout: !user
+    })
 
     setPurchasing(true)
 
     try {
-      // Initialize Paddle Checkout
-      // @ts-ignore - Paddle is loaded via script tag
-      if (window.Paddle) {
-        // @ts-ignore
-        window.Paddle.Environment.set(process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT || 'sandbox')
-        
-        // @ts-ignore
-        window.Paddle.Checkout.open({
-          product: product.paddle_product_id,
-          email: user.email || '', // Pre-fill with logged-in user's email
-          successCallback: (data: any) => {
-            console.log('Purchase successful:', data)
-            // Redirect to success page
-            window.location.href = `/purchase/success?order=${data.checkout.id}`
-          },
-          closeCallback: () => {
-            setPurchasing(false)
-          },
-        })
+      // 💳 Check if customer has saved payment methods (only for authenticated users)
+      let customerAuthToken = null
+      
+      if (user) {
+        // Only check for saved payment methods if user is signed in
+        try {
+          // Fetch customer's Paddle customer ID from our database
+          const { data: purchases } = await supabase
+            .from('purchases')
+            .select('paddle_customer_id')
+            .eq('user_id', user.id)
+            .not('paddle_customer_id', 'is', null)
+            .limit(1)
+            .single()
+
+          if (purchases?.paddle_customer_id) {
+            console.log('♻️ Returning customer detected, fetching saved payment methods...')
+            
+            // Generate customer authentication token for saved payment methods
+            const tokenResponse = await fetch('/api/paddle/customer-token', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ customerId: purchases.paddle_customer_id })
+            })
+
+            if (tokenResponse.ok) {
+              const { customerAuthToken: token } = await tokenResponse.json()
+              customerAuthToken = token
+              console.log('✅ Customer auth token generated - saved payment methods enabled')
+            } else {
+              console.warn('⚠️ Failed to generate customer token, proceeding without saved methods')
+            }
+          } else {
+            console.log('👤 Signed-in user, first purchase - no saved payment methods')
+          }
+        } catch (error) {
+          console.warn('⚠️ Could not check for saved payment methods:', error)
+          // Continue without saved payment methods
+        }
       } else {
-        alert('Payment system not initialized. Please refresh the page.')
-        setPurchasing(false)
+        console.log('👤 Guest checkout - Paddle will prompt for email')
       }
+
+      // Build checkout configuration
+      const checkoutConfig: any = {
+        items: [
+          {
+            priceId: paddlePriceId,
+            quantity: 1  // ✅ LOCKED TO 1 - Users choose plan (Solo/Squad/Studio), not quantity
+          }
+        ],
+        // ✅ Prefill email if user is signed in, otherwise Paddle will prompt
+        customer: user ? {
+          email: user.email || ''
+        } : undefined,
+        settings: {
+          // 🎨 OVERLAY CHECKOUT (Recommended for SaaS)
+          // Note: Overlay checkouts do NOT support frameTarget/frameStyle - those are for inline only
+          displayMode: 'overlay', // Opens as modal overlay
+          variant: 'one-page', // Single-page checkout (better conversion)
+          theme: 'light', // 'light' or 'dark' only
+          locale: 'en',
+          successUrl: `${window.location.origin}/purchase/success?product=${product.slug}&plan=${planSlug}`,
+          allowLogout: false, // Prevent email changes mid-checkout (reduce friction)
+          
+          // 🎯 CONVERSION OPTIMIZATION
+          showAddTaxId: false, // Hide tax ID field (B2C focus)
+          showAddDiscounts: true, // ✅ Allow coupon codes (TEST100, LAUNCH50, etc.)
+        },
+        // ✅ Include user_id only if user is signed in
+        customData: {
+          product_slug: product.slug,
+          plan_slug: planSlug,
+          ...(user && { user_id: user.id }) // Only add user_id for authenticated users
+        }
+      }
+
+      // 💳 Add customer auth token for saved payment methods (if available)
+      if (customerAuthToken) {
+        checkoutConfig.customerAuthToken = customerAuthToken
+        console.log('💳 Saved payment methods will be available at checkout')
+      }
+
+      // Open Paddle Checkout
+      // @ts-ignore
+      window.Paddle.Checkout.open(checkoutConfig)
+      
+      console.log('✅ Overlay checkout opened successfully')
+      
     } catch (error) {
-      console.error('Purchase error:', error)
-      alert('An error occurred. Please try again.')
+      console.error('❌ Checkout error:', error)
+      alert('Failed to open checkout. Please try again or contact support.')
       setPurchasing(false)
     }
   }
@@ -132,14 +419,17 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] pt-24">
-      {/* Load Paddle.js */}
-      <script
-        src={`https://cdn.paddle.com/paddle/paddle.js`}
-        async
+    <>
+      {/* Load Paddle.js v2 directly */}
+      <Script
+        src="https://cdn.paddle.com/paddle/v2/paddle.js"
+        strategy="afterInteractive"
+        onLoad={() => console.log('📦 Paddle.js script tag loaded')}
+        onError={() => console.error('❌ Failed to load Paddle.js script')}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] pt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Back button */}
         <Link
           href="/products"
@@ -245,10 +535,145 @@ export default function ProductDetailPage() {
             </p>
           </div>
 
+          {/* 🎯 CONVERSION OPTIMIZATION - Trust Signals */}
+          <div className="max-w-4xl mx-auto mb-12 space-y-6">
+            {/* Social Proof */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
+              <div className="flex justify-center items-center gap-1 mb-2">
+                {[1,2,3,4,5].map(i => (
+                  <Star key={i} className="w-5 h-5 fill-[#F59E0B] text-[#F59E0B]" />
+                ))}
+              </div>
+              <p className="text-lg font-semibold text-[#0B1220] dark:text-[#E5E7EB]">
+                4.8/5 from 234+ happy customers
+              </p>
+            </motion.div>
+
+            {/* Money-Back Guarantee */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="flex justify-center"
+            >
+              <div className="flex items-center gap-4 bg-[#ECFDF5] dark:bg-[#064E3B]/20 border border-[#10B981]/30 rounded-xl p-4 max-w-md">
+                <Shield className="w-10 h-10 text-[#10B981] flex-shrink-0" />
+                <div className="text-left">
+                  <p className="font-bold text-[#0B1220] dark:text-[#E5E7EB]">14-Day Money-Back Guarantee</p>
+                  <p className="text-sm text-[#6B7280] dark:text-[#9CA3AF]">Try risk-free. Full refund if not satisfied.</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* What You Get */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="bg-gradient-to-r from-[#EFF6FF] to-[#DBEAFE] dark:from-[#1E3A8A]/20 dark:to-[#1E40AF]/20 border border-[#3B82F6]/20 rounded-xl p-6"
+            >
+              <h3 className="font-bold text-[#1E40AF] dark:text-[#60A5FA] mb-3 text-center">
+                What Happens After You Buy?
+              </h3>
+              <div className="grid md:grid-cols-3 gap-4 text-sm">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-5 h-5 text-[#10B981] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Instant Delivery</p>
+                    <p className="text-[#6B7280] dark:text-[#9CA3AF]">License key via email in 2 minutes</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-5 h-5 text-[#10B981] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Download Link</p>
+                    <p className="text-[#6B7280] dark:text-[#9CA3AF]">Get the installer immediately</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-5 h-5 text-[#10B981] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Lifetime Updates</p>
+                    <p className="text-[#6B7280] dark:text-[#9CA3AF]">Works 100% offline after activation</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Security Badges */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="text-center"
+            >
+              <div className="flex items-center justify-center gap-4 flex-wrap text-xs text-[#6B7280] dark:text-[#9CA3AF]">
+                <div className="flex items-center gap-1">
+                  <Shield className="w-4 h-4 text-[#10B981]" />
+                  <span>SSL Encrypted</span>
+                </div>
+                <span>•</span>
+                <div className="flex items-center gap-1">
+                  <CheckCircle className="w-4 h-4 text-[#3B82F6]" />
+                  <span>Secure Payment via Paddle</span>
+                </div>
+                <span>•</span>
+                <div className="flex items-center gap-1">
+                  <Zap className="w-4 h-4 text-[#F59E0B]" />
+                  <span>Instant License Delivery</span>
+                </div>
+              </div>
+              <p className="text-xs text-[#9CA3AF] mt-2">
+                Payments processed by Paddle (Authorized Reseller) • Your card details never touch our servers
+              </p>
+            </motion.div>
+          </div>
+
           <div className="grid md:grid-cols-3 gap-6">
-            {DESKSWEEP_PRICING.map((plan, index) => {
-              const isPopular = plan.id === 'squad'
-              const price = plan.prices[currency]
+            {pricingPlans.map((plan, index) => {
+              const isPopular = plan.is_popular
+              
+              // Get matching plan from DESKSWEEP_PRICING for features
+              const pricingPlanData = DESKSWEEP_PRICING.find(p => p.id === plan.plan_slug)
+              
+              // Get Paddle price ID (single ID, Paddle handles regional pricing)
+              const currentPriceId = plan.paddle_price_id_usd
+              
+              // Get live price from Paddle (includes regional pricing)
+              const paddlePrice = paddlePrices.get(currentPriceId)
+              let formattedPrice: string
+              
+              if (paddlePrice) {
+                // Use live Paddle price (includes regional overrides!)
+                formattedPrice = paddlePrice.formattedPrice
+              } else {
+                // Fallback message while loading
+                formattedPrice = 'Loading...'
+              }
+              
+              // COMMENTED OUT DATABASE FALLBACK:
+              // else {
+              //   if (currency === 'PKR') {
+              //     displayPrice = plan.price_pkr
+              //     displayCurrency = 'PKR'
+              //   } else if (currency === 'INR') {
+              //     displayPrice = plan.price_inr
+              //     displayCurrency = 'INR'
+              //   } else {
+              //     displayPrice = plan.price_usd
+              //     displayCurrency = 'USD'
+              //   }
+              //   formattedPrice = formatPrice(displayPrice, displayCurrency as any)
+              //   console.log(`💾 Using database price for ${plan.plan_slug}:`, formattedPrice)
+              // }
               
               return (
                 <motion.div
@@ -274,27 +699,22 @@ export default function ProductDetailPage() {
 
                   <div className="text-center mb-6">
                     <h3 className={`text-2xl font-bold mb-2 ${isPopular ? 'text-white' : 'text-[#0B1220] dark:text-[#E5E7EB]'}`}>
-                      {plan.name}
+                      {plan.plan_name}
                     </h3>
                     <p className={`text-sm ${isPopular ? 'text-white/80' : 'text-[#6B7280] dark:text-[#9CA3AF]'}`}>
-                      {plan.description}
+                      {plan.devices} Device{plan.devices > 1 ? 's' : ''}
                     </p>
                   </div>
 
                   <div className="text-center mb-8">
                     <div className="flex items-baseline justify-center gap-1">
                       <span className={`text-4xl font-bold ${isPopular ? 'text-white' : 'text-[#3B82F6]'}`}>
-                        {formatPrice(price, currency)}
+                        {fetchingPrices ? '...' : formattedPrice}
                       </span>
                     </div>
                     <p className={`text-sm mt-2 ${isPopular ? 'text-white/70' : 'text-[#9CA3AF]'}`}>
-                      one-time payment
+                      one-time payment • lifetime access
                     </p>
-                    {plan.savings && (
-                      <Badge className="mt-2 bg-[#10B981] text-white">
-                        Save {plan.savings}
-                      </Badge>
-                    )}
                   </div>
 
                   <Button
@@ -303,14 +723,15 @@ export default function ProductDetailPage() {
                         ? 'bg-white text-[#3B82F6] hover:bg-[#F9FAFB]'
                         : 'bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white hover:from-[#2563EB] hover:to-[#1D4ED8]'
                     }`}
-                    onClick={handlePurchase}
+                    onClick={() => handlePurchase(plan.plan_slug)}
                     isLoading={purchasing}
+                    disabled={!paddleReady || fetchingPrices}
                   >
-                    {purchasing ? 'Processing...' : user ? 'Buy Now' : 'Sign In to Purchase'}
+                    {purchasing ? 'Processing...' : 'Buy Now'}
                   </Button>
 
                   <div className="space-y-3">
-                    {plan.features.map((feature, idx) => (
+                    {pricingPlanData?.features && pricingPlanData.features.map((feature: string, idx: number) => (
                       <div key={idx} className="flex items-start gap-2">
                         <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isPopular ? 'text-white' : 'text-[#10B981]'}`} />
                         <span className={`text-sm ${isPopular ? 'text-white/90' : 'text-[#6B7280] dark:text-[#9CA3AF]'}`}>
@@ -362,9 +783,9 @@ export default function ProductDetailPage() {
               }}
               whileHover={{ animationPlayState: "paused" }}
             >
-              {[...Array(2)].map((_, setIndex) => (
+              {[...Array(2)].map((_, setIndex: number) => (
                 <div key={setIndex} className="flex gap-6 flex-shrink-0">
-                  {regionalReviews.map((review, idx) => (
+                  {regionalReviews.map((review: any, idx: number) => (
                     <motion.div
                       key={`${setIndex}-${idx}`}
                       whileHover={{ scale: 1.02, animationPlayState: "paused" }}
@@ -378,19 +799,9 @@ export default function ProductDetailPage() {
                       <p className="text-[#0B1220] dark:text-[#E5E7EB] mb-6 leading-relaxed">
                         &ldquo;{formatReviewText(review, currency)}&rdquo;
                       </p>
-                      <div className="flex items-center gap-3 pt-4 border-t border-[#E5E7EB] dark:border-[#1F2937]">
-                        <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                          <Image 
-                            src={review.avatar} 
-                            alt={review.name} 
-                            fill 
-                            className="object-cover"
-                          />
-                        </div>
-                        <div>
-                          <p className="text-[#0B1220] dark:text-[#E5E7EB] font-semibold">{review.name}</p>
-                          <p className="text-[#9CA3AF] text-sm">{review.title}</p>
-                        </div>
+                      <div className="pt-4 border-t border-[#E5E7EB] dark:border-[#1F2937]">
+                        <p className="text-[#0B1220] dark:text-[#E5E7EB] font-semibold">{review.name}</p>
+                        <p className="text-[#9CA3AF] text-sm">{review.title}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -472,45 +883,6 @@ export default function ProductDetailPage() {
 
       </div>
     </div>
+    </>
   )
-}
-
-// Mock product for demo
-function getMockProduct(slug: string): Product {
-  // Single product: DeskSweep
-  return {
-    id: '1',
-    name: 'DeskSweep',
-    slug: 'desksweep',
-    description: 'The ultimate desktop cleaner and file organizer for Windows. DeskSweep automatically sorts your files with intelligent rules, scheduled cleaning, and background automation. One-click clean, auto-pilot mode, and smart sorting rules keep your workspace organized. Non-destructive file movement with complete activity history. Say goodbye to desktop chaos and hello to productivity.',
-    short_description: 'Intelligent desktop cleaner with auto-sorting and file organization',
-    price: 49.00,
-    currency: 'USD',
-    product_type: 'one_time',
-    paddle_product_id: 'pro_desksweep001',
-    features: [
-      'One-Click Clean: Instantly scan and solve desktop chaos',
-      'Auto-Pilot Mode: Silent background file organization',
-      'Daily Clean-up: Schedule automated file organization at your chosen time',
-      'Smart Rules Engine: Sort by type, name, size, or date',
-      'Preview Mode: See changes before they happen',
-      'Non-Destructive: Files are moved to folders, never permanently deleted',
-      'Activity History: Complete log of every file moved',
-      'Tray Agent: Minimizes to system tray',
-      'Auto-Startup: Launches with Windows',
-      'Lifetime free updates and email support'
-    ],
-    screenshots: [],
-    demo_video_url: 'https://youtube.com/demo',
-    system_requirements: {
-      os: ['Windows 10/11 (64-bit)'],
-      processor: 'Dual-core processor 2.0 GHz or higher',
-      memory: '4GB RAM minimum (8GB recommended)',
-      storage: '100MB available space for installation'
-    },
-    icon_url: '',
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }
 }

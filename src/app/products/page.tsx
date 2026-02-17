@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import Script from 'next/script'
 import { motion } from 'motion/react'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
@@ -10,14 +11,14 @@ import Badge from '@/components/ui/Badge'
 import { supabase, type Product } from '@/lib/supabase'
 import { formatPrice as formatPriceUtil } from '@/lib/utils'
 import { Package, ArrowRight, ArrowUpRight, Sparkles, CheckCircle, Star } from 'lucide-react'
-import { useCurrency } from '@/components/ui/CurrencySwitcher'
-import { DESKSWEEP_PRICING, formatPrice } from '@/lib/currency'
+import { DESKSWEEP_PRICING } from '@/lib/currency'
+import { usePaddlePrices, PADDLE_PRICE_IDS } from '@/hooks/usePaddlePrices'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'one_time' | 'subscription'>('all')
-  const { currency, isLoading: currencyLoading } = useCurrency()
+  const { prices: paddlePrices, isLoading: paddleLoading } = usePaddlePrices()
 
   useEffect(() => {
     loadProducts()
@@ -50,7 +51,14 @@ export default function ProductsPage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] overflow-hidden">
+    <>
+      {/* Load Paddle.js for price fetching */}
+      <Script
+        src="https://cdn.paddle.com/paddle/v2/paddle.js"
+        strategy="afterInteractive"
+      />
+
+      <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] overflow-hidden">
       {/* Hero Section */}
       <section className="relative pt-32 pb-16">
         {/* Background gradients */}
@@ -272,14 +280,25 @@ export default function ProductsPage() {
                         <span className="text-sm text-[#9CA3AF]">(234 reviews)</span>
                       </motion.div>
                       
-                      {/* Price - Solo Plan with Timezone Detection */}
+                      {/* Price - Solo Plan with Paddle Pricing */}
                       <div className="flex items-baseline mb-4">
-                        {product.slug === 'desksweep' && !currencyLoading ? (
+                        {product.slug === 'desksweep' ? (
                           <>
-                            <span className="text-3xl font-bold bg-gradient-to-r from-[#3B82F6] to-[#2563EB] bg-clip-text text-transparent">
-                              {formatPrice(DESKSWEEP_PRICING[0].prices[currency], currency)}
-                            </span>
-                            <span className="text-[#9CA3AF] ml-2 text-sm">one-time</span>
+                            {!paddleLoading && paddlePrices.get(PADDLE_PRICE_IDS.solo) ? (
+                              <>
+                                <span className="text-3xl font-bold bg-gradient-to-r from-[#3B82F6] to-[#2563EB] bg-clip-text text-transparent">
+                                  {paddlePrices.get(PADDLE_PRICE_IDS.solo)?.formattedPrice}
+                                </span>
+                                <span className="text-[#9CA3AF] ml-2 text-sm">one-time</span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-3xl font-bold text-[#9CA3AF]">
+                                  {paddleLoading ? 'Loading...' : 'N/A'}
+                                </span>
+                                <span className="text-[#9CA3AF] ml-2 text-sm">one-time</span>
+                              </>
+                            )}
                           </>
                         ) : product.product_type === 'subscription' ? (
                           <>
@@ -422,6 +441,7 @@ export default function ProductsPage() {
         </div>
       </section>
     </div>
+    </>
   )
 }
 

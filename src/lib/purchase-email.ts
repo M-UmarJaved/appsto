@@ -35,6 +35,13 @@ interface PurchaseEmailData {
  * Send purchase confirmation email with license keys and download link
  */
 export async function sendPurchaseConfirmationEmail(data: PurchaseEmailData) {
+  console.log('📧 sendPurchaseConfirmationEmail called with:', {
+    purchaseId: data.purchaseId,
+    customerEmail: data.customerEmail,
+    productName: data.productName,
+    licenseCount: data.licenseKeys.length,
+  });
+
   const {
     purchaseId,
     customerName,
@@ -47,6 +54,13 @@ export async function sendPurchaseConfirmationEmail(data: PurchaseEmailData) {
     downloadUrl,
     downloadExpiryDays,
   } = data;
+
+  console.log('📧 SMTP Configuration:', {
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    user: process.env.SMTP_USER,
+    hasPassword: !!process.env.SMTP_PASSWORD,
+  });
 
   const subject = `Your ${productName} Purchase is Complete! 🎉`;
   
@@ -143,11 +157,11 @@ export async function sendPurchaseConfirmationEmail(data: PurchaseEmailData) {
 
               <!-- Download Button -->
               <div style="text-align: center; margin: 0 0 30px 0;">
-                <a href="${downloadUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/api/download/desksweep" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);">
                   ⬇️ Download ${productName}
                 </a>
                 <p style="color: #9ca3af; font-size: 12px; margin: 15px 0 0 0;">
-                  Download link expires in ${downloadExpiryDays} days
+                  Download link never expires - access anytime from your account
                 </p>
               </div>
 
@@ -216,6 +230,11 @@ export async function sendPurchaseConfirmationEmail(data: PurchaseEmailData) {
   `.trim();
 
   try {
+    console.log('📧 Attempting to send email...');
+    console.log('📧 From:', `"Appsto" <${process.env.EMAIL_FROM}>`);
+    console.log('📧 To:', customerEmail);
+    console.log('📧 Subject:', subject);
+    
     // Send email
     const info = await transporter.sendMail({
       from: `"Appsto" <${process.env.EMAIL_FROM}>`,
@@ -256,6 +275,9 @@ Order ID: ${purchaseId}
       `.trim(),
     });
 
+    console.log('✅ Email sent successfully! Message ID:', info.messageId);
+    console.log('📧 Email info:', JSON.stringify(info, null, 2));
+
     // Log email in database
     await supabase.from('email_logs').insert({
       purchase_id: purchaseId,
@@ -276,6 +298,8 @@ Order ID: ${purchaseId}
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('❌ Error sending purchase confirmation email:', error);
+    console.error('❌ Error details:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
 
     // Log failed email
     await supabase.from('email_logs').insert({

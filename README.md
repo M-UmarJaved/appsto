@@ -37,6 +37,47 @@ A production-ready SaaS marketplace for selling desktop applications with secure
 - ✅ **Legal Compliance** - GDPR-ready policies, refund terms, comprehensive ToS
 - ✅ **Trust Elements** - Security badges, payment methods, compliance indicators
 
+## 📚 Documentation Index
+
+### 🧪 Current Phase: Localhost Sandbox Testing
+**Status:** Ready to test on http://localhost:3000 with Paddle Sandbox
+
+### 🚀 Quick Start
+- **[PRODUCTION_QUICK_START.md](PRODUCTION_QUICK_START.md)** - Localhost sandbox testing guide (30 mins)
+
+### 📖 Comprehensive Guides
+- **[PRODUCTION_DEPLOYMENT_PADDLE.md](PRODUCTION_DEPLOYMENT_PADDLE.md)** - Two-phase guide: Sandbox Testing + Production Deployment
+- **[FINAL_PADDLE_SANDBOX_IMPLEMENTATION.md](FINAL_PADDLE_SANDBOX_IMPLEMENTATION.md)** - Detailed sandbox setup and testing
+- **[PADDLE_IMPLEMENTATION_COMPLETE.md](PADDLE_IMPLEMENTATION_COMPLETE.md)** - Implementation summary and status
+
+### 🌍 Regional Pricing
+- **[REGIONAL_PRICING_GUIDE.md](REGIONAL_PRICING_GUIDE.md)** - Complete guide on Paddle's regional price overrides
+- **[REGIONAL_PRICING_COMPLETE.md](REGIONAL_PRICING_COMPLETE.md)** - Quick summary of regional pricing
+
+### ⚙️ Setup Guides
+- **[EMAIL_SETUP.md](EMAIL_SETUP.md)** - Email configuration (SMTP, templates)
+- **[DISCORD_WEBHOOK_SETUP.md](DISCORD_WEBHOOK_SETUP.md)** - Discord notifications setup
+
+---
+
+## 🎯 Current Status
+
+**✅ Configured for Localhost Testing:**
+- Paddle Sandbox integration complete
+- Environment: `sandbox` mode
+- Client token: `test_f055087ccb44812f23ffec56f41`
+- Regional pricing: Pakistan & India overrides configured
+- Professional email templates ready
+- Database: Price IDs updated
+
+**🧪 Next Step: Test on Localhost**
+```bash
+npm run dev
+# Visit: http://localhost:3000/products/desksweep
+```
+
+**🚀 Production Deployment:** After Paddle account verification completes
+
 ## 🏗️ Tech Stack
 
 - **Frontend**: Next.js 14 (App Router), React 18, TypeScript 5.3

@@ -29,7 +29,18 @@ interface PurchaseNotification {
  * Send purchase notification to Discord
  */
 export async function sendPurchaseNotification(data: PurchaseNotification) {
+  console.log('📢 sendPurchaseNotification called with:', {
+    customerName: data.customerName,
+    customerEmail: data.customerEmail,
+    productName: data.productName,
+    planName: data.planName,
+    amount: data.amount,
+    currency: data.currency,
+  });
+
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL
+
+  console.log('📢 Discord webhook URL:', webhookUrl ? 'Configured' : 'Missing');
 
   if (!webhookUrl) {
     console.warn('⚠️ DISCORD_WEBHOOK_URL not configured - skipping Discord notification')
@@ -98,6 +109,8 @@ export async function sendPurchaseNotification(data: PurchaseNotification) {
     }
 
     // Send to Discord
+    console.log('📢 Sending to Discord webhook...');
+    
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
@@ -110,6 +123,8 @@ export async function sendPurchaseNotification(data: PurchaseNotification) {
       }),
     })
 
+    console.log('📢 Discord response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text()
       console.error('❌ Discord webhook failed:', response.status, errorText)
@@ -119,6 +134,7 @@ export async function sendPurchaseNotification(data: PurchaseNotification) {
     console.log('✅ Discord notification sent successfully')
   } catch (error) {
     console.error('❌ Error sending Discord notification:', error)
+    console.error('❌ Error details:', error instanceof Error ? error.message : 'Unknown error')
     // Don't throw - we don't want to break the purchase flow if Discord fails
   }
 }

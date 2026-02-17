@@ -6,8 +6,8 @@ import { CheckCircle, Shield, Download, Zap } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import { Card, CardContent } from '@/components/ui/Card';
-import { useCurrency } from '@/components/ui/CurrencySwitcher';
-import { DESKSWEEP_PRICING, formatPrice } from '@/lib/currency';
+import { DESKSWEEP_PRICING } from '@/lib/currency';
+import { usePaddlePrices, PADDLE_PRICE_IDS } from '@/hooks/usePaddlePrices';
 
 interface DeskSweepPricingProps {
   onPurchase?: (planId: string) => void;
@@ -15,7 +15,7 @@ interface DeskSweepPricingProps {
 }
 
 export function DeskSweepPricing({ onPurchase, purchasing }: DeskSweepPricingProps) {
-  const { currency, isLoading } = useCurrency();
+  const { prices: paddlePrices, isLoading } = usePaddlePrices();
 
   return (
     <div className="space-y-6">
@@ -32,9 +32,11 @@ export function DeskSweepPricing({ onPurchase, purchasing }: DeskSweepPricingPro
       {/* Pricing Cards */}
       <div className="space-y-4">
         {DESKSWEEP_PRICING.map((plan) => {
-          const price = plan.prices[currency];
-          const originalPrice = plan.originalPrices?.[currency];
           const isPopular = plan.popular;
+          
+          // Get Paddle price for this plan
+          const paddlePriceId = PADDLE_PRICE_IDS[plan.id as keyof typeof PADDLE_PRICE_IDS];
+          const paddlePrice = paddlePrices.get(paddlePriceId);
 
           return (
             <Card
@@ -78,26 +80,24 @@ export function DeskSweepPricing({ onPurchase, purchasing }: DeskSweepPricingPro
 
                   {/* Pricing */}
                   <div className="flex items-baseline gap-2 mb-1">
-                    {!isLoading && (
+                    {!isLoading && paddlePrice ? (
                       <>
                         <span className="text-3xl font-bold text-[#3B82F6]">
-                          {formatPrice(price, currency)}
+                          {paddlePrice.formattedPrice}
                         </span>
-                        {originalPrice && (
-                          <span className="text-lg line-through text-[#9CA3AF]">
-                            {formatPrice(originalPrice, currency)}
-                          </span>
-                        )}
                       </>
+                    ) : (
+                      <span className="text-3xl font-bold text-[#9CA3AF]">
+                        {isLoading ? 'Loading...' : 'N/A'}
+                      </span>
                     )}
-                    {isLoading && <span className="text-3xl font-bold text-[#9CA3AF]">...</span>}
                   </div>
                   <p className="text-sm text-[#9CA3AF]">
                     One-time payment • {plan.devices} device{plan.devices > 1 ? 's' : ''}
                   </p>
-                  {originalPrice && !isLoading && (
+                  {plan.badge && !isLoading && (
                     <p className="text-xs text-[#10B981] font-medium mt-1">
-                      Save {Math.round(((originalPrice - price) / originalPrice) * 100)}%
+                      {plan.badge}
                     </p>
                   )}
                 </div>

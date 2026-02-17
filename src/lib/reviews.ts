@@ -12,12 +12,11 @@ export interface Review {
   company: string;
   rating: number;
   text: string;
-  avatar: string;
   region: 'India' | 'Global';
   price?: number; // If review mentions price
 }
 
-// Indian Reviews (INR) - Authentic Indian names with unique avatars
+// Indian Reviews (INR) - Authentic Indian names
 const indianReviews: Review[] = [
   {
     id: 'in-1',
@@ -26,7 +25,6 @@ const indianReviews: Review[] = [
     company: 'Tech Solutions India',
     rating: 5,
     text: 'DeskSweep ने मेरे desktop को बिल्कुल साफ कर दिया! Worth every rupee. Best ₹299 investment for productivity.',
-    avatar: 'https://ui-avatars.com/api/?name=Rajesh+Kumar&background=3B82F6&color=fff&size=150&bold=true',
     region: 'India',
     price: 299
   },
@@ -37,7 +35,6 @@ const indianReviews: Review[] = [
     company: 'Creative Studio Mumbai',
     rating: 5,
     text: 'Incredible tool! My desktop was a mess with hundreds of files. DeskSweep organized everything perfectly. Highly recommend! ₹299 is nothing for this.',
-    avatar: 'https://ui-avatars.com/api/?name=Priya+Sharma&background=EC4899&color=fff&size=150&bold=true',
     region: 'India',
     price: 299
   },
@@ -48,7 +45,6 @@ const indianReviews: Review[] = [
     company: 'Self-employed',
     rating: 5,
     text: 'Best software for organizing files! As a freelancer, I handle hundreds of client files. DeskSweep saves me hours every week.',
-    avatar: 'https://ui-avatars.com/api/?name=Amit+Patel&background=10B981&color=fff&size=150&bold=true',
     region: 'India',
     price: 299
   },
@@ -59,7 +55,6 @@ const indianReviews: Review[] = [
     company: 'Digital Marketing Pro',
     rating: 5,
     text: 'Game changer for my workflow! Desktop clutter was affecting my productivity. Now everything is organized automatically. Worth ₹299!',
-    avatar: 'https://ui-avatars.com/api/?name=Sneha+Reddy&background=F59E0B&color=fff&size=150&bold=true',
     region: 'India',
     price: 299
   },
@@ -70,7 +65,6 @@ const indianReviews: Review[] = [
     company: 'IIT Delhi',
     rating: 5,
     text: 'Perfect for students! Keeps all my study materials organized. The duplicate file finder saved me so much storage space.',
-    avatar: 'https://ui-avatars.com/api/?name=Vikram+Singh&background=8B5CF6&color=fff&size=150&bold=true',
     region: 'India',
     price: 299
   },
@@ -81,13 +75,12 @@ const indianReviews: Review[] = [
     company: 'Design Studio',
     rating: 5,
     text: 'Handles large CAD files beautifully! My desktop is finally organized. DeskSweep is a must-have tool for professionals.',
-    avatar: 'https://ui-avatars.com/api/?name=Kavita+Desai&background=EF4444&color=fff&size=150&bold=true',
     region: 'India',
     price: 299
   }
 ];
 
-// Global Reviews (USD/PKR) - English names with unique avatars
+// Global Reviews (USD/PKR) - English names
 // Used for both Global (USD) and Pakistan (PKR) with different prices
 const globalReviews: Review[] = [
   {
@@ -97,7 +90,6 @@ const globalReviews: Review[] = [
     company: 'Tech Innovations',
     rating: 5,
     text: 'DeskSweep transformed my workflow! My desktop went from chaos to organized in minutes. Best investment I\'ve ever made for productivity.',
-    avatar: 'https://ui-avatars.com/api/?name=Sarah+Connor&background=6366F1&color=fff&size=150&bold=true',
     region: 'Global',
     price: 9
   },
@@ -108,7 +100,6 @@ const globalReviews: Review[] = [
     company: 'Silicon Valley Startup',
     rating: 5,
     text: 'This tool is a game-changer! Handles thousands of files effortlessly. The automation features are incredible. Worth every penny!',
-    avatar: 'https://ui-avatars.com/api/?name=James+Martinez&background=0EA5E9&color=fff&size=150&bold=true',
     region: 'Global',
     price: 9
   },
@@ -119,7 +110,6 @@ const globalReviews: Review[] = [
     company: 'Creative Studio',
     rating: 5,
     text: 'Perfect for creative professionals! Keeps all my art files, references, and assets organized. My productivity has doubled!',
-    avatar: 'https://ui-avatars.com/api/?name=Emily+Chen&background=14B8A6&color=fff&size=150&bold=true',
     region: 'Global',
     price: 9
   },
@@ -130,7 +120,6 @@ const globalReviews: Review[] = [
     company: 'Global Marketing Inc',
     rating: 5,
     text: 'Best desktop organizer I\'ve used! Saves me hours every week. The smart sorting is incredibly accurate. Highly recommended!',
-    avatar: 'https://ui-avatars.com/api/?name=Michael+Johnson&background=F97316&color=fff&size=150&bold=true',
     region: 'Global',
     price: 9
   },
@@ -141,7 +130,6 @@ const globalReviews: Review[] = [
     company: 'Freelance',
     rating: 5,
     text: 'Amazing for managing photo shoots! Organizes thousands of images perfectly. The duplicate finder saved me tons of storage space.',
-    avatar: 'https://ui-avatars.com/api/?name=Lisa+Anderson&background=A855F7&color=fff&size=150&bold=true',
     region: 'Global',
     price: 9
   },
@@ -152,7 +140,6 @@ const globalReviews: Review[] = [
     company: 'AI Research Lab',
     rating: 5,
     text: 'Excellent tool for data professionals! Keeps my datasets, scripts, and notebooks organized. The automation is top-notch!',
-    avatar: 'https://ui-avatars.com/api/?name=David+Kim&background=06B6D4&color=fff&size=150&bold=true',
     region: 'Global',
     price: 9
   }

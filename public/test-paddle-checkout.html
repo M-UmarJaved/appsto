@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧪 Paddle Checkout Test - Appsto</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+      max-width: 800px;
+      width: 100%;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #0B1220;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      color: #6B7280;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    .status {
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status.loading {
+      background: #FEF3C7;
+      border-left: 4px solid #F59E0B;
+      color: #92400E;
+    }
+
+    .status.ready {
+      background: #D1FAE5;
+      border-left: 4px solid #10B981;
+      color: #065F46;
+    }
+
+    .status.error {
+      background: #FEE2E2;
+      border-left: 4px solid #EF4444;
+      color: #991B1B;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid #F59E0B;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .config-info {
+      background: #F9FAFB;
+      border: 2px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+
+    .config-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #E5E7EB;
+      font-size: 14px;
+    }
+
+    .config-item:last-child {
+      border-bottom: none;
+    }
+
+    .config-label {
+      color: #6B7280;
+      font-weight: 600;
+    }
+
+    .config-value {
+      color: #0B1220;
+      font-family: monospace;
+      background: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .pricing-card {
+      background: white;
+      border: 2px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .pricing-card:hover {
+      border-color: #3B82F6;
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .pricing-card.popular {
+      border-color: #3B82F6;
+      background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+      position: relative;
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #3B82F6;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .plan-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0B1220;
+      margin-bottom: 8px;
+    }
+
+    .plan-price {
+      font-size: 32px;
+      font-weight: 800;
+      color: #3B82F6;
+      margin-bottom: 4px;
+    }
+
+    .plan-description {
+      font-size: 13px;
+      color: #6B7280;
+      margin-bottom: 16px;
+    }
+
+    .plan-features {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    .plan-feature {
+      font-size: 13px;
+      color: #374151;
+      padding: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .plan-feature::before {
+      content: "✓";
+      color: #10B981;
+      font-weight: bold;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .console-output {
+      background: #1F2937;
+      color: #10B981;
+      border-radius: 12px;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 30px;
+    }
+
+    .console-line {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .console-line.error {
+      color: #EF4444;
+    }
+
+    .console-line.success {
+      color: #10B981;
+    }
+
+    .console-line.info {
+      color: #60A5FA;
+    }
+
+    .test-card-info {
+      background: #EFF6FF;
+      border: 2px solid #3B82F6;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .test-card-info h3 {
+      color: #1E40AF;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    .test-card-item {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .test-card-label {
+      color: #1E40AF;
+      font-weight: 600;
+    }
+
+    .test-card-value {
+      color: #1F2937;
+      font-family: monospace;
+      background: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Paddle Checkout Test</h1>
+    <p class="subtitle">Test Paddle Billing v2 integration with Sandbox environment</p>
+
+    <!-- Status -->
+    <div id="status" class="status loading">
+      <div class="spinner"></div>
+      <div>Initializing Paddle.js...</div>
+    </div>
+
+    <!-- Configuration Info -->
+    <div class="config-info">
+      <h3 style="margin-bottom: 12px; color: #374151;">Current Configuration</h3>
+      <div class="config-item">
+        <span class="config-label">Environment:</span>
+        <span class="config-value" id="envValue">Loading...</span>
+      </div>
+      <div class="config-item">
+        <span class="config-label">Client Token:</span>
+        <span class="config-value" id="tokenValue">Loading...</span>
+      </div>
+      <div class="config-item">
+        <span class="config-label">Paddle Status:</span>
+        <span class="config-value" id="paddleStatus">Not Initialized</span>
+      </div>
+    </div>
+
+    <!-- Pricing Plans -->
+    <div class="pricing-grid">
+      <!-- Solo Plan -->
+      <div class="pricing-card" onclick="openCheckout('solo', 'pri_01kgpm95qrxz1stv18mncjxqvg')">
+        <div class="plan-name">Solo</div>
+        <div class="plan-price">$9</div>
+        <div class="plan-description">Perfect for individuals</div>
+        <div class="plan-features">
+          <div class="plan-feature">1 Device License</div>
+          <div class="plan-feature">All Features</div>
+          <div class="plan-feature">Lifetime Updates</div>
+        </div>
+        <button type="button">Test Solo</button>
+      </div>
+
+      <!-- Squad Plan -->
+      <div class="pricing-card popular" onclick="openCheckout('squad', 'pri_01kgpmb4vas7mswfsnz2w2j9w4')">
+        <div class="popular-badge">MOST POPULAR</div>
+        <div class="plan-name">Squad</div>
+        <div class="plan-price">$29</div>
+        <div class="plan-description">Great for small teams</div>
+        <div class="plan-features">
+          <div class="plan-feature">5 Device Licenses</div>
+          <div class="plan-feature">All Features</div>
+          <div class="plan-feature">Priority Support</div>
+        </div>
+        <button type="button">Test Squad</button>
+      </div>
+
+      <!-- Studio Plan -->
+      <div class="pricing-card" onclick="openCheckout('studio', 'pri_01kgpmcddtc0ma04wh6bpza2xf')">
+        <div class="plan-name">Studio</div>
+        <div class="plan-price">$79</div>
+        <div class="plan-description">For larger organizations</div>
+        <div class="plan-features">
+          <div class="plan-feature">20 Device Licenses</div>
+          <div class="plan-feature">All Features</div>
+          <div class="plan-feature">Premium Support</div>
+        </div>
+        <button type="button">Test Studio</button>
+      </div>
+    </div>
+
+    <!-- Test Card Info -->
+    <div class="test-card-info">
+      <h3>💳 Sandbox Test Card</h3>
+      <div class="test-card-item">
+        <span class="test-card-label">Card Number:</span>
+        <span class="test-card-value">4000 0566 5566 5556</span>
+      </div>
+      <div class="test-card-item">
+        <span class="test-card-label">Expiry Date:</span>
+        <span class="test-card-value">Any future date</span>
+      </div>
+      <div class="test-card-item">
+        <span class="test-card-label">CVV:</span>
+        <span class="test-card-value">Any 3 digits</span>
+      </div>
+      <div class="test-card-item">
+        <span class="test-card-label">Email:</span>
+        <span class="test-card-value">Any valid email</span>
+      </div>
+    </div>
+
+    <!-- Console Output -->
+    <div class="console-output" id="console">
+      <div class="console-line info">🚀 Initializing Paddle test environment...</div>
+    </div>
+  </div>
+
+  <!-- Load Paddle.js v2 -->
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+
+  <script>
+    // Configuration - These are hardcoded for testing
+    const PADDLE_CONFIG = {
+      clientToken: 'test_f055087ccb44812f23ffec56f41', // Your sandbox token
+      environment: 'sandbox',
+      priceIds: {
+        solo: 'pri_01kgpm95qrxz1stv18mncjxqvg',
+        squad: 'pri_01kgpmb4vas7mswfsnz2w2j9w4',
+        studio: 'pri_01kgpmcddtc0ma04wh6bpza2xf'
+      }
+    };
+
+    let paddleReady = false;
+
+    // Logger
+    function log(message, type = 'info') {
+      const consoleEl = document.getElementById('console');
+      const line = document.createElement('div');
+      line.className = `console-line ${type}`;
+      const timestamp = new Date().toLocaleTimeString();
+      line.textContent = `[${timestamp}] ${message}`;
+      consoleEl.appendChild(line);
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+      
+      // Also log to browser console
+      if (type === 'error') {
+        console.error(message);
+      } else {
+        console.log(message);
+      }
+    }
+
+    // Update status
+    function updateStatus(message, type) {
+      const statusEl = document.getElementById('status');
+      statusEl.className = `status ${type}`;
+      
+      if (type === 'loading') {
+        statusEl.innerHTML = `<div class="spinner"></div><div>${message}</div>`;
+      } else if (type === 'ready') {
+        statusEl.innerHTML = `<div style="font-size: 24px;">✅</div><div>${message}</div>`;
+      } else if (type === 'error') {
+        statusEl.innerHTML = `<div style="font-size: 24px;">❌</div><div>${message}</div>`;
+      }
+    }
+
+    // Initialize Paddle
+    async function initializePaddle() {
+      log('🔧 Loading Paddle configuration...', 'info');
+      
+      // Update config display
+      document.getElementById('envValue').textContent = PADDLE_CONFIG.environment;
+      document.getElementById('tokenValue').textContent = PADDLE_CONFIG.clientToken.substring(0, 20) + '...';
+
+      // Wait for Paddle to be available
+      let attempts = 0;
+      const maxAttempts = 50;
+      
+      const checkPaddle = setInterval(() => {
+        attempts++;
+        
+        if (window.Paddle) {
+          clearInterval(checkPaddle);
+          log('✅ Paddle.js loaded successfully', 'success');
+          setupPaddle();
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkPaddle);
+          log('❌ Failed to load Paddle.js after 5 seconds', 'error');
+          updateStatus('Failed to load Paddle.js', 'error');
+        }
+      }, 100);
+    }
+
+    function setupPaddle() {
+      try {
+        log('🚀 Initializing Paddle with client token...', 'info');
+        
+        // Initialize Paddle
+        Paddle.Initialize({
+          token: PADDLE_CONFIG.clientToken,
+          eventCallback: function(event) {
+            log(`🎯 Paddle event: ${event.name}`, 'info');
+            
+            // Log full event details to console
+            console.log('Full Paddle event:', event);
+            
+            // Handle specific events
+            if (event.name === 'checkout.error') {
+              log(`❌ CHECKOUT ERROR: ${JSON.stringify(event.data || event.error || 'Unknown error')}`, 'error');
+              console.error('Checkout error details:', event);
+            } else if (event.name === 'checkout.closed') {
+              log('Checkout closed by user', 'info');
+            } else if (event.name === 'checkout.loaded') {
+              log('✅ Checkout loaded successfully', 'success');
+            } else if (event.name === 'checkout.completed') {
+              log('🎉 Purchase completed!', 'success');
+            }
+          }
+        });
+
+        // Set environment
+        Paddle.Environment.set(PADDLE_CONFIG.environment);
+        log(`✅ Environment set to: ${PADDLE_CONFIG.environment}`, 'success');
+
+        paddleReady = true;
+        document.getElementById('paddleStatus').textContent = 'Initialized ✓';
+        updateStatus('Paddle ready! Click any plan to test checkout', 'ready');
+        
+        log('✨ All systems ready! Click a pricing plan to test.', 'success');
+        
+      } catch (error) {
+        log(`❌ Initialization error: ${error.message}`, 'error');
+        updateStatus('Initialization failed', 'error');
+      }
+    }
+
+    // Open checkout
+    function openCheckout(plan, priceId) {
+      if (!paddleReady) {
+        alert('Paddle is still initializing. Please wait a moment.');
+        return;
+      }
+
+      log(`🛒 Opening checkout for ${plan} plan (${priceId})`, 'info');
+
+      try {
+        Paddle.Checkout.open({
+          items: [
+            {
+              priceId: priceId,
+              quantity: 1
+            }
+          ],
+          customer: {
+            email: 'test@example.com' // Pre-fill email
+          },
+          settings: {
+            displayMode: 'overlay',
+            theme: 'light',
+            locale: 'en',
+            successUrl: window.location.origin + '/purchase/success',
+            allowLogout: true
+          },
+          customData: {
+            plan: plan,
+            test_mode: true
+          }
+        });
+
+        log('✅ Checkout opened successfully', 'success');
+        
+      } catch (error) {
+        log(`❌ Checkout error: ${error.message}`, 'error');
+        alert(`Failed to open checkout: ${error.message}`);
+      }
+    }
+
+    // Start initialization
+    window.addEventListener('load', () => {
+      initializePaddle();
+    });
+  </script>
+</body>
+</html>

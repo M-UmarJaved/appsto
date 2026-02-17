@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import Script from 'next/script'
 import { 
   Shield, 
   Zap, 
@@ -38,6 +39,11 @@ export default function HomePage() {
 
   return (
     <>
+      {/* Load Paddle.js for price fetching */}
+      <Script
+        src="https://cdn.paddle.com/paddle/v2/paddle.js"
+        strategy="afterInteractive"
+      />
       {/* JSON-LD Structured Data for SEO */}
       <script
         type="application/ld+json"
