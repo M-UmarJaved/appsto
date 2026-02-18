@@ -163,10 +163,17 @@ async function handleTransactionCompleted(data: any) {
       console.log('✅ Purchase record created:', purchase.id)
 
       // Generate licenses (same as test purchase)
+      // Only create licenses if we have a valid user
+      if (!user?.id) {
+        console.error('⚠️ No user found for email:', customerEmail)
+        console.error('⚠️ Skipping license generation - manual intervention required')
+        continue
+      }
+
       const licenses = await createLicenses({
         purchaseId: purchase.id,
         productId: product.id,
-        userId: user?.id || undefined,
+        userId: user.id,
         count: pricingPlan.devices,
         plan: pricingPlan.plan_name,
         licenseType: 'standard',
