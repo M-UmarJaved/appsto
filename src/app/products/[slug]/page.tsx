@@ -129,10 +129,9 @@ export default function ProductDetailPage() {
           }
         },
         
-        // 🎨 CUSTOM PWA APPEARANCE (Paddle Billing v2)
-        pwCustomer: {
-          enableCheckoutTheme: true,
-        },
+        // 🔄 PADDLE RETAIN INTEGRATION (Required for dunning/payment recovery)
+        // Pass customer email or Paddle customer ID for automatic retry logic
+        pwCustomer: user?.email || undefined,
         
         eventCallback: function(event: any) {
           console.log('🎯 Paddle event:', event.name, event)

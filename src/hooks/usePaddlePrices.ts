@@ -119,6 +119,9 @@ export function usePaddlePrices(priceIds?: string[]): UsePaddlePricesResult {
             }
           },
           
+          // Paddle Retain integration for automatic payment recovery
+          // Note: user context not available in this hook, Retain will use checkout email
+          
           eventCallback: function(event: any) {
             // Basic event logging
             if (event.name === 'checkout.error') {
