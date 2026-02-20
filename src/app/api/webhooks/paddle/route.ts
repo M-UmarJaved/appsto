@@ -109,13 +109,16 @@ async function handleTransactionCompleted(data: any) {
           }
         })
         const customerData = await response.json()
-        customerEmail = customerData.data?.email || 'no-email@unknown.com'
+        if (!customerData.data?.email) {
+          throw new Error('Customer email not found in Paddle API response')
+        }
+        customerEmail = customerData.data.email
         customerName = customerData.data?.name || 'Customer'
         console.log('✅ Fetched customer data:', customerEmail)
       } catch (fetchError) {
         console.error('❌ Failed to fetch customer data:', fetchError)
-        customerEmail = 'no-email@unknown.com'
-        customerName = 'Customer'
+        console.error('⚠️ Skipping transaction - cannot process without customer email')
+        throw new Error('Customer email required but not available')
       }
     }
 
@@ -131,17 +134,25 @@ async function handleTransactionCompleted(data: any) {
       // Calculate amount - handle different payload structures
       let amount: number
       if (item.totals && item.totals.total) {
-        // Standard payload with item totals
+        // Standard payload with item totals (real Paddle webhooks)
         amount = parseFloat(item.totals.total) / 100
       } else if (item.price.unit_price && item.price.unit_price.amount) {
-        // Fallback: calculate from unit price * quantity
+        // Fallback: calculate from unit price * quantity (simulations)
         amount = (parseFloat(item.price.unit_price.amount) * item.quantity) / 100
       } else if (data.details && data.details.totals && data.details.totals.total) {
-        // Last resort: use transaction total (works for single-item transactions)
+        // Last resort: use transaction total (single-item transactions)
         amount = parseFloat(data.details.totals.total) / 100
       } else {
         console.error('❌ Cannot determine amount from item:', item)
-        amount = 0
+        console.error('⚠️ Skipping item - invalid amount')
+        continue
+      }
+      
+      // Validate amount is reasonable
+      if (amount <= 0) {
+        console.error('❌ Invalid amount detected:', amount)
+        console.error('⚠️ Skipping item - amount must be greater than 0')
+        continue
       }
       
       const currency = data.currency_code
