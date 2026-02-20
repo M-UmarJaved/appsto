@@ -52,7 +52,8 @@ export async function POST(req: NextRequest) {
     // Handle transaction completed event
     if (event.event_type === 'transaction.completed') {
       console.log('🎯 Processing transaction.completed event')
-      await handleTransactionCompleted(event.data)
+      const isSimulation = event.event_id?.startsWith('ntfsimevt_') || event.notification_id?.startsWith('ntfsimntf_')
+      await handleTransactionCompleted(event.data, isSimulation)
     }
 
     // Handle subscription events (for future subscription products)
@@ -82,9 +83,12 @@ export async function POST(req: NextRequest) {
  * Handle transaction completed webhook
  * Same logic as test purchase - creates purchase, generates licenses, sends emails
  */
-async function handleTransactionCompleted(data: any) {
+async function handleTransactionCompleted(data: any, isSimulation: boolean = false) {
   try {
     console.log('🎯 Processing Paddle transaction:', data.id)
+    if (isSimulation) {
+      console.log('ℹ️ This is a simulation webhook')
+    }
 
     // Extract transaction data
     const transactionId = data.id
@@ -102,23 +106,41 @@ async function handleTransactionCompleted(data: any) {
       // Customer data missing - fetch from Paddle API
       console.log('⚠️ Customer data missing in webhook, fetching from Paddle API...')
       try {
-        const response = await fetch(`https://api.paddle.com/customers/${customerId}`, {
+        // Use environment-aware Paddle API URL
+        const paddleApiUrl = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === 'production' 
+          ? 'https://api.paddle.com'
+          : 'https://sandbox-api.paddle.com'
+        
+        const response = await fetch(`${paddleApiUrl}/customers/${customerId}`, {
           headers: {
             'Authorization': `Bearer ${process.env.PADDLE_API_KEY}`,
             'Content-Type': 'application/json',
           }
         })
+        
+        if (!response.ok) {
+          throw new Error(`Paddle API returned ${response.status}: ${response.statusText}`)
+        }
+        
         const customerData = await response.json()
         if (!customerData.data?.email) {
           throw new Error('Customer email not found in Paddle API response')
         }
         customerEmail = customerData.data.email
         customerName = customerData.data?.name || 'Customer'
-        console.log('✅ Fetched customer data:', customerEmail)
+        console.log('✅ Fetched customer data from Paddle API:', customerEmail)
       } catch (fetchError) {
         console.error('❌ Failed to fetch customer data:', fetchError)
-        console.error('⚠️ Skipping transaction - cannot process without customer email')
-        throw new Error('Customer email required but not available')
+        
+        // For simulations, use a fallback email instead of failing
+        if (isSimulation) {
+          console.log('ℹ️ Using fallback test email for simulation')
+          customerEmail = process.env.TEST_EMAIL || 'simulation-test@example.com'
+          customerName = 'Simulation Test Customer'
+        } else {
+          console.error('⚠️ Skipping transaction - cannot process without customer email')
+          throw new Error('Customer email required but not available')
+        }
       }
     }
 
