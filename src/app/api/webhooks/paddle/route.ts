@@ -127,7 +127,23 @@ async function handleTransactionCompleted(data: any) {
     for (const item of items) {
       const paddlePriceId = item.price.id
       const paddleProductId = item.price.product_id
-      const amount = parseFloat(item.totals.total) / 100 // Convert cents to dollars
+      
+      // Calculate amount - handle different payload structures
+      let amount: number
+      if (item.totals && item.totals.total) {
+        // Standard payload with item totals
+        amount = parseFloat(item.totals.total) / 100
+      } else if (item.price.unit_price && item.price.unit_price.amount) {
+        // Fallback: calculate from unit price * quantity
+        amount = (parseFloat(item.price.unit_price.amount) * item.quantity) / 100
+      } else if (data.details && data.details.totals && data.details.totals.total) {
+        // Last resort: use transaction total (works for single-item transactions)
+        amount = parseFloat(data.details.totals.total) / 100
+      } else {
+        console.error('❌ Cannot determine amount from item:', item)
+        amount = 0
+      }
+      
       const currency = data.currency_code
       const planSlug = customData.plan_slug || item.price.description?.toLowerCase() || 'solo'
 
