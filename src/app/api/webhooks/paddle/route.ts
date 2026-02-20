@@ -61,6 +61,12 @@ export async function POST(req: NextRequest) {
       await handleSubscriptionCreated(event.data)
     }
 
+    // Handle refund events
+    if (event.event_type === 'transaction.payment_failed' || event.event_type === 'transaction.refunded') {
+      console.log('🎯 Processing refund/payment failure event')
+      await handleTransactionRefunded(event.data)
+    }
+
     console.log('✅ Webhook processed successfully')
     return NextResponse.json({ received: true })
   } catch (error) {
@@ -249,6 +255,85 @@ async function handleSubscriptionCreated(data: any) {
   
   // You can implement subscription management logic here
   // e.g., grant access to the application through API keys or user accounts
+}
+
+/**
+ * Handle transaction refunded webhook
+ * Deactivates license keys when a refund is processed
+ */
+async function handleTransactionRefunded(data: any) {
+  try {
+    console.log('🔄 Processing refund for transaction:', data.id)
+    const transactionId = data.id
+
+    // Find the purchase record
+    const { data: purchase, error: purchaseError } = await supabase
+      .from('purchases')
+      .select('*, licenses(*)')
+      .eq('paddle_transaction_id', transactionId)
+      .single()
+
+    if (purchaseError || !purchase) {
+      console.error('❌ Purchase not found for transaction:', transactionId)
+      return
+    }
+
+    console.log('📝 Found purchase:', purchase.id)
+
+    // Update purchase status to refunded
+    await supabase
+      .from('purchases')
+      .update({ 
+        status: 'refunded',
+        refunded_at: new Date().toISOString()
+      })
+      .eq('id', purchase.id)
+
+    console.log('✅ Purchase status updated to refunded')
+
+    // Deactivate all associated license keys
+    if (purchase.licenses && purchase.licenses.length > 0) {
+      const licenseIds = purchase.licenses.map((l: any) => l.id)
+      
+      await supabase
+        .from('licenses')
+        .update({ 
+          is_active: false,
+          deactivated_at: new Date().toISOString(),
+          deactivation_reason: 'refund'
+        })
+        .in('id', licenseIds)
+
+      console.log(`✅ Deactivated ${licenseIds.length} license keys`)
+
+      // Also deactivate in product database
+      for (const license of purchase.licenses) {
+        try {
+          const productDB = createClient(
+            process.env.PRODUCT_DB_SUPABASE_URL!,
+            process.env.PRODUCT_DB_SUPABASE_KEY!
+          )
+          
+          await productDB
+            .from('license_keys')
+            .update({ 
+              is_active: false,
+              status: 'revoked'
+            })
+            .eq('license_key', license.license_key)
+
+          console.log(`✅ License ${license.license_key} revoked in product DB`)
+        } catch (syncError) {
+          console.error('❌ Failed to sync license deactivation:', syncError)
+        }
+      }
+    }
+
+    console.log('🎉 Refund processed successfully!')
+  } catch (error) {
+    console.error('❌ Error handling refund:', error)
+    throw error
+  }
 }
 
 /**
