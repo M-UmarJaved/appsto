@@ -80,7 +80,7 @@ export async function generateLicenseKeys(count: number, plan: string = 'solo'):
 export async function createLicenses(params: {
   purchaseId: string;
   productId: string;
-  userId: string;
+  userId: string | null;
   count: number;
   plan?: string;
   licenseType?: 'standard' | 'trial' | 'lifetime';

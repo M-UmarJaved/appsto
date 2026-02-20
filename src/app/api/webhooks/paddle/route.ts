@@ -168,18 +168,17 @@ async function handleTransactionCompleted(data: any) {
 
       console.log('✅ Purchase record created:', purchase.id)
 
-      // Generate licenses (same as test purchase)
-      // Only create licenses if we have a valid user
+      // Generate licenses (works for both logged-in users and guest checkouts)
+      // Guest purchases: userId will be null, but license is still tied to customer_email
       if (!user?.id) {
-        console.error('⚠️ No user found for email:', customerEmail)
-        console.error('⚠️ Skipping license generation - manual intervention required')
-        continue
+        console.log('ℹ️ Guest checkout detected - no user account for:', customerEmail)
+        console.log('ℹ️ License will be generated and emailed to customer')
       }
 
       const licenses = await createLicenses({
         purchaseId: purchase.id,
         productId: product.id,
-        userId: user.id,
+        userId: user?.id || null,
         count: pricingPlan.devices,
         plan: pricingPlan.plan_name,
         licenseType: 'standard',
