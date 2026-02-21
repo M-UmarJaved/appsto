@@ -3,11 +3,26 @@ import { NextRequest, NextResponse } from 'next/server'
 /**
  * Test Webhook Simulator
  * Simulates a Paddle webhook call for local testing
+ * Production: Requires x-api-key header or key query param
  * 
  * This bypasses the need for ngrok/tunneling by directly calling the webhook handler
  * with properly formatted Paddle webhook data
  */
 export async function POST(req: NextRequest) {
+  // SECURITY: Check for API key in production
+  if (process.env.NODE_ENV === 'production') {
+    const apiKey = req.nextUrl.searchParams.get('key') || req.headers.get('x-api-key')
+    const validKey = process.env.API_SECRET_KEY
+
+    if (!apiKey || !validKey || apiKey !== validKey) {
+      console.warn('⚠️ Unauthorized test endpoint access attempt')
+      return NextResponse.json(
+        { error: 'Unauthorized - API key required' },
+        { status: 401 }
+      )
+    }
+  }
+
   try {
     const body = await req.json()
     const { 
