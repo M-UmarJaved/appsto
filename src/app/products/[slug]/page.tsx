@@ -136,14 +136,23 @@ export default function ProductDetailPage() {
         eventCallback: function(event: any) {
           console.log('🎯 Paddle event:', event.name, event)
           
-          // Handle checkout events
+          // Handle checkout events - use callback pattern to avoid stale closure
           if (event.name === 'checkout.closed') {
-            setPurchasing(false)
+            console.log('🔄 Checkout closed - resetting button state')
+            // Use functional update to avoid stale closure
+            setPurchasing(prev => {
+              console.log('Setting purchasing from', prev, 'to false')
+              return false
+            })
           } else if (event.name === 'checkout.error') {
             console.error('Checkout error:', event)
-            setPurchasing(false)
+            setPurchasing(prev => {
+              console.log('Error occurred - setting purchasing from', prev, 'to false')
+              return false
+            })
           } else if (event.name === 'checkout.completed') {
             console.log('🎉 Purchase completed!', event)
+            // Keep button in loading state - redirect will happen
             // Optional: Track conversion
             if (typeof window !== 'undefined' && (window as any).gtag) {
               (window as any).gtag('event', 'purchase', {
@@ -154,6 +163,12 @@ export default function ProductDetailPage() {
             }
           } else if (event.name === 'checkout.loaded') {
             console.log('✅ Paddle checkout loaded successfully')
+          } else if (event.name === 'checkout.payment.failed') {
+            console.error('Payment failed:', event)
+            setPurchasing(prev => {
+              console.log('Payment failed - setting purchasing from', prev, 'to false')
+              return false
+            })
           }
         }
       })

@@ -7,14 +7,18 @@ const supabase = createClient(
 );
 
 /**
- * Download Redirect API
- * Purpose: Hide direct GitHub URLs from email download buttons
+ * Download Proxy API
+ * Purpose: Serve installer files from private GitHub releases
  * 
  * Benefits:
+ * - Works with private GitHub repositories
  * - Professional email appearance
  * - Track download analytics
  * - Flexibility to change storage locations
  * - Security: validate purchase before download
+ * 
+ * Note: For private GitHub repos, we proxy the download using a GitHub token
+ * instead of redirecting to ensure customers can download without GitHub auth
  */
 
 export async function GET(
@@ -76,9 +80,53 @@ export async function GET(
       downloaded_at: new Date().toISOString(),
     });
 
-    console.log('✅ Redirecting to:', productData.download_url);
+    // Check if this is a GitHub URL (private repo requires proxy)
+    const isGitHubUrl = productData.download_url.includes('github.com');
+    
+    if (isGitHubUrl && process.env.GITHUB_TOKEN) {
+      console.log('🔐 Private GitHub repo detected - proxying download with authentication');
+      
+      // Fetch the file from GitHub with authentication
+      const githubResponse = await fetch(productData.download_url, {
+        headers: {
+          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
+          'Accept': 'application/octet-stream',
+          'User-Agent': 'Appsto-Download-Proxy'
+        },
+        redirect: 'follow'
+      });
 
-    // Redirect to actual download URL (GitHub release)
+      if (!githubResponse.ok) {
+        console.error('❌ Failed to fetch from GitHub:', githubResponse.status, githubResponse.statusText);
+        return NextResponse.json(
+          { error: 'Failed to fetch installer. Please contact support.' },
+          { status: 500 }
+        );
+      }
+
+      // Get the file content
+      const fileBuffer = await githubResponse.arrayBuffer();
+      
+      // Extract filename from URL or use default
+      const urlParts = productData.download_url.split('/');
+      const filename = urlParts[urlParts.length - 1] || `${productData.name}_Setup.exe`;
+
+      console.log('✅ Streaming file:', filename, `(${fileBuffer.byteLength} bytes)`);
+
+      // Stream the file to the client
+      return new NextResponse(fileBuffer, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+          'Content-Length': fileBuffer.byteLength.toString(),
+          'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        },
+      });
+    }
+
+    // For public URLs, redirect directly
+    console.log('✅ Public URL - redirecting to:', productData.download_url);
     return NextResponse.redirect(productData.download_url, 302);
 
   } catch (error) {

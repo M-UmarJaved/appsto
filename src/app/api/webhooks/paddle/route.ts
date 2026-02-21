@@ -94,10 +94,16 @@ export async function POST(req: NextRequest) {
       await handleSubscriptionCreated(event.data)
     }
 
-    // Handle refund events
+    // Handle refund events (legacy Paddle v1 style)
     if (event.event_type === 'transaction.payment_failed' || event.event_type === 'transaction.refunded') {
       console.log('🎯 Processing refund/payment failure event')
       await handleTransactionRefunded(event.data)
+    }
+
+    // Handle adjustment events (Paddle v2 refunds)
+    if (event.event_type === 'adjustment.updated') {
+      console.log('🎯 Processing adjustment.updated event')
+      await handleAdjustmentUpdated(event.data)
     }
 
     console.log('✅ Webhook processed successfully')
@@ -494,6 +500,327 @@ async function handleTransactionRefunded(data: any) {
   } catch (error) {
     console.error('❌ Error handling refund:', error)
     throw error
+  }
+}
+
+/**
+ * Handle adjustment.updated webhook (Paddle v2 Refunds)
+ * Paddle v2 sends adjustment.updated events when refunds are processed
+ * This is the modern way to handle refunds in Paddle Billing API v2
+ */
+async function handleAdjustmentUpdated(data: any) {
+  try {
+    console.log('🔄 Processing adjustment:', data.id)
+    
+    // SECURITY: Validate adjustment data structure
+    if (!data || typeof data !== 'object') {
+      console.error('❌ Invalid adjustment data')
+      return
+    }
+    
+    // Check if this is a refund adjustment that's been approved
+    if (data.action !== 'refund' || data.status !== 'approved') {
+      console.log('ℹ️ Adjustment is not an approved refund, skipping:', {
+        action: data.action,
+        status: data.status
+      })
+      return
+    }
+    
+    console.log('⚠️ Approved refund detected!')
+    
+    // Extract transaction ID from the adjustment
+    const transactionId = data.transaction_id
+    
+    if (!transactionId) {
+      console.error('❌ Missing transaction_id in adjustment data')
+      return
+    }
+    
+    console.log('🔍 Looking up purchase for transaction:', transactionId)
+
+    // Find the purchase record using the transaction ID
+    const { data: purchase, error: purchaseError } = await supabase
+      .from('purchases')
+      .select('*, licenses(*), products(name)')
+      .eq('paddle_transaction_id', transactionId)
+      .single()
+
+    if (purchaseError || !purchase) {
+      console.error('❌ Purchase not found for transaction:', transactionId, purchaseError)
+      
+      // Send Discord notification about failed refund processing
+      try {
+        await sendRefundNotification({
+          transactionId,
+          success: false,
+          error: 'Purchase record not found in database'
+        })
+      } catch (discordError) {
+        console.error('❌ Failed to send Discord notification:', discordError)
+      }
+      
+      return
+    }
+
+    console.log('📝 Found purchase:', {
+      id: purchase.id,
+      customer: purchase.customer_email,
+      product: purchase.products?.name,
+      amount: purchase.amount,
+      currency: purchase.currency
+    })
+
+    // Update purchase status to refunded
+    const { error: updateError } = await supabase
+      .from('purchases')
+      .update({ 
+        status: 'refunded',
+        refunded_at: new Date().toISOString()
+      })
+      .eq('id', purchase.id)
+    
+    if (updateError) {
+      console.error('❌ Failed to update purchase status:', updateError)
+      throw updateError
+    }
+
+    console.log('✅ Purchase status updated to refunded')
+
+    // Deactivate all associated license keys
+    if (purchase.licenses && purchase.licenses.length > 0) {
+      const licenseIds = purchase.licenses.map((l: any) => l.id)
+      const licenseKeys = purchase.licenses.map((l: any) => l.license_key)
+      
+      // Deactivate in main database
+      const { error: deactivateError } = await supabase
+        .from('licenses')
+        .update({ 
+          is_active: false,
+          deactivated_at: new Date().toISOString(),
+          deactivation_reason: 'refund'
+        })
+        .in('id', licenseIds)
+      
+      if (deactivateError) {
+        console.error('❌ Failed to deactivate licenses:', deactivateError)
+        throw deactivateError
+      }
+
+      console.log(`✅ Deactivated ${licenseIds.length} license keys in main database`)
+
+      // Also deactivate in product database
+      const productDB = createClient(
+        process.env.PRODUCT_DB_SUPABASE_URL!,
+        process.env.PRODUCT_DB_SUPABASE_KEY!
+      )
+      
+      for (const licenseKey of licenseKeys) {
+        try {
+          await productDB
+            .from('license_keys')
+            .update({ 
+              is_active: false,
+              status: 'revoked'
+            })
+            .eq('license_key', licenseKey)
+
+          console.log(`✅ License ${licenseKey} revoked in product database`)
+        } catch (syncError) {
+          console.error(`❌ Failed to sync license deactivation for ${licenseKey}:`, syncError)
+          // Continue with other licenses even if one fails
+        }
+      }
+      
+      // Send Discord notification about successful refund
+      try {
+        await sendRefundNotification({
+          transactionId,
+          purchaseId: purchase.id,
+          customerEmail: purchase.customer_email,
+          customerName: purchase.customer_name,
+          productName: purchase.products?.name || 'Unknown Product',
+          amount: purchase.amount,
+          currency: purchase.currency,
+          licensesRevoked: licenseKeys.length,
+          licenseKeys: licenseKeys,
+          success: true
+        })
+        console.log('✅ Discord refund notification sent')
+      } catch (discordError) {
+        console.error('❌ Failed to send Discord notification:', discordError)
+        // Don't throw - refund processing is complete
+      }
+    } else {
+      console.log('ℹ️ No licenses associated with this purchase')
+      
+      // Still send Discord notification
+      try {
+        await sendRefundNotification({
+          transactionId,
+          purchaseId: purchase.id,
+          customerEmail: purchase.customer_email,
+          customerName: purchase.customer_name,
+          productName: purchase.products?.name || 'Unknown Product',
+          amount: purchase.amount,
+          currency: purchase.currency,
+          licensesRevoked: 0,
+          success: true
+        })
+      } catch (discordError) {
+        console.error('❌ Failed to send Discord notification:', discordError)
+      }
+    }
+
+    console.log('🎉 Adjustment.updated (refund) processed successfully!')
+  } catch (error) {
+    console.error('❌ Error handling adjustment.updated:', error)
+    
+    // Try to send error notification
+    try {
+      await sendRefundNotification({
+        transactionId: data?.transaction_id || 'unknown',
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
+    } catch (discordError) {
+      console.error('❌ Failed to send error notification:', discordError)
+    }
+    
+    throw error
+  }
+}
+
+/**
+ * Send refund notification to Discord
+ */
+async function sendRefundNotification(data: {
+  transactionId: string
+  purchaseId?: string
+  customerEmail?: string
+  customerName?: string
+  productName?: string
+  amount?: number
+  currency?: string
+  licensesRevoked?: number
+  licenseKeys?: string[]
+  success: boolean
+  error?: string
+}) {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL
+
+  if (!webhookUrl) {
+    console.warn('⚠️ DISCORD_WEBHOOK_URL not configured - skipping Discord notification')
+    return
+  }
+
+  try {
+    const embed: any = {
+      title: data.success ? '⚠️ Refund Processed - Licenses Revoked' : '❌ Refund Processing Failed',
+      color: data.success ? 15844367 : 15158332, // Orange for refund, Red for error
+      fields: [
+        {
+          name: '🆔 Transaction ID',
+          value: `\`${data.transactionId}\``,
+          inline: true,
+        }
+      ],
+      footer: {
+        text: 'Appsto Refund Monitor',
+      },
+      timestamp: new Date().toISOString(),
+    }
+
+    if (data.success) {
+      // Success - add purchase details
+      if (data.purchaseId) {
+        embed.fields.push({
+          name: '📦 Purchase ID',
+          value: `\`${data.purchaseId.substring(0, 8)}...\``,
+          inline: true,
+        })
+      }
+      
+      if (data.customerEmail) {
+        embed.fields.push({
+          name: '👤 Customer',
+          value: data.customerEmail,
+          inline: true,
+        })
+      }
+      
+      if (data.productName) {
+        embed.fields.push({
+          name: '🛍️ Product',
+          value: data.productName,
+          inline: true,
+        })
+      }
+      
+      if (data.amount && data.currency) {
+        const formattedAmount = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: data.currency,
+        }).format(data.amount)
+        
+        embed.fields.push({
+          name: '💰 Refunded Amount',
+          value: formattedAmount,
+          inline: true,
+        })
+      }
+      
+      if (data.licensesRevoked !== undefined) {
+        embed.fields.push({
+          name: '🔑 Licenses Revoked',
+          value: `${data.licensesRevoked} license${data.licensesRevoked !== 1 ? 's' : ''}`,
+          inline: true,
+        })
+      }
+      
+      if (data.licenseKeys && data.licenseKeys.length > 0) {
+        const keysPreview = data.licenseKeys.slice(0, 3).map(k => `\`${k.substring(0, 20)}...\``).join('\n')
+        const moreText = data.licenseKeys.length > 3 ? `\n_and ${data.licenseKeys.length - 3} more..._` : ''
+        
+        embed.fields.push({
+          name: '🗝️ Revoked Keys',
+          value: keysPreview + moreText,
+          inline: false,
+        })
+      }
+      
+      embed.description = `A refund has been processed and customer access has been revoked.`
+    } else {
+      // Error
+      embed.description = `Failed to process refund for transaction.`
+      embed.fields.push({
+        name: '❌ Error',
+        value: data.error || 'Unknown error',
+        inline: false,
+      })
+    }
+
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: 'Appsto Refund Bot',
+        avatar_url: 'https://appsto.software/Logo.png',
+        embeds: [embed],
+      }),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`Discord webhook failed: ${response.status} - ${errorText}`)
+    }
+
+    console.log('✅ Discord refund notification sent successfully')
+  } catch (error) {
+    console.error('❌ Error sending Discord refund notification:', error)
+    // Don't throw - we don't want to break refund processing if Discord fails
   }
 }
 
