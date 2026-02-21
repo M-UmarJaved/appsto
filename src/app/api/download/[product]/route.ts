@@ -7,18 +7,17 @@ const supabase = createClient(
 );
 
 /**
- * Download Proxy API
- * Purpose: Serve installer files from private GitHub releases
+ * Download Redirect API
+ * Purpose: Professional download endpoint with analytics
  * 
  * Benefits:
- * - Works with private GitHub repositories
- * - Professional email appearance
- * - Track download analytics
- * - Flexibility to change storage locations
- * - Security: validate purchase before download
+ * - Professional email appearance (hide storage URLs)
+ * - Track download analytics (IP, user agent, timestamp)
+ * - Flexibility to change storage locations without updating emails
+ * - Future: Add purchase validation for restricted downloads
  * 
- * Note: For private GitHub repos, we proxy the download using a GitHub token
- * instead of redirecting to ensure customers can download without GitHub auth
+ * Storage: Works with any public URL (Cloudflare R2, S3, GitHub Releases, etc.)
+ * The API logs the download and redirects to the actual file URL
  */
 
 export async function GET(
@@ -64,7 +63,19 @@ export async function GET(
     // Optional: Extract purchase token from query params for validation
     // const searchParams = request.nextUrl.searchParams;
     // const purchaseId = searchParams.get('purchase');
-    // TODO: Validate purchase ID if you want to restrict downloads to verified purchases
+    // const token = searchParams.get('token');
+    // 
+    // TODO: Validate purchase before allowing download
+    // const { data: purchase } = await supabase
+    //   .from('purchases')
+    //   .select('id, status')
+    //   .eq('id', purchaseId)
+    //   .eq('download_token', token)
+    //   .single();
+    // 
+    // if (!purchase || purchase.status !== 'completed') {
+    //   return NextResponse.json({ error: 'Invalid or expired download link' }, { status: 403 });
+    // }
 
     // Log download for analytics
     const ip = request.headers.get('x-forwarded-for') || 
@@ -72,61 +83,20 @@ export async function GET(
                 'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
-    await supabase.from('download_logs').insert({
+    // Log download (non-blocking - don't wait for result)
+    supabase.from('download_logs').insert({
       product_id: productData.id,
       download_url: productData.download_url,
       ip_address: ip,
       user_agent: userAgent,
       downloaded_at: new Date().toISOString(),
+    }).then(({ error }) => {
+      if (error) console.error('⚠️ Failed to log download:', error);
     });
 
-    // Check if this is a GitHub URL (private repo requires proxy)
-    const isGitHubUrl = productData.download_url.includes('github.com');
+    console.log('✅ Redirecting to:', productData.download_url);
     
-    if (isGitHubUrl && process.env.GITHUB_TOKEN) {
-      console.log('🔐 Private GitHub repo detected - proxying download with authentication');
-      
-      // Fetch the file from GitHub with authentication
-      const githubResponse = await fetch(productData.download_url, {
-        headers: {
-          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
-          'Accept': 'application/octet-stream',
-          'User-Agent': 'Appsto-Download-Proxy'
-        },
-        redirect: 'follow'
-      });
-
-      if (!githubResponse.ok) {
-        console.error('❌ Failed to fetch from GitHub:', githubResponse.status, githubResponse.statusText);
-        return NextResponse.json(
-          { error: 'Failed to fetch installer. Please contact support.' },
-          { status: 500 }
-        );
-      }
-
-      // Get the file content
-      const fileBuffer = await githubResponse.arrayBuffer();
-      
-      // Extract filename from URL or use default
-      const urlParts = productData.download_url.split('/');
-      const filename = urlParts[urlParts.length - 1] || `${productData.name}_Setup.exe`;
-
-      console.log('✅ Streaming file:', filename, `(${fileBuffer.byteLength} bytes)`);
-
-      // Stream the file to the client
-      return new NextResponse(fileBuffer, {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/octet-stream',
-          'Content-Disposition': `attachment; filename="${filename}"`,
-          'Content-Length': fileBuffer.byteLength.toString(),
-          'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
-        },
-      });
-    }
-
-    // For public URLs, redirect directly
-    console.log('✅ Public URL - redirecting to:', productData.download_url);
+    // Redirect to actual download URL (Cloudflare R2, S3, etc.)
     return NextResponse.redirect(productData.download_url, 302);
 
   } catch (error) {
