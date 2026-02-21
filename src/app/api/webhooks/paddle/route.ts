@@ -544,6 +544,14 @@ function verifyPaddleWebhook(signature: string | null, body: string): boolean {
       console.error('❌ PADDLE_WEBHOOK_SECRET not configured!')
       return false
     }
+    
+    // TEMPORARY: Diagnostic logging for debugging signature issues
+    console.log('🔍 Signature Debug Info:')
+    console.log('  - Timestamp:', ts)
+    console.log('  - Secret prefix:', secret.substring(0, 10) + '...')
+    console.log('  - Secret length:', secret.length)
+    console.log('  - Received signature prefix:', h1.substring(0, 10) + '...')
+    console.log('  - Time difference:', timeDifference, 'seconds')
 
     // Construct the signed payload (Paddle format)
     const payload = ts + ':' + body
@@ -553,6 +561,10 @@ function verifyPaddleWebhook(signature: string | null, body: string): boolean {
       .createHmac('sha256', secret)
       .update(payload)
       .digest('hex')
+    
+    // TEMPORARY: Show signature comparison
+    console.log('  - Expected signature prefix:', expectedSignature.substring(0, 10) + '...')
+    console.log('  - Signatures match:', h1 === expectedSignature)
 
     // Timing-safe comparison to prevent timing attacks
     const isValid = crypto.timingSafeEqual(
@@ -562,6 +574,10 @@ function verifyPaddleWebhook(signature: string | null, body: string): boolean {
 
     if (!isValid) {
       console.error('❌ Invalid webhook signature - possible fraud attempt')
+      console.error('🔍 This likely means:')
+      console.error('   1. Wrong webhook secret in PADDLE_WEBHOOK_SECRET env var')
+      console.error('   2. Multiple webhook destinations with different secrets')
+      console.error('   3. Webhook sent to wrong destination')
     }
 
     return isValid
