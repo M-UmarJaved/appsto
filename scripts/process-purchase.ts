@@ -110,13 +110,16 @@ async function processExistingPurchase() {
     // Send confirmation email
     console.log('📧 Sending confirmation email...')
     try {
+      const amount = parseFloat(purchase.amount)
       await sendPurchaseConfirmationEmail({
         purchaseId: purchase.id,
         customerName: purchase.customer_name || 'Customer',
         customerEmail: purchase.customer_email,
         productName: purchase.products.name,
         planName: purchase.pricing_plans.plan_name,
-        amount: parseFloat(purchase.amount),
+        subtotal: amount,
+        discount: 0, // Historical data - discount info not available
+        amount: amount,
         currency: purchase.currency,
         licenseKeys: licenses.map((l) => l.license_key),
         downloadUrl,
@@ -130,12 +133,15 @@ async function processExistingPurchase() {
     // Send Discord notification
     console.log('📢 Sending Discord notification...')
     try {
+      const amount = parseFloat(purchase.amount)
       await sendPurchaseNotification({
         customerName: purchase.customer_name || 'Customer',
         customerEmail: purchase.customer_email,
         productName: purchase.products.name,
         planName: purchase.pricing_plans.plan_name,
-        amount: parseFloat(purchase.amount),
+        subtotal: amount,
+        discount: 0, // Historical data - discount info not available
+        amount: amount,
         currency: purchase.currency,
         licensesCount: purchase.pricing_plans.devices,
         purchaseId: purchase.id,

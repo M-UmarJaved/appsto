@@ -21,6 +21,8 @@ export async function POST(req: NextRequest) {
       customerEmail: email,
       productName: 'DeskSweep',
       planName: 'Solo Plan',
+      subtotal: 9.0,
+      discount: 6.0,
       amount: 3.0,
       currency: 'USD',
       licenseKeys: ['TEST-AAAA-BBBB-CCCC-DDDD'],

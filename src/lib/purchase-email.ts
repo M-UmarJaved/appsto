@@ -24,6 +24,8 @@ interface PurchaseEmailData {
   customerEmail: string;
   productName: string;
   planName: string;
+  subtotal: number;
+  discount: number;
   amount: number;
   currency: string;
   licenseKeys: string[];
@@ -48,6 +50,8 @@ export async function sendPurchaseConfirmationEmail(data: PurchaseEmailData) {
     customerEmail,
     productName,
     planName,
+    subtotal,
+    discount,
     amount,
     currency,
     licenseKeys,
@@ -132,9 +136,21 @@ export async function sendPurchaseConfirmationEmail(data: PurchaseEmailData) {
                     <td style="color: #6b7280; padding: 8px 0;">Licenses:</td>
                     <td align="right" style="color: #1f2937; font-weight: 600; padding: 8px 0;">${licenseKeys.length}</td>
                   </tr>
+                  <tr style="${discount > 0 ? '' : 'display: none;'}">
+                    <td style="color: #6b7280; padding: 8px 0; border-top: 1px solid #e5e7eb; padding-top: 12px;">Subtotal:</td>
+                    <td align="right" style="color: #1f2937; font-weight: 600; padding: 8px 0; border-top: 1px solid #e5e7eb; padding-top: 12px;">
+                      ${formatPrice(subtotal, currency as Currency)}
+                    </td>
+                  </tr>
+                  <tr style="${discount > 0 ? '' : 'display: none;'}">
+                    <td style="color: #6b7280; padding: 8px 0;">Discount:</td>
+                    <td align="right" style="color: #10b981; font-weight: 600; padding: 8px 0;">
+                      -${formatPrice(discount, currency as Currency)}
+                    </td>
+                  </tr>
                   <tr>
-                    <td style="color: #6b7280; padding: 8px 0; border-top: 1px solid #e5e7eb; padding-top: 12px;">Amount Paid:</td>
-                    <td align="right" style="color: #6366f1; font-weight: 700; font-size: 20px; padding: 8px 0; border-top: 1px solid #e5e7eb; padding-top: 12px;">
+                    <td style="color: #6b7280; padding: 8px 0; ${discount > 0 ? '' : 'border-top: 1px solid #e5e7eb; padding-top: 12px;'}">Total Paid:</td>
+                    <td align="right" style="color: #6366f1; font-weight: 700; font-size: 20px; padding: 8px 0; ${discount > 0 ? '' : 'border-top: 1px solid #e5e7eb; padding-top: 12px;'}">
                       ${formatPrice(amount, currency as Currency)}
                     </td>
                   </tr>
@@ -459,6 +475,8 @@ export async function resendLicenseEmail(purchaseId: string) {
     customerEmail: purchase.customer_email,
     productName: purchase.product.name,
     planName: 'Your Plan',
+    subtotal: purchase.amount,
+    discount: 0, // Historical data - discount info not stored in database
     amount: purchase.amount,
     currency: purchase.currency,
     licenseKeys,

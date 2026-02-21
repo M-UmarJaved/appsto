@@ -18,6 +18,8 @@ interface PurchaseNotification {
   customerEmail: string
   productName: string
   planName: string
+  subtotal: number
+  discount: number
   amount: number
   currency: string
   licensesCount: number
@@ -48,11 +50,26 @@ export async function sendPurchaseNotification(data: PurchaseNotification) {
   }
 
   try {
-    // Format currency amount
+    // Format currency amounts
     const formattedAmount = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: data.currency,
     }).format(data.amount)
+    
+    const formattedSubtotal = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: data.currency,
+    }).format(data.subtotal)
+    
+    const formattedDiscount = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: data.currency,
+    }).format(data.discount)
+
+    // Build amount display with discount info
+    const amountDisplay = data.discount > 0 
+      ? `~~${formattedSubtotal}~~ **${formattedAmount}**\n💚 Saved ${formattedDiscount}!`
+      : formattedAmount
 
     // Create rich embed
     const embed: DiscordEmbed = {
@@ -67,7 +84,7 @@ export async function sendPurchaseNotification(data: PurchaseNotification) {
         },
         {
           name: '💰 Amount',
-          value: formattedAmount,
+          value: amountDisplay,
           inline: true,
         },
         {
@@ -148,7 +165,9 @@ export async function sendTestNotification() {
     customerEmail: 'test@example.com',
     productName: 'DeskSweep',
     planName: 'Solo Plan',
-    amount: 29.99,
+    subtotal: 29.99,
+    discount: 10.00,
+    amount: 19.99,
     currency: 'USD',
     licensesCount: 1,
     purchaseId: 'test-' + Date.now(),

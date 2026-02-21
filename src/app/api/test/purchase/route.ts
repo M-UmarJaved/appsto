@@ -155,6 +155,8 @@ async function handleTestPurchase(req: NextRequest) {
       customerEmail: email,
       productName: product.name,
       planName: pricingPlan.plan_name,
+      subtotal: actualPrice,
+      discount: 0, // Test purchase - no discount applied
       amount: actualPrice,
       currency: currency,
       licenseKeys: licenses.map((l) => l.license_key),
@@ -170,6 +172,8 @@ async function handleTestPurchase(req: NextRequest) {
       customerEmail: email,
       productName: product.name,
       planName: pricingPlan.plan_name,
+      subtotal: actualPrice,
+      discount: 0, // Test purchase - no discount applied
       amount: actualPrice,
       currency: currency,
       licensesCount: pricingPlan.devices,

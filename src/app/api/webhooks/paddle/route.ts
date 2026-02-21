@@ -218,17 +218,26 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
       const paddlePriceId = item.price.id
       const paddleProductId = item.price.product_id
       
-      // Calculate amount - handle different payload structures
+      // Calculate amount and extract discount info - handle different payload structures
       let amount: number
+      let subtotal: number
+      let discount: number
+      
       if (item.totals && item.totals.total) {
         // Standard payload with item totals (real Paddle webhooks)
         amount = parseFloat(item.totals.total) / 100
+        subtotal = parseFloat(item.totals.subtotal || item.totals.total) / 100
+        discount = parseFloat(item.totals.discount || '0') / 100
       } else if (item.price.unit_price && item.price.unit_price.amount) {
         // Fallback: calculate from unit price * quantity (simulations)
         amount = (parseFloat(item.price.unit_price.amount) * item.quantity) / 100
+        subtotal = amount
+        discount = 0
       } else if (data.details && data.details.totals && data.details.totals.total) {
         // Last resort: use transaction total (single-item transactions)
         amount = parseFloat(data.details.totals.total) / 100
+        subtotal = parseFloat(data.details.totals.subtotal || data.details.totals.total) / 100
+        discount = parseFloat(data.details.totals.discount || '0') / 100
       } else {
         console.error('❌ Cannot determine amount from item:', item)
         console.error('⚠️ Skipping item - invalid amount')
@@ -252,7 +261,7 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
         console.warn(`⚠️ Invalid plan slug '${rawPlanSlug}' sanitized to '${planSlug}'`)
       }
 
-      console.log('📦 Processing item:', { paddlePriceId, paddleProductId, amount, currency, planSlug })
+      console.log('📦 Processing item:', { paddlePriceId, paddleProductId, subtotal, discount, amount, currency, planSlug })
 
       // Get product from database
       const { data: product, error: productError } = await supabase
@@ -352,6 +361,8 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
           customerEmail: customerEmail,
           productName: product.name,
           planName: pricingPlan.plan_name,
+          subtotal: subtotal,
+          discount: discount,
           amount: amount,
           currency: currency,
           licenseKeys: licenses.map((l) => l.license_key),
@@ -373,6 +384,8 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
           customerEmail: customerEmail,
           productName: product.name,
           planName: pricingPlan.plan_name,
+          subtotal: subtotal,
+          discount: discount,
           amount: amount,
           currency: currency,
           licensesCount: pricingPlan.devices,
