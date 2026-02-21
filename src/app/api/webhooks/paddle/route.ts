@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { createLicenses, syncPurchaseLicenses } from '@/lib/license'
 import { sendPurchaseConfirmationEmail } from '@/lib/purchase-email'
 import { sendPurchaseNotification } from '@/lib/discord'
+import { checkRateLimit, getClientId } from '@/lib/ratelimit'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,6 +27,26 @@ const supabase = createClient(
  */
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY: Rate limiting to prevent DoS attacks
+    const clientId = getClientId(req)
+    const rateLimit = checkRateLimit(clientId, '/api/webhooks/paddle')
+    
+    if (rateLimit.limited) {
+      console.warn('⚠️ Rate limit exceeded for webhook requests from:', clientId)
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': rateLimit.retryAfter?.toString() || '60',
+            'X-RateLimit-Limit': '100',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': new Date(rateLimit.resetAt).toISOString(),
+          }
+        }
+      )
+    }
+    
     console.log('🎯 Paddle webhook received!')
     
     // Get the webhook signature from headers
@@ -33,8 +54,8 @@ export async function POST(req: NextRequest) {
     const rawBody = await req.text()
 
     console.log('📧 Webhook signature:', signature ? 'Present' : 'Missing')
-    console.log('📦 Webhook body preview:', rawBody.substring(0, 200))
-
+    // SECURITY: Don't log full body - may contain sensitive customer data
+    
     // Verify webhook signature (important for security)
     if (!verifyPaddleWebhook(signature, rawBody)) {
       console.error('❌ Invalid Paddle webhook signature')
@@ -46,8 +67,19 @@ export async function POST(req: NextRequest) {
     // Parse the webhook payload
     const event = JSON.parse(rawBody)
     
+    // SECURITY: Input validation
+    if (!event || typeof event !== 'object') {
+      console.error('❌ Invalid webhook payload format')
+      return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+    }
+    
+    if (!event.event_type || typeof event.event_type !== 'string') {
+      console.error('❌ Missing or invalid event_type')
+      return NextResponse.json({ error: 'Invalid event type' }, { status: 400 })
+    }
+    
     console.log('📨 Paddle webhook event type:', event.event_type)
-    console.log('📨 Full event data:', JSON.stringify(event, null, 2))
+    // SECURITY: Don't log full event data - contains sensitive information
 
     // Handle transaction completed event
     if (event.event_type === 'transaction.completed') {
@@ -72,8 +104,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true })
   } catch (error) {
     console.error('❌ Webhook error:', error)
+    // SECURITY: Don't leak internal error details to potential attackers
     return NextResponse.json(
-      { error: 'Webhook processing failed', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Webhook processing failed' },
       { status: 500 }
     )
   }
@@ -85,6 +118,19 @@ export async function POST(req: NextRequest) {
  */
 async function handleTransactionCompleted(data: any, isSimulation: boolean = false) {
   try {
+    // SECURITY: Input validation - ensure required fields exist
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid transaction data: missing data object')
+    }
+    
+    if (!data.id || typeof data.id !== 'string') {
+      throw new Error('Invalid transaction data: missing or invalid transaction ID')
+    }
+    
+    if (!data.customer_id || typeof data.customer_id !== 'string') {
+      throw new Error('Invalid transaction data: missing or invalid customer ID')
+    }
+    
     console.log('🎯 Processing Paddle transaction:', data.id)
     if (isSimulation) {
       console.log('ℹ️ This is a simulation webhook')
@@ -93,6 +139,19 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
     // Extract transaction data
     const transactionId = data.id
     const customerId = data.customer_id
+
+    // SECURITY: Idempotency check - prevent duplicate processing of same transaction
+    const { data: existingPurchase } = await supabase
+      .from('purchases')
+      .select('id')
+      .eq('paddle_transaction_id', transactionId)
+      .single()
+    
+    if (existingPurchase) {
+      console.log('ℹ️ Transaction already processed:', transactionId)
+      console.log('✅ Returning success (idempotent)')
+      return // Return success - this is not an error
+    }
 
     // Handle customer data - fetch from Paddle API if not in payload
     let customerEmail: string
@@ -150,6 +209,12 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
 
     // Process each item in the transaction
     for (const item of items) {
+      // SECURITY: Validate item structure
+      if (!item.price || !item.price.id || !item.price.product_id) {
+        console.error('❌ Invalid item structure - missing price data')
+        continue
+      }
+      
       const paddlePriceId = item.price.id
       const paddleProductId = item.price.product_id
       
@@ -178,7 +243,14 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
       }
       
       const currency = data.currency_code
-      const planSlug = customData.plan_slug || item.price.description?.toLowerCase() || 'solo'
+      // SECURITY: Sanitize planSlug - must be one of the valid values
+      const rawPlanSlug = customData.plan_slug || item.price.description?.toLowerCase() || 'solo'
+      const validPlanSlugs = ['solo', 'squad', 'studio']
+      const planSlug = validPlanSlugs.includes(rawPlanSlug) ? rawPlanSlug : 'solo'
+      
+      if (rawPlanSlug !== planSlug) {
+        console.warn(`⚠️ Invalid plan slug '${rawPlanSlug}' sanitized to '${planSlug}'`)
+      }
 
       console.log('📦 Processing item:', { paddlePriceId, paddleProductId, amount, currency, planSlug })
 
@@ -419,8 +491,8 @@ async function handleTransactionRefunded(data: any) {
  * and haven't been tampered with. Critical for preventing fraudulent transactions.
  */
 function verifyPaddleWebhook(signature: string | null, body: string): boolean {
-  // In development, optionally skip verification for testing
-  // Set SKIP_WEBHOOK_VERIFICATION=true in .env for local testing only
+  // SECURITY: In development, optionally skip verification for LOCAL testing only
+  // NEVER enable this in production - attackers could forge webhooks
   if (process.env.NODE_ENV === 'development' && process.env.SKIP_WEBHOOK_VERIFICATION === 'true') {
     console.warn('⚠️ WARNING: Webhook verification skipped in development mode')
     return true
@@ -432,11 +504,14 @@ function verifyPaddleWebhook(signature: string | null, body: string): boolean {
   }
 
   try {
-    // Check if this is a simulation event - skip verification for testing
-    const parsedBody = JSON.parse(body)
-    if (parsedBody.event_id?.startsWith('ntfsimevt_') || parsedBody.notification_id?.startsWith('ntfsimntf_')) {
-      console.log('ℹ️ Simulation webhook detected - skipping signature verification for testing')
-      return true
+    // SECURITY: Simulation bypass ONLY in development environment
+    // In production, ALL webhooks must have valid signatures
+    if (process.env.NODE_ENV === 'development') {
+      const parsedBody = JSON.parse(body)
+      if (parsedBody.event_id?.startsWith('ntfsimevt_') || parsedBody.notification_id?.startsWith('ntfsimntf_')) {
+        console.log('ℹ️ Simulation webhook detected - skipping signature verification (DEV ONLY)')
+        return true
+      }
     }
 
     // Paddle uses TS (timestamp) and H1 (HMAC signature) in the header
@@ -447,6 +522,17 @@ function verifyPaddleWebhook(signature: string | null, body: string): boolean {
 
     if (!ts || !h1) {
       console.error('⚠️ Invalid signature format')
+      return false
+    }
+
+    // SECURITY: Validate timestamp is recent (within 5 minutes) to prevent replay attacks
+    const webhookTimestamp = parseInt(ts, 10)
+    const currentTimestamp = Math.floor(Date.now() / 1000)
+    const timeDifference = Math.abs(currentTimestamp - webhookTimestamp)
+    
+    if (timeDifference > 300) { // 5 minutes
+      console.error('❌ Webhook timestamp too old - possible replay attack')
+      console.error(`Timestamp difference: ${timeDifference} seconds`)
       return false
     }
 

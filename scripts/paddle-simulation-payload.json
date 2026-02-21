@@ -1,0 +1,122 @@
+{
+  "event_id": "ntfsimevt_test_desksweep_001",
+  "event_type": "transaction.completed",
+  "occurred_at": "2026-02-21T05:00:00.000000Z",
+  "notification_id": "ntfsimntf_test_desksweep_001",
+  "data": {
+    "id": "txn_test_desksweep_simulation",
+    "status": "completed",
+    "customer_id": "ctm_test_simulation_customer",
+    "customer": {
+      "id": "ctm_test_simulation_customer",
+      "email": "test-simulation@appsto.software",
+      "name": "Simulation Test User"
+    },
+    "currency_code": "USD",
+    "origin": "web",
+    "subscription_id": null,
+    "invoice_id": null,
+    "invoice_number": null,
+    "collection_mode": "automatic",
+    "discount_id": null,
+    "billing_details": null,
+    "billing_period": null,
+    "items": [
+      {
+        "price": {
+          "id": "pri_01khb858xxexa8chhc45gvdvwk",
+          "name": "Solo Plan - Single User License",
+          "type": "standard",
+          "status": "active",
+          "product_id": "pro_01khb6caewhmc5wzgf9mgzc3bc",
+          "unit_price": {
+            "amount": "200",
+            "currency_code": "USD"
+          },
+          "description": "solo",
+          "billing_cycle": null,
+          "trial_period": null,
+          "tax_mode": "account_setting",
+          "unit_price_overrides": []
+        },
+        "quantity": 1,
+        "proration": null
+      }
+    ],
+    "details": {
+      "totals": {
+        "subtotal": "200",
+        "discount": "0",
+        "tax": "0",
+        "total": "200",
+        "credit": "0",
+        "balance": "0",
+        "grand_total": "200",
+        "fee": "10",
+        "earnings": "190",
+        "currency_code": "USD"
+      },
+      "line_items": [
+        {
+          "id": "txnitm_test_001",
+          "price_id": "pri_01khb858xxexa8chhc45gvdvwk",
+          "quantity": 1,
+          "proration": null,
+          "tax_rate": "0",
+          "unit_totals": {
+            "subtotal": "200",
+            "discount": "0",
+            "tax": "0",
+            "total": "200"
+          },
+          "totals": {
+            "subtotal": "200",
+            "discount": "0",
+            "tax": "0",
+            "total": "200"
+          },
+          "product": {
+            "id": "pro_01khb6caewhmc5wzgf9mgzc3bc",
+            "name": "DeskSweep",
+            "type": "standard",
+            "status": "active",
+            "description": "Clean your Windows desktop with a single click",
+            "image_url": "https://appsto.software/desksweep-icon.png",
+            "tax_category": "standard"
+          }
+        }
+      ]
+    },
+    "payments": [
+      {
+        "amount": "200",
+        "status": "captured",
+        "created_at": "2026-02-21T05:00:00.000000Z",
+        "captured_at": "2026-02-21T05:00:05.000000Z",
+        "error_code": null,
+        "payment_attempt_id": "sim_attempt_001",
+        "payment_method_id": "paymtd_sim_001",
+        "method_details": {
+          "type": "card",
+          "card": {
+            "type": "visa",
+            "last4": "4242",
+            "expiry_month": 12,
+            "expiry_year": 2028,
+            "cardholder_name": "Test User"
+          }
+        }
+      }
+    ],
+    "checkout": {
+      "url": "https://appsto.software/checkout-test"
+    },
+    "created_at": "2026-02-21T05:00:00.000000Z",
+    "updated_at": "2026-02-21T05:00:05.000000Z",
+    "billed_at": "2026-02-21T05:00:05.000000Z",
+    "address_id": "add_sim_001",
+    "business_id": null,
+    "custom_data": null,
+    "receipt_data": null
+  }
+}
