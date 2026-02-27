@@ -51,6 +51,18 @@ This guide will help you migrate DeskSweep installer from GitHub to Cloudflare R
 
 For a more professional URL like `https://downloads.appsto.software/DeskSweep_Setup.exe`:
 
+### Prerequisites:
+⚠️ **Your domain MUST be managed by Cloudflare DNS** (not just proxied)
+
+**Check if your domain is on Cloudflare:**
+1. Go to Cloudflare Dashboard → **Websites**
+2. Look for `appsto.software` in the list
+3. If it's NOT there, you need to add it first (see below)
+
+### Option A: Domain Already on Cloudflare
+
+If `appsto.software` is already listed in your Cloudflare Websites:
+
 1. **In R2 bucket settings:**
    - Go to **Settings** → **Custom Domains**
    - Click **"Connect Domain"**
@@ -63,6 +75,46 @@ For a more professional URL like `https://downloads.appsto.software/DeskSweep_Se
 3. **Wait for DNS propagation:**
    - Usually takes 1-5 minutes
    - ✅ Your custom domain is ready!
+
+### Option B: Add Domain to Cloudflare (If Not Already Added)
+
+If you get the error: *"That domain was not found on your account"*
+
+1. **Add site to Cloudflare:**
+   - Cloudflare Dashboard → **Add a Site**
+   - Enter: `appsto.software`
+   - Choose **Free plan**
+   - Click **"Continue"**
+
+2. **Update nameservers:**
+   - Cloudflare will show you 2 nameservers (like `ns1.cloudflare.com`)
+   - Go to your domain registrar (Namecheap, GoDaddy, etc.)
+   - Replace current nameservers with Cloudflare's nameservers
+   - Wait 24-48 hours for DNS propagation
+
+3. **After domain is active:**
+   - Return to R2 bucket settings
+   - Add custom domain: `downloads.appsto.software`
+
+### Option C: Use R2 Public URL (Simpler, Works Immediately)
+
+If you don't want to migrate DNS to Cloudflare, just use the R2 public URL:
+
+```
+https://pub-xxxxxxxxxxxxx.r2.dev/DeskSweep_Setup.exe
+```
+
+**Pros:**
+- ✅ Works immediately, no DNS setup
+- ✅ Still uses Cloudflare CDN
+- ✅ Free bandwidth
+- ✅ Professional enough for most customers
+
+**Cons:**
+- ⚠️ URL shows Cloudflare branding (`.r2.dev`)
+- ⚠️ Can't change URL if you migrate storage later
+
+**Recommendation:** Use the R2 public URL for now. You can always add a custom domain later when/if you move DNS to Cloudflare.
 
 ## Step 5: Update Database
 
@@ -156,14 +208,46 @@ While the R2 URL is public, you can still:
 
 ## Troubleshooting
 
+**Issue: "That domain was not found on your account"**
+- **Cause**: Your domain is not managed by Cloudflare DNS
+- **Solution**: Either:
+  1. Add domain to Cloudflare and change nameservers (Option B above)
+  2. Use R2 public URL instead: `https://pub-xxxxx.r2.dev/...`
+  3. Use CNAME workaround (see below)
+
+**CNAME Workaround (Keep Current DNS Provider):**
+
+If you want `downloads.appsto.software` but don't want to move DNS:
+
+1. **Get R2 public URL first:**
+   ```
+   Example: https://pub-abc123xyz.r2.dev/DeskSweep_Setup.exe
+   ```
+
+2. **In your current DNS provider** (Digital Ocean, Namecheap, etc.):
+   ```
+   Type: CNAME
+   Name: downloads
+   Value: pub-abc123xyz.r2.dev
+   TTL: 3600
+   ```
+
+3. **Access via custom domain:**
+   ```
+   https://downloads.appsto.software/DeskSweep_Setup.exe
+   ```
+
+⚠️ **Note**: This bypasses Cloudflare's custom domain feature but still works!
+
 **Issue: 404 Not Found**
 - Check bucket is set to public access
 - Verify file name spelling exactly matches URL
-- Check DNS propagation for custom domains
+- Check DNS propagation for custom domains: `nslookup downloads.appsto.software`
 
 **Issue: Slow downloads**
-- Add custom domain for better CDN routing
-- Check file is in optimal region
+- R2 public URLs use Cloudflare CDN automatically (always fast)
+- Custom domains also use CDN if domain is on Cloudflare
+- CNAME workaround depends on your DNS provider's routing
 
 **Issue: CORS errors**
 - Not applicable for direct downloads
