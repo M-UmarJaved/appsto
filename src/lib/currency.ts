@@ -10,7 +10,7 @@ export interface PricingPlan {
   name: string;
   tagline: string;
   description: string;
-  devices: number;
+  devices?: number;
   prices: {
     USD: number;
     INR: number;
@@ -26,6 +26,10 @@ export interface PricingPlan {
   savings?: string;
   features: string[];
   popular?: boolean;
+  sectionHeader?: string;
+  billingPeriod?: string;
+  paddlePriceId?: string;
+  isFree?: boolean;
 }
 
 export const DESKSWEEP_PRICING: PricingPlan[] = [
@@ -211,3 +215,154 @@ export function getAvailableCurrencies(): { code: Currency; name: string; symbol
     { code: 'PKR', name: 'Pakistani Rupee', symbol: 'Rs.' },
   ];
 }
+
+export const SKILLNAVO_PADDLE_PRICE_IDS: Record<string, string> = {
+  starter_monthly: process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER_MONTHLY || 'pri_01m252y0prb2nrjmay8ecgc1q0',
+  starter_annual: process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER_ANNUAL || 'pri_01m2531e1n85b5hx6zfmphp1rz',
+  pro_monthly: process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO_MONTHLY || 'pri_01m2535m78g4tpvj5bwzvnbhhh',
+  pro_annual: process.env.NEXT_PUBLIC_PADDLE_PRICE_PRO_ANNUAL || 'pri_01m2538wa1msvncrk76528d433',
+};
+
+export const SKILLNAVO_FREE_PLAN: PricingPlan = {
+  id: 'free',
+  name: 'Free',
+  tagline: 'Explore the platform and test core features.',
+  description: 'Free forever',
+  isFree: true,
+  prices: {
+    USD: 0,
+    INR: 0,
+    PKR: 0,
+  },
+  cta: 'Create free account',
+  sectionHeader: 'INCLUDED IN FREE',
+  features: [
+    '1 active path',
+    '25 AI credits / month',
+    'Up to 2 AI roadmaps or 5 quizzes',
+    '3 chat msgs / day',
+    'Full curated library',
+    'Streaks & checkpoints',
+    'Certificate',
+  ],
+};
+
+export const SKILLNAVO_PRICING: PricingPlan[] = [
+  SKILLNAVO_FREE_PLAN,
+  {
+    id: 'starter_monthly',
+    name: 'Starter',
+    tagline: 'For consistent learners building new skills.',
+    description: 'Billed monthly',
+    badge: 'MOST POPULAR',
+    popular: true,
+    prices: {
+      USD: 4.99,
+      INR: 399,
+      PKR: 1399,
+    },
+    paddlePriceId: SKILLNAVO_PADDLE_PRICE_IDS.starter_monthly,
+    cta: 'Get Starter',
+    sectionHeader: 'EVERYTHING IN FREE, PLUS',
+    features: [
+      '3 active paths',
+      '300 AI credits / month',
+      'Up to 30 roadmaps or 60 quizzes',
+      '15 chat msgs / day',
+      'Personalized roadmap engine',
+      'Weekly reports',
+      'Certificate',
+      'Priority updates',
+    ],
+  },
+  {
+    id: 'starter_annual',
+    name: 'Starter',
+    tagline: 'For consistent learners building new skills.',
+    description: 'Billed annually — ₹3,999 / yr • 16% less',
+    badge: 'MOST POPULAR',
+    popular: true,
+    savings: '16% off',
+    prices: {
+      USD: 39.99,
+      INR: 3999,
+      PKR: 11199,
+    },
+    originalPrices: {
+      USD: 59.88,
+      INR: 4788,
+      PKR: 16788,
+    },
+    paddlePriceId: SKILLNAVO_PADDLE_PRICE_IDS.starter_annual,
+    cta: 'Get Starter',
+    sectionHeader: 'EVERYTHING IN FREE, PLUS',
+    features: [
+      '3 active paths',
+      '300 AI credits / month',
+      'Up to 30 roadmaps or 60 quizzes',
+      '15 chat msgs / day',
+      'Personalized roadmap engine',
+      'Weekly reports',
+      'Certificate',
+      'Priority updates',
+    ],
+  },
+  {
+    id: 'pro_monthly',
+    name: 'Pro',
+    tagline: 'For professionals seeking mastery and speed.',
+    description: 'Billed monthly',
+    prices: {
+      USD: 9.99,
+      INR: 699,
+      PKR: 2799,
+    },
+    paddlePriceId: SKILLNAVO_PADDLE_PRICE_IDS.pro_monthly,
+    cta: 'Get Pro',
+    sectionHeader: 'EVERYTHING IN STARTER, PLUS',
+    features: [
+      'Unlimited paths',
+      '1,200 credits / month',
+      'Up to 120 roadmaps or 240 quizzes',
+      'AI learning assistant (50 msgs / day)',
+      'Advanced AI models',
+      'Skill progress breakdown',
+      'Verifiable certificates with share link',
+      'Full analytics dashboard',
+      'Priority support',
+    ],
+  },
+  {
+    id: 'pro_annual',
+    name: 'Pro',
+    tagline: 'For professionals seeking mastery and speed.',
+    description: 'Billed annually — ₹6,999 / yr • 17% less',
+    savings: '17% off',
+    prices: {
+      USD: 79.99,
+      INR: 6999,
+      PKR: 21999,
+    },
+    originalPrices: {
+      USD: 119.88,
+      INR: 8388,
+      PKR: 33588,
+    },
+    paddlePriceId: SKILLNAVO_PADDLE_PRICE_IDS.pro_annual,
+    cta: 'Get Pro',
+    sectionHeader: 'EVERYTHING IN STARTER, PLUS',
+    features: [
+      'Unlimited paths',
+      '1,200 credits / month',
+      'Up to 120 roadmaps or 240 quizzes',
+      'AI learning assistant (50 msgs / day)',
+      'Advanced AI models',
+      'Skill progress breakdown',
+      'Verifiable certificates with share link',
+      'Full analytics dashboard',
+      'Priority support',
+    ],
+  },
+];
+
+

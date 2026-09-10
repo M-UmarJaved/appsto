@@ -30,12 +30,12 @@ export function CurrencySwitcher({ value, onChange }: CurrencySwitcherProps) {
     <div className="relative">
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-[#1F2937] hover:border-[#3B82F6] transition-colors"
+        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 hover:border-slate-300 shadow-xs transition-colors"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
-        <Globe className="w-4 h-4 text-[#9CA3AF]" />
-        <span className="text-sm font-medium text-[#0B1220] dark:text-[#E5E7EB]">
+        <Globe className="w-4 h-4 text-slate-500" />
+        <span className="text-sm font-semibold text-[#060C17]">
           {currentCurrency?.symbol} {currentCurrency?.code}
         </span>
       </motion.button>
@@ -54,26 +54,26 @@ export function CurrencySwitcher({ value, onChange }: CurrencySwitcherProps) {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="absolute top-full mt-2 right-0 z-50 w-48 rounded-lg bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-[#1F2937] shadow-xl overflow-hidden"
+              className="absolute top-full mt-2 right-0 z-50 w-48 rounded-2xl bg-white border border-slate-200 shadow-xl overflow-hidden"
             >
               {currencies.map((currency) => (
                 <button
                   key={currency.code}
                   onClick={() => handleSelect(currency.code)}
-                  className={`w-full px-4 py-3 text-left flex items-center justify-between hover:bg-[#F9FAFB] dark:hover:bg-[#1F2937] transition-colors ${
-                    currency.code === value ? 'bg-[#EFF6FF] dark:bg-[#1E3A8A]/20' : ''
+                  className={`w-full px-4 py-3 text-left flex items-center justify-between hover:bg-slate-50 transition-colors ${
+                    currency.code === value ? 'bg-purple-50 font-semibold' : ''
                   }`}
                 >
                   <div>
-                    <div className="text-sm font-medium text-[#0B1220] dark:text-[#E5E7EB]">
+                    <div className="text-sm font-semibold text-[#060C17]">
                       {currency.name}
                     </div>
-                    <div className="text-xs text-[#9CA3AF]">
+                    <div className="text-xs text-slate-500">
                       {currency.symbol} {currency.code}
                     </div>
                   </div>
                   {currency.code === value && (
-                    <div className="w-2 h-2 rounded-full bg-[#3B82F6]" />
+                    <div className="w-2 h-2 rounded-full bg-[#723CFB]" />
                   )}
                 </button>
               ))}

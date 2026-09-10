@@ -65,7 +65,7 @@ export function generatePurchaseEmailHTML(data: PurchaseEmailData): string {
       background-color: #ffffff;
     }
     .header {
-      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+      background: #0F172A;
       padding: 40px 30px;
       text-align: center;
     }
@@ -86,38 +86,41 @@ export function generatePurchaseEmailHTML(data: PurchaseEmailData): string {
       padding: 40px 30px;
     }
     .success-badge {
-      background-color: #10B981;
-      color: #ffffff;
       display: inline-block;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 14px;
+      background-color: #ECFDF5;
+      color: #065F46;
+      font-size: 12px;
       font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
       margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     h1 {
-      color: #0B1220;
       font-size: 28px;
-      margin: 0 0 10px 0;
       font-weight: 700;
+      color: #0F172A;
+      margin: 0 0 16px 0;
+      line-height: 1.3;
     }
     .greeting {
       font-size: 16px;
-      color: #6B7280;
-      margin: 0 0 30px 0;
-      line-height: 1.5;
+      line-height: 1.6;
+      color: #4B5563;
+      margin-bottom: 30px;
     }
     .info-box {
       background-color: #F9FAFB;
-      border: 2px solid #E5E7EB;
-      border-radius: 12px;
-      padding: 24px;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 20px;
       margin: 24px 0;
     }
     .info-row {
       display: flex;
       justify-content: space-between;
-      padding: 12px 0;
+      padding: 8px 0;
       border-bottom: 1px solid #E5E7EB;
     }
     .info-row:last-child {
@@ -125,24 +128,23 @@ export function generatePurchaseEmailHTML(data: PurchaseEmailData): string {
     }
     .info-label {
       color: #6B7280;
-      font-weight: 600;
       font-size: 14px;
     }
     .info-value {
-      color: #0B1220;
+      color: #0F172A;
       font-weight: 600;
       font-size: 14px;
       text-align: right;
     }
     .license-section {
-      background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-      border: 2px solid #3B82F6;
+      background: #F8FAFC;
+      border: 2px solid #0F172A;
       border-radius: 12px;
       padding: 24px;
       margin: 24px 0;
     }
     .license-title {
-      color: #1E40AF;
+      color: #0F172A;
       font-size: 18px;
       font-weight: 700;
       margin: 0 0 16px 0;
@@ -152,20 +154,20 @@ export function generatePurchaseEmailHTML(data: PurchaseEmailData): string {
     }
     .license-key {
       background-color: #ffffff;
-      border: 2px solid #3B82F6;
+      border: 1px solid #CBD5E1;
       border-radius: 8px;
       padding: 12px 16px;
       margin: 8px 0;
       font-family: 'Courier New', monospace;
       font-size: 16px;
       font-weight: 600;
-      color: #0B1220;
+      color: #0F172A;
       text-align: center;
       letter-spacing: 1px;
     }
     .button {
       display: inline-block;
-      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+      background: #0F172A;
       color: #ffffff;
       text-decoration: none;
       padding: 14px 32px;
@@ -190,7 +192,7 @@ export function generatePurchaseEmailHTML(data: PurchaseEmailData): string {
       border-radius: 8px;
     }
     .step-number {
-      background-color: #3B82F6;
+      background-color: #0F172A;
       color: #ffffff;
       width: 32px;
       height: 32px;
@@ -198,7 +200,8 @@ export function generatePurchaseEmailHTML(data: PurchaseEmailData): string {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
+      font-weight: 600;
+      font-size: 14px;
       flex-shrink: 0;
     }
     .step-content {
@@ -206,36 +209,38 @@ export function generatePurchaseEmailHTML(data: PurchaseEmailData): string {
     }
     .step-title {
       font-weight: 600;
-      color: #0B1220;
-      margin: 0 0 4px 0;
+      color: #0F172A;
+      margin-bottom: 4px;
+      font-size: 15px;
     }
     .step-description {
       color: #6B7280;
       font-size: 14px;
       margin: 0;
+      line-height: 1.5;
     }
     .support-box {
       background-color: #FEF3C7;
-      border-left: 4px solid #F59E0B;
+      border: 1px solid #FCD34D;
       border-radius: 8px;
-      padding: 16px 20px;
+      padding: 16px;
       margin: 30px 0;
     }
     .support-title {
-      color: #92400E;
       font-weight: 600;
-      margin: 0 0 8px 0;
-      font-size: 16px;
+      color: #92400E;
+      margin-bottom: 8px;
+      font-size: 15px;
     }
     .support-text {
-      color: #92400E;
-      margin: 0;
+      color: #78350F;
       font-size: 14px;
+      margin: 0;
       line-height: 1.5;
     }
     .footer {
       background-color: #F9FAFB;
-      padding: 30px;
+      padding: 40px 30px;
       text-align: center;
       border-top: 1px solid #E5E7EB;
     }
@@ -249,8 +254,8 @@ export function generatePurchaseEmailHTML(data: PurchaseEmailData): string {
       margin: 16px 0;
     }
     .footer-link {
-      color: #3B82F6;
-      text-decoration: none;
+      color: #0F172A;
+      text-decoration: underline;
       margin: 0 12px;
       font-size: 13px;
     }

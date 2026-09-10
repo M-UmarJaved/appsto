@@ -3,44 +3,29 @@
 import Link from 'next/link';
 import { Target, Users, Zap, Shield, Code, TrendingUp, ArrowUpRight, Sparkles, Store, Key, Lock, Settings } from 'lucide-react';
 import { motion } from 'motion/react';
-import CountUp from 'react-countup';
-import { useInView } from 'react-intersection-observer';
 
 export default function AboutPage() {
-  const [statsRef, statsInView] = useInView({ triggerOnce: true, threshold: 0.2 });
-
   const values = [
     {
       icon: Shield,
       title: 'Enterprise Security',
       description: 'Every transaction is protected by military-grade encryption. Our partnership with Paddle ensures PCI-DSS compliance, secure tokenization, and fraud prevention. Your business data and payment information remain completely private and protected at all times.',
-      color: '#3B82F6'
     },
     {
       icon: Zap,
       title: 'Instant Delivery',
       description: 'Purchase today, activate in seconds. Our automated delivery system sends license keys immediately upon payment confirmation. No delays, no manual processing—just instant access to the software your business needs to move forward.',
-      color: '#22D3EE'
     },
     {
       icon: Code,
       title: 'Quality Curated Software',
       description: 'Every application in our marketplace undergoes rigorous vetting. We partner exclusively with established vendors offering production-ready, enterprise-grade solutions. Our curation process ensures you invest in reliable, professionally maintained software.',
-      color: '#8B5CF6'
     },
     {
       icon: Users,
       title: 'Customer Success First',
       description: 'Your success drives ours. Our dedicated support team provides multi-channel assistance, comprehensive documentation, and proactive guidance. Backed by our 14-day money-back guarantee and transparent policies, we ensure complete satisfaction with every purchase.',
-      color: '#10B981'
     }
-  ];
-
-  const stats = [
-    { number: 1000, suffix: '+', label: 'Happy Customers' },
-    { number: 1, suffix: '', label: 'Premium Software' },
-    { number: 99.9, suffix: '%', label: 'Uptime SLA', decimals: 1 },
-    { number: 14, suffix: '-Day', label: 'Money-Back' }
   ];
 
   const whatWeDo = [
@@ -76,56 +61,52 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] overflow-hidden">
-      {/* Hero Section with gradient background */}
+    <div className="min-h-screen bg-[#FAFAFA] overflow-hidden">
+      {/* Hero Section with subtle purple glow background */}
       <section className="relative pt-32 pb-20">
         {/* Background gradients */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-[#F8FAFC] to-[#EFF6FF] dark:from-[#0B1220] dark:via-[#0F172A] dark:to-[#0B1220]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.08)_0%,_transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.15)_0%,_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[#FAFAFA]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(114,60,251,0.06)_0%,_transparent_50%)]" />
         
         {/* Floating orbs */}
         <motion.div
-          className="absolute top-20 left-20 w-72 h-72 bg-[#3B82F6]/10 dark:bg-[#3B82F6]/20 rounded-full blur-[100px]"
+          className="absolute top-20 left-20 w-72 h-72 bg-purple-200/40 rounded-full blur-[100px] pointer-events-none"
           animate={{ y: [0, -20, 0], scale: [1, 1.05, 1] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-20 right-20 w-96 h-96 bg-[#22D3EE]/10 dark:bg-[#22D3EE]/15 rounded-full blur-[120px]"
+          className="absolute bottom-20 right-20 w-96 h-96 bg-purple-100/40 rounded-full blur-[120px] pointer-events-none"
           animate={{ y: [0, 20, 0], scale: [1, 1.08, 1] }}
           transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
         />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Back Button */}
           {/* Hero Content */}
           <div className="text-center">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="inline-flex items-center gap-2 bg-[#3B82F6]/10 dark:bg-[#3B82F6]/20 px-4 py-2 rounded-full mb-6"
+              className="inline-flex items-center gap-2 bg-purple-50 border border-purple-200/60 px-4 py-2 rounded-full mb-6"
             >
-              <Sparkles className="w-4 h-4 text-[#3B82F6]" />
-              <span className="text-[#3B82F6] font-semibold text-sm">About Our Platform</span>
+              <Sparkles className="w-4 h-4 text-[#723CFB]" />
+              <span className="text-[#723CFB] font-semibold text-sm">About Our Platform</span>
             </motion.div>
             
             <motion.h1 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-5xl md:text-7xl font-bold mb-8 text-[#0B1220] dark:text-[#E5E7EB]"
+              className="text-5xl md:text-7xl font-bold mb-8 text-[#060C17]"
             >
-              About{' '}
-              <span className="bg-gradient-to-r from-[#3B82F6] to-[#22D3EE] bg-clip-text text-transparent">
-                Appsto
-              </span>
+              About Appsto
             </motion.h1>
             
             <motion.p 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-xl text-[#9CA3AF] max-w-3xl mx-auto leading-relaxed"
+              className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed"
             >
               Your trusted digital marketplace for premium desktop software. Currently featuring DeskSweep, our flagship file organization solution, with an expanding catalog of professional-grade applications designed to boost productivity and streamline workflows for individuals and teams worldwide.
             </motion.p>
@@ -141,40 +122,38 @@ export default function AboutPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="relative bg-gradient-to-br from-[#3B82F6] via-[#2563EB] to-[#1D4ED8] rounded-3xl p-12 md:p-16 text-white shadow-2xl overflow-hidden"
+            className="relative bg-white rounded-3xl p-12 md:p-16 shadow-xl overflow-hidden border border-slate-200"
           >
             {/* Floating particles */}
             <motion.div 
-              className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-3xl"
-              animate={{ y: [0, -20, 0], opacity: [0.3, 0.5, 0.3] }}
+              className="absolute top-10 right-10 w-48 h-48 bg-purple-100/60 rounded-full blur-3xl pointer-events-none"
+              animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }}
               transition={{ duration: 6, repeat: Infinity }}
             />
             <motion.div 
-              className="absolute bottom-10 left-10 w-40 h-40 bg-[#22D3EE]/20 rounded-full blur-3xl"
-              animate={{ y: [0, 20, 0], opacity: [0.2, 0.4, 0.2] }}
+              className="absolute bottom-10 left-10 w-56 h-56 bg-purple-50 rounded-full blur-3xl pointer-events-none"
+              animate={{ y: [0, 20, 0], opacity: [0.3, 0.5, 0.3] }}
               transition={{ duration: 8, repeat: Infinity, delay: 1 }}
             />
             
             <div className="relative z-10">
               <div className="flex items-center gap-4 mb-6">
                 <motion.div 
-                  className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center"
+                  className="w-14 h-14 bg-[#723CFB] rounded-2xl flex items-center justify-center shadow-md shadow-purple-500/20"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ type: 'spring', stiffness: 300 }}
                 >
-                  <Target className="w-8 h-8" />
+                  <Target className="w-8 h-8 text-white" />
                 </motion.div>
-                <h2 className="text-4xl font-bold">Our Mission</h2>
+                <h2 className="text-4xl font-bold text-[#060C17]">Our Mission</h2>
               </div>
-              <p className="text-lg md:text-xl leading-relaxed text-white/95 max-w-4xl">
+              <p className="text-lg md:text-xl leading-relaxed text-slate-600 max-w-4xl">
                 To revolutionize how people discover and purchase desktop productivity software. Starting with DeskSweep, our mission is to curate a marketplace of exceptional tools that solve real problems—offering transparent pricing, secure licensing, and instant delivery that puts the customer experience first. We&apos;re building trust, one quality product at a time.
               </p>
             </div>
           </motion.div>
         </div>
       </section>
-
-      {/* Stats Section removed as requested */}
 
       {/* What We Do Section */}
       <section className="py-20">
@@ -183,9 +162,9 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-12 text-center"
+            className="text-4xl md:text-5xl font-bold text-[#060C17] mb-12 text-center"
           >
-            What We <span className="bg-gradient-to-r from-[#3B82F6] to-[#22D3EE] bg-clip-text text-transparent">Do</span>
+            What We Do
           </motion.h2>
           
           <motion.div 
@@ -193,7 +172,7 @@ export default function AboutPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-white dark:bg-[#111827] rounded-3xl p-10 md:p-12 border border-[#E5E7EB] dark:border-[#1F2937] shadow-xl"
+            className="bg-white rounded-3xl p-10 md:p-12 border border-slate-200 shadow-xl"
           >
             <div className="space-y-6">
               {whatWeDo.map((item, index) => (
@@ -203,21 +182,21 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  whileHover={{ x: 10, backgroundColor: 'rgba(59, 130, 246, 0.05)' }}
+                  whileHover={{ x: 10, backgroundColor: 'rgba(114, 60, 251, 0.03)' }}
                   className="group rounded-2xl p-6 transition-all duration-300"
                 >
-                  <h3 className="text-xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-3 flex items-center gap-3">
+                  <h3 className="text-xl font-bold text-[#060C17] mb-3 flex items-center gap-3">
                     <motion.div 
-                      className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3B82F6]/20 to-[#22D3EE]/20 flex items-center justify-center"
+                      className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center"
                       whileHover={{ scale: 1.1, rotate: 5 }}
                     >
-                      <item.icon className="w-5 h-5 text-[#3B82F6]" />
+                      <item.icon className="w-5 h-5 text-[#723CFB]" />
                     </motion.div>
-                    <span className="bg-gradient-to-r from-[#3B82F6] to-[#22D3EE] bg-clip-text text-transparent">
+                    <span>
                       {item.title}
                     </span>
                   </h3>
-                  <p className="text-[#9CA3AF] leading-relaxed pl-12">
+                  <p className="text-slate-600 leading-relaxed pl-12">
                     {item.description}
                   </p>
                 </motion.div>
@@ -234,9 +213,9 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-12 text-center"
+            className="text-4xl md:text-5xl font-bold text-[#060C17] mb-12 text-center"
           >
-            Our Core <span className="bg-gradient-to-r from-[#3B82F6] to-[#22D3EE] bg-clip-text text-transparent">Values</span>
+            Our Core Values
           </motion.h2>
           
           <div className="grid md:grid-cols-2 gap-8">
@@ -248,25 +227,24 @@ export default function AboutPage() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ 
-                  y: -8, 
-                  boxShadow: `0 25px 50px ${value.color}20`
+                  y: -6, 
+                  boxShadow: '0 20px 30px -10px rgba(114, 60, 251, 0.08)'
                 }}
-                className="bg-white dark:bg-[#111827] rounded-3xl p-8 border border-[#E5E7EB] dark:border-[#1F2937] shadow-lg group"
+                className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm group hover:border-[#723CFB]/30 transition-all"
               >
                 <div className="flex items-start gap-5">
                   <motion.div 
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
-                    style={{ backgroundColor: value.color }}
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[#723CFB] shadow-md shadow-purple-500/20"
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={{ type: 'spring', stiffness: 300 }}
                   >
                     <value.icon className="w-7 h-7 text-white" />
                   </motion.div>
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-4">
+                    <h3 className="text-2xl font-bold text-[#060C17] mb-4">
                       {value.title}
                     </h3>
-                    <p className="text-[#9CA3AF] leading-relaxed">
+                    <p className="text-slate-600 leading-relaxed">
                       {value.description}
                     </p>
                   </div>
@@ -284,26 +262,18 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-white dark:bg-[#111827] rounded-3xl p-12 md:p-16 border border-[#E5E7EB] dark:border-[#1F2937] shadow-xl text-center relative overflow-hidden"
+            className="relative bg-white border-2 border-slate-200 rounded-3xl p-12 md:p-16 text-center overflow-hidden shadow-xl"
           >
-            {/* Background orbs */}
-            <motion.div
-              className="absolute top-10 left-10 w-40 h-40 bg-[#3B82F6]/10 rounded-full blur-[60px]"
-              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-              transition={{ duration: 6, repeat: Infinity }}
-            />
-            <motion.div
-              className="absolute bottom-10 right-10 w-48 h-48 bg-[#22D3EE]/10 rounded-full blur-[60px]"
-              animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.4, 0.2] }}
-              transition={{ duration: 8, repeat: Infinity, delay: 1 }}
-            />
+            {/* Subtle purple accent glow */}
+            <div className="absolute -top-24 -left-24 w-72 h-72 bg-purple-100 rounded-full blur-3xl pointer-events-none opacity-60" />
+            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-purple-100 rounded-full blur-3xl pointer-events-none opacity-60" />
             
             <div className="relative z-10">
               <motion.h2 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#3B82F6] to-[#22D3EE] bg-clip-text text-transparent mb-6"
+                className="text-4xl md:text-5xl font-bold text-[#060C17] mb-6"
               >
                 Ready to Explore?
               </motion.h2>
@@ -312,15 +282,15 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="text-[#9CA3AF] mb-10 max-w-2xl mx-auto text-lg"
+                className="text-slate-600 mb-10 max-w-2xl mx-auto text-lg leading-relaxed"
               >
                 Browse our curated collection of enterprise SaaS solutions. Find the perfect tools to scale your business, streamline operations, and drive innovation.
               </motion.p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/products">
                   <motion.button 
-                    className="group flex items-center justify-center gap-3 bg-[#3B82F6] text-white font-medium py-4 px-8 rounded-full"
-                    whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(59, 130, 246, 0.5)' }}
+                    className="group flex items-center justify-center gap-3 bg-[#723CFB] hover:bg-[#5F27E5] text-white font-semibold py-4 px-8 rounded-full shadow-lg shadow-purple-500/25 transition-all"
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     Browse Products
@@ -329,8 +299,8 @@ export default function AboutPage() {
                 </Link>
                 <Link href="/contact">
                   <motion.button 
-                    className="flex items-center justify-center gap-3 bg-transparent border-2 border-[#3B82F6] text-[#3B82F6] font-medium py-4 px-8 rounded-full"
-                    whileHover={{ scale: 1.05, backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
+                    className="flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:border-slate-300 text-[#060C17] font-semibold py-4 px-8 rounded-full transition-colors"
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     Contact Us
@@ -349,20 +319,20 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-br from-[#3B82F6]/5 to-[#22D3EE]/5 dark:from-[#3B82F6]/10 dark:to-[#22D3EE]/10 rounded-3xl p-10 border border-[#3B82F6]/20 dark:border-[#3B82F6]/30"
+            className="bg-white rounded-3xl p-10 border border-slate-200 shadow-sm"
           >
             <div className="flex items-center gap-3 mb-6">
               <motion.div
                 whileHover={{ scale: 1.1, rotate: 10 }}
-                className="w-12 h-12 bg-[#3B82F6] rounded-xl flex items-center justify-center"
+                className="w-12 h-12 bg-[#723CFB] text-white rounded-xl flex items-center justify-center shadow-md shadow-purple-500/20"
               >
                 <TrendingUp className="w-6 h-6 text-white" />
               </motion.div>
-              <h2 className="text-3xl font-bold text-[#0B1220] dark:text-[#E5E7EB]">
+              <h2 className="text-3xl font-bold text-[#060C17]">
                 Looking Ahead
               </h2>
             </div>
-            <p className="text-lg text-[#9CA3AF] leading-relaxed mb-6">
+            <p className="text-lg text-slate-600 leading-relaxed mb-6">
               We&apos;re just getting started. From our first product, DeskSweep, to becoming a comprehensive software marketplace, our roadmap is focused on sustainable growth, customer satisfaction, and delivering exceptional value:
             </p>
             <ul className="space-y-4">
@@ -373,14 +343,14 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex items-start gap-3 text-[#9CA3AF]"
+                  className="flex items-start gap-3 text-slate-600"
                 >
                   <motion.div 
-                    className="w-2 h-2 bg-[#3B82F6] rounded-full mt-2 flex-shrink-0"
+                    className="w-2 h-2 bg-[#723CFB] rounded-full mt-2 flex-shrink-0"
                     whileHover={{ scale: 1.5 }}
                   />
                   <span>
-                    <strong className="text-[#0B1220] dark:text-[#E5E7EB]">{item.title}:</strong> {item.desc}
+                    <strong className="text-[#060C17]">{item.title}:</strong> {item.desc}
                   </span>
                 </motion.li>
               ))}

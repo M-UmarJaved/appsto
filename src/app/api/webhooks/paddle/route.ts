@@ -4,6 +4,7 @@ import { createLicenses, syncPurchaseLicenses } from '@/lib/license'
 import { sendPurchaseConfirmationEmail } from '@/lib/purchase-email'
 import { sendPurchaseNotification } from '@/lib/discord'
 import { checkRateLimit, getClientId } from '@/lib/ratelimit'
+import { dispatchSkillnavoSync } from '@/lib/skillnavo-sync'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -88,10 +89,25 @@ export async function POST(req: NextRequest) {
       await handleTransactionCompleted(event.data, isSimulation)
     }
 
-    // Handle subscription events (for future subscription products)
+    // Handle subscription events (for future subscription products and Skillnavo)
     if (event.event_type === 'subscription.created') {
       console.log('🎯 Processing subscription.created event')
       await handleSubscriptionCreated(event.data)
+    }
+
+    if (event.event_type === 'subscription.updated') {
+      console.log('🎯 Processing subscription.updated event')
+      await handleSubscriptionUpdated(event.data, event.event_id)
+    }
+
+    if (event.event_type === 'subscription.canceled') {
+      console.log('🎯 Processing subscription.canceled event')
+      await handleSubscriptionCanceled(event.data, event.event_id)
+    }
+
+    if (event.event_type === 'subscription.past_due') {
+      console.log('🎯 Processing subscription.past_due event')
+      await handleSubscriptionPastDue(event.data, event.event_id)
     }
 
     // Handle refund events (legacy Paddle v1 style)
@@ -260,7 +276,15 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
       const currency = data.currency_code
       // SECURITY: Sanitize planSlug - must be one of the valid values
       const rawPlanSlug = customData.plan_slug || item.price.description?.toLowerCase() || 'solo'
-      const validPlanSlugs = ['solo', 'squad', 'studio']
+      const validPlanSlugs = [
+        'solo',
+        'squad',
+        'studio',
+        'starter_monthly',
+        'starter_annual',
+        'pro_monthly',
+        'pro_annual',
+      ]
       const planSlug = validPlanSlugs.includes(rawPlanSlug) ? rawPlanSlug : 'solo'
       
       if (rawPlanSlug !== planSlug) {
@@ -269,16 +293,35 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
 
       console.log('📦 Processing item:', { paddlePriceId, paddleProductId, subtotal, discount, amount, currency, planSlug })
 
-      // Get product from database
-      const { data: product, error: productError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('paddle_product_id', paddleProductId)
-        .single()
+      // Determine if this is a Skillnavo subscription purchase
+      const isSkillnavo = customData.product_slug === 'skillnavo'
 
-      if (productError || !product) {
-        console.error('❌ Product not found:', paddleProductId, productError)
-        continue
+      // Get product from database
+      let product: any = null
+      if (isSkillnavo) {
+        const { data: skillnavoProd, error: skillnavoErr } = await supabase
+          .from('products')
+          .select('*')
+          .eq('slug', 'skillnavo')
+          .single()
+
+        if (skillnavoErr || !skillnavoProd) {
+          console.error('❌ Skillnavo product not found in database:', skillnavoErr)
+          continue
+        }
+        product = skillnavoProd
+      } else {
+        const { data: prodData, error: productError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('paddle_product_id', paddleProductId)
+          .single()
+
+        if (productError || !prodData) {
+          console.error('❌ Product not found:', paddleProductId, productError)
+          continue
+        }
+        product = prodData
       }
 
       // Get pricing plan
@@ -298,7 +341,7 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
       const { data: authUser } = await supabase.auth.admin.listUsers()
       const user = authUser?.users?.find(u => u.email === customerEmail)
 
-      // Create purchase record
+      // Create purchase record (retains purchaser data for both DeskSweep & Skillnavo)
       const { data: purchase, error: purchaseError } = await supabase
         .from('purchases')
         .insert({
@@ -314,12 +357,13 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
           customer_email: customerEmail,
           customer_name: customerName,
           billing_country: billingCountry,
-          licenses_count: pricingPlan.devices,
+          licenses_count: isSkillnavo ? 0 : pricingPlan.devices,
           payment_method: data.payment_method_type || 'card',
           purchased_at: new Date(data.created_at).toISOString(),
           metadata: {
             paddle_data: data,
             custom_data: customData,
+            product_slug: product.slug,
           },
         })
         .select()
@@ -332,53 +376,56 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
 
       console.log('✅ Purchase record created:', purchase.id)
 
-      // Generate licenses (works for both logged-in users and guest checkouts)
-      // Guest purchases: userId will be null, but license is still tied to customer_email
-      if (!user?.id) {
-        console.log('ℹ️ Guest checkout detected - no user account for:', customerEmail)
-        console.log('ℹ️ License will be generated and emailed to customer')
-      }
+      if (!isSkillnavo) {
+        // --- DESKSWEEP ONE-TIME PURCHASE FULFILLMENT ---
+        // Generate licenses (works for both logged-in users and guest checkouts)
+        if (!user?.id) {
+          console.log('ℹ️ Guest checkout detected - no user account for:', customerEmail)
+          console.log('ℹ️ License will be generated and emailed to customer')
+        }
 
-      const licenses = await createLicenses({
-        purchaseId: purchase.id,
-        productId: product.id,
-        userId: user?.id || null,
-        count: pricingPlan.devices,
-        plan: pricingPlan.plan_name,
-        licenseType: 'standard',
-      })
-
-      console.log(`✅ Generated ${licenses.length} licenses`)
-
-      // Sync licenses to product database
-      await syncPurchaseLicenses(purchase.id)
-      console.log('✅ Licenses synced to product database')
-
-      // Generate download URL
-      const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/download?token=${Buffer.from(`${product.id}:${purchase.id}`).toString('base64')}`
-
-      console.log('📧 Sending purchase confirmation email...')
-      
-      // Send purchase confirmation email (same as test purchase)
-      try {
-        await sendPurchaseConfirmationEmail({
+        const licenses = await createLicenses({
           purchaseId: purchase.id,
-          customerName: customerName,
-          customerEmail: customerEmail,
-          productName: product.name,
-          planName: pricingPlan.plan_name,
-          subtotal: subtotal,
-          discount: discount,
-          amount: amount,
-          currency: currency,
-          licenseKeys: licenses.map((l) => l.license_key),
-          downloadUrl,
-          downloadExpiryDays: 7,
+          productId: product.id,
+          userId: user?.id || null,
+          count: pricingPlan.devices,
+          plan: pricingPlan.plan_name,
+          licenseType: 'standard',
         })
-        console.log('✅ Purchase confirmation email sent to', customerEmail)
-      } catch (emailError) {
-        console.error('❌ Failed to send email:', emailError)
-        // Don't throw - continue to Discord notification
+
+        console.log(`✅ Generated ${licenses.length} licenses`)
+
+        // Sync licenses to product database
+        await syncPurchaseLicenses(purchase.id)
+        console.log('✅ Licenses synced to product database')
+
+        // Generate download URL
+        const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/download?token=${Buffer.from(`${product.id}:${purchase.id}`).toString('base64')}`
+
+        console.log('📧 Sending purchase confirmation email...')
+        
+        // Send purchase confirmation email
+        try {
+          await sendPurchaseConfirmationEmail({
+            purchaseId: purchase.id,
+            customerName: customerName,
+            customerEmail: customerEmail,
+            productName: product.name,
+            planName: pricingPlan.plan_name,
+            subtotal: subtotal,
+            discount: discount,
+            amount: amount,
+            currency: currency,
+            licenseKeys: licenses.map((l) => l.license_key),
+            downloadUrl,
+            downloadExpiryDays: 7,
+          })
+          console.log('✅ Purchase confirmation email sent to', customerEmail)
+        } catch (emailError) {
+          console.error('❌ Failed to send email:', emailError)
+        }
+      } else {
+        console.log('ℹ️ Skillnavo Subscription: Purchaser retained in public.purchases. DeskSweep licensing bypassed.')
       }
 
       console.log('📢 Sending Discord notification...')
@@ -394,15 +441,16 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
           discount: discount,
           amount: amount,
           currency: currency,
-          licensesCount: pricingPlan.devices,
+          licensesCount: isSkillnavo ? 0 : pricingPlan.devices,
           purchaseId: purchase.id,
-          productImage: `${process.env.NEXT_PUBLIC_SITE_URL}/DeskSweep/DeskSweep.png`,
+          productImage: isSkillnavo ? undefined : `${process.env.NEXT_PUBLIC_SITE_URL}/DeskSweep/DeskSweep.png`,
         })
         console.log('✅ Discord notification sent')
       } catch (discordError) {
         console.error('❌ Failed to send Discord notification:', discordError)
         // Don't throw - purchase is complete
       }
+
 
       console.log(`🎉 Transaction ${transactionId} processed successfully!`)
     }
@@ -413,16 +461,122 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
 }
 
 /**
- * Handle subscription created webhook (for future subscription products)
+ * Handle subscription created webhook (Skillnavo and future subscription products)
  */
 async function handleSubscriptionCreated(data: any) {
-  // For subscription products, we don't generate license tokens
-  // Instead, we manage access through subscription status
-  console.log('Subscription created:', data.id)
-  
-  // You can implement subscription management logic here
-  // e.g., grant access to the application through API keys or user accounts
+  console.log('🎯 Subscription created event received:', data.id)
+  const customData = data.custom_data || {}
+
+  if (customData.product_slug === 'skillnavo' && customData.skillnavo_user_id) {
+    const customerEmail = data.customer?.email || customData.email || ''
+    const customerName = data.customer?.name || 'Customer'
+
+    await dispatchSkillnavoSync({
+      event: 'subscription.created',
+      event_id: data.id + '_created',
+      subscription_id: data.id,
+      customer_id: data.customer_id,
+      customer_email: customerEmail,
+      customer_name: customerName,
+      skillnavo_user_id: customData.skillnavo_user_id,
+      plan: customData.plan_slug || 'starter_monthly',
+      status: data.status || 'active',
+      currency: data.currency_code || 'USD',
+      price: data.items?.[0]?.price?.unit_price?.amount
+        ? parseFloat(data.items[0].price.unit_price.amount) / 100
+        : null,
+      current_period_start: data.current_billing_period?.starts_at || null,
+      current_period_end: data.current_billing_period?.ends_at || null,
+      cancel_at_period_end: data.scheduled_change?.action === 'cancel',
+    })
+  }
 }
+
+/**
+ * Handle subscription updated webhook
+ */
+async function handleSubscriptionUpdated(data: any, eventId?: string) {
+  console.log('🎯 Subscription updated event received:', data.id)
+  const customData = data.custom_data || {}
+
+  if (customData.product_slug === 'skillnavo' && customData.skillnavo_user_id) {
+    const customerEmail = data.customer?.email || customData.email || ''
+    const customerName = data.customer?.name || 'Customer'
+
+    await dispatchSkillnavoSync({
+      event: 'subscription.updated',
+      event_id: eventId || data.id + '_updated',
+      subscription_id: data.id,
+      customer_id: data.customer_id,
+      customer_email: customerEmail,
+      customer_name: customerName,
+      skillnavo_user_id: customData.skillnavo_user_id,
+      plan: customData.plan_slug || 'starter_monthly',
+      status: data.status || 'active',
+      currency: data.currency_code || 'USD',
+      price: data.items?.[0]?.price?.unit_price?.amount
+        ? parseFloat(data.items[0].price.unit_price.amount) / 100
+        : null,
+      current_period_start: data.current_billing_period?.starts_at || null,
+      current_period_end: data.current_billing_period?.ends_at || null,
+      cancel_at_period_end: data.scheduled_change?.action === 'cancel',
+    })
+  }
+}
+
+/**
+ * Handle subscription canceled webhook
+ */
+async function handleSubscriptionCanceled(data: any, eventId?: string) {
+  console.log('🎯 Subscription canceled event received:', data.id)
+  const customData = data.custom_data || {}
+
+  if (customData.product_slug === 'skillnavo' && customData.skillnavo_user_id) {
+    const customerEmail = data.customer?.email || customData.email || ''
+    const customerName = data.customer?.name || 'Customer'
+
+    await dispatchSkillnavoSync({
+      event: 'subscription.canceled',
+      event_id: eventId || data.id + '_canceled',
+      subscription_id: data.id,
+      customer_id: data.customer_id,
+      customer_email: customerEmail,
+      customer_name: customerName,
+      skillnavo_user_id: customData.skillnavo_user_id,
+      plan: customData.plan_slug || 'starter_monthly',
+      status: 'canceled',
+      current_period_end: data.current_billing_period?.ends_at || null,
+      cancel_at_period_end: true,
+    })
+  }
+}
+
+/**
+ * Handle subscription past due webhook
+ */
+async function handleSubscriptionPastDue(data: any, eventId?: string) {
+  console.log('🎯 Subscription past_due event received:', data.id)
+  const customData = data.custom_data || {}
+
+  if (customData.product_slug === 'skillnavo' && customData.skillnavo_user_id) {
+    const customerEmail = data.customer?.email || customData.email || ''
+    const customerName = data.customer?.name || 'Customer'
+
+    await dispatchSkillnavoSync({
+      event: 'subscription.past_due',
+      event_id: eventId || data.id + '_past_due',
+      subscription_id: data.id,
+      customer_id: data.customer_id,
+      customer_email: customerEmail,
+      customer_name: customerName,
+      skillnavo_user_id: customData.skillnavo_user_id,
+      plan: customData.plan_slug || 'starter_monthly',
+      status: 'past_due',
+      current_period_end: data.current_billing_period?.ends_at || null,
+    })
+  }
+}
+
 
 /**
  * Handle transaction refunded webhook

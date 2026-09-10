@@ -22,22 +22,23 @@ const supabase = createClient(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { product: string } }
+  { params }: { params: Promise<{ product: string }> }
 ) {
-  const product = params.product.toLowerCase();
+  const { product } = await params;
+  const slug = product.toLowerCase();
   
-  console.log('📥 Download request for:', product);
+  console.log('📥 Download request for:', slug);
 
   try {
     // Get product details from database
     const { data: productData, error: productError } = await supabase
       .from('products')
       .select('id, name, download_url, is_active')
-      .eq('slug', product)
+      .eq('slug', slug)
       .single();
 
     if (productError || !productData) {
-      console.error('❌ Product not found:', product);
+      console.error('❌ Product not found:', slug);
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
@@ -45,7 +46,7 @@ export async function GET(
     }
 
     if (!productData.is_active) {
-      console.error('❌ Product is inactive:', product);
+      console.error('❌ Product is inactive:', slug);
       return NextResponse.json(
         { error: 'Product is not available' },
         { status: 403 }
@@ -53,7 +54,7 @@ export async function GET(
     }
 
     if (!productData.download_url) {
-      console.error('❌ Download URL not configured for:', product);
+      console.error('❌ Download URL not configured for:', slug);
       return NextResponse.json(
         { error: 'Download not available' },
         { status: 404 }

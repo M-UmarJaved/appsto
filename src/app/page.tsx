@@ -71,50 +71,18 @@ export default function HomePage() {
         }}
       />
 
-      <div className="overflow-hidden bg-[#F9FAFB] dark:bg-[#0B1220]">
-      {/* Hero Section - Matching Template */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-16">
-        {/* Clean gradient background - Light mode: soft white with subtle blue tints, Dark mode: deep navy */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-[#F8FAFC] to-[#EFF6FF] dark:from-[#0B1220] dark:via-[#0F172A] dark:to-[#0B1220]" />
+      <div className="overflow-hidden bg-white">
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 sm:pt-16 bg-white">
+        {/* Subtle studio radial glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(114,60,251,0.05)_0%,_transparent_60%)] pointer-events-none" />
         
-        {/* Subtle mesh gradient overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.08)_0%,_transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.15)_0%,_transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(34,211,238,0.06)_0%,_transparent_50%)] dark:bg-[radial-gradient(ellipse_at_bottom_right,_rgba(34,211,238,0.1)_0%,_transparent_50%)]" />
-        
-        {/* Floating decorative elements - more subtle */}
-        <motion.div
-          className="absolute top-32 left-20 w-80 h-80 bg-[#3B82F6]/10 dark:bg-[#3B82F6]/20 rounded-full blur-[100px]"
-          animate={{ 
-            y: [0, -20, 0],
-            scale: [1, 1.05, 1],
-            opacity: [0.4, 0.6, 0.4]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute bottom-32 right-20 w-96 h-96 bg-[#22D3EE]/8 dark:bg-[#22D3EE]/15 rounded-full blur-[120px]"
-          animate={{ 
-            y: [0, 20, 0],
-            scale: [1, 1.08, 1],
-            opacity: [0.3, 0.5, 0.3]
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-[#3B82F6]/5 to-[#22D3EE]/5 dark:from-[#3B82F6]/10 dark:to-[#22D3EE]/10 rounded-full blur-[80px]"
-          animate={{ 
-            rotate: [0, 360],
-            scale: [1, 1.1, 1]
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        />
-        
-        <div className="relative max-w-6xl mx-auto px-2 sm:px-4 sm:px-6 lg:px-8 py-12 sm:py-32 text-center">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-32 text-center">
           {/* Main Heading with staggered word animation */}
           <motion.h1 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-5xl md:text-7xl font-medium mb-8 leading-tight text-[#0B1220] dark:text-[#E5E7EB]"
+            className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-tight text-[#060C17]"
           >
             {['Building', 'bold', 'software', 'with'].map((word, i) => (
               <motion.span
@@ -152,9 +120,9 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9 }}
-            className="text-lg md:text-xl text-[#9CA3AF] mb-12 max-w-2xl mx-auto"
+            className="text-lg md:text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            Your premium SaaS software marketplace. Discover, purchase, and manage professional applications with secure licensing, instant delivery, and lifetime support—all in one powerful platform.
+            The software and SaaS marketplace. Discover, purchase, and manage professional applications with secure licensing, instant delivery, and lifetime support—all in one powerful platform.
           </motion.p>
           
           {/* CTA Button + Social Proof Row */}
@@ -164,28 +132,15 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 1.1 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-8"
           >
-            {/* CTA Button with glow effect */}
+            {/* CTA Button */}
             <Link href="/products">
               <motion.button 
-                className="group relative flex items-center gap-4 bg-[#3B82F6] text-white font-medium py-3 pl-6 pr-3 rounded-full overflow-hidden"
-                whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(59, 130, 246, 0.5)' }}
+                className="group relative flex items-center gap-3 bg-[#723CFB] hover:bg-[#5F27E5] text-white font-semibold py-3.5 px-8 rounded-full shadow-lg shadow-purple-500/25 transition-all"
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >
-                <span className="relative z-10">Get Started</span>
-                <motion.span 
-                  className="relative z-10 w-10 h-10 bg-[#22D3EE] rounded-full flex items-center justify-center"
-                  whileHover={{ rotate: 45 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
-                >
-                  <ArrowUpRight className="w-5 h-5 text-[#0B1220]" />
-                </motion.span>
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-r from-[#2563EB] to-[#3B82F6]"
-                  initial={{ x: '-100%' }}
-                  whileHover={{ x: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
+                <span>Explore Marketplace</span>
+                <ArrowUpRight className="w-4 h-4 text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </motion.button>
             </Link>
             
@@ -205,7 +160,7 @@ export default function HomePage() {
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     transition={{ delay: 1.3 + i * 0.1, type: 'spring', stiffness: 200 }}
                     whileHover={{ scale: 1.2, zIndex: 10 }}
-                    className="relative w-11 h-11 rounded-full border-2 border-white dark:border-[#0B1220] cursor-pointer shadow-lg overflow-hidden"
+                    className="relative w-11 h-11 rounded-full border-2 border-white cursor-pointer shadow-md overflow-hidden"
                   >
                     <Image 
                       src={avatar.img} 
@@ -235,7 +190,7 @@ export default function HomePage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 2 }}
-                  className="text-sm text-[#9CA3AF]"
+                  className="text-sm text-slate-500 font-medium"
                 >
                   Trusted by 1000+ clients
                 </motion.p>
@@ -245,136 +200,244 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Product Section - Moved to Top for Conversion */}
-      <section className="py-10 sm:py-20 md:py-28 bg-[#F9FAFB] dark:bg-[#0B1220]">
+      {/* Featured Flagship Applications Section (Skillnavo Priority & DeskSweep) */}
+      <section className="py-16 sm:py-24 bg-[#FAFAFA] border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-16"
+            className="mb-16 text-center max-w-3xl mx-auto"
           >
-            <h2 className="text-3xl md:text-4xl font-semibold text-[#0B1220] dark:text-[#E5E7EB] mb-3">
-              Meet DeskSweep
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-50 border border-purple-100 text-[#723CFB] text-xs font-semibold mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-[#723CFB]" />
+              <span>Flagship Software</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold text-[#060C17] mb-4">
+              Featured Applications
             </h2>
-            <p className="text-lg text-[#6B7280] dark:text-[#D1D5DB] max-w-2xl">
-              Your intelligent desktop organizer that transforms messy workspaces into organized, productive environments.
+            <p className="text-lg text-slate-600">
+              Built for performance, engineered for scale. Explore our premier software tools designed for ambitious creators and developers.
             </p>
           </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ type: 'spring', stiffness: 80 }}
-            className="relative rounded-2xl overflow-hidden bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-[#1F2937] shadow-lg"
-          >
-            <Link href="/products/desksweep" className="group block">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                {/* Left Section - Content */}
-                <div className="p-4 sm:p-8 md:p-12 flex flex-col justify-between bg-gradient-to-br from-white to-[#F9FAFB] dark:from-[#111827] dark:to-[#0F1419]">
-                  <div>
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
-                      className="w-12 h-12 bg-[#EFF6FF] dark:bg-[#1E3A8A]/30 rounded-xl flex items-center justify-center mb-6"
-                    >
-                      <Layers className="w-6 h-6 text-[#3B82F6] dark:text-[#60A5FA]" />
-                    </motion.div>
-                    
-                    <h3 className="text-2xl md:text-3xl font-semibold text-[#0B1220] dark:text-[#E5E7EB] mb-4">DeskSweep</h3>
-                    <p className="text-base text-[#4B5563] dark:text-[#D1D5DB] leading-relaxed mb-6">
-                      Transform your messy desktop into an organized workspace. Auto-sort files, find duplicates, and boost productivity with intelligent file management.
-                    </p>
-                    
-                    {/* Features Tags */}
-                    <div className="flex flex-wrap gap-2 mb-8">
-                      {['Desktop Cleaner', 'Auto-Sorting', 'Duplicate Finder'].map((tag, j) => (
-                        <motion.span 
-                          key={j} 
-                          className="px-3 py-1.5 bg-[#EFF6FF] dark:bg-[#1E3A8A]/20 rounded-lg text-xs font-medium text-[#3B82F6] dark:text-[#93C5FD] border border-[#BFDBFE] dark:border-[#1E40AF]/40"
-                          initial={{ opacity: 0, y: 10 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 + j * 0.1 }}
-                          whileHover={{ scale: 1.05 }}
-                        >
-                          {tag}
-                        </motion.span>
-                      ))}
+
+          <div className="space-y-12">
+            {/* 1. Skillnavo Flagship Card (Top Priority) */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: 'spring', stiffness: 80 }}
+              className="relative rounded-3xl overflow-hidden bg-white border-2 border-purple-200/80 shadow-xl hover:shadow-2xl transition-all"
+            >
+              <Link href="/products/skillnavo" className="group block">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                  {/* Left Section - Content */}
+                  <div className="p-6 sm:p-10 md:p-12 flex flex-col justify-between bg-white">
+                    <div>
+                      <div className="flex items-center gap-3 mb-6">
+                        <Image
+                          src="/Skillnavo/SkillnavoIcon.png"
+                          alt="Skillnavo Logo"
+                          width={48}
+                          height={48}
+                          className="rounded-xl shadow-xs"
+                        />
+                        <div>
+                          <span className="text-xs font-bold text-[#723CFB] uppercase tracking-wider block">AI Platform • Flagship SaaS</span>
+                          <span className="text-xs text-slate-500">Subscription Platform</span>
+                        </div>
+                      </div>
+                      
+                      <h3 className="text-2xl md:text-3xl font-bold text-[#060C17] mb-3">Skillnavo</h3>
+                      <p className="text-sm font-semibold text-[#723CFB] mb-4">
+                        Master Modern Software Engineering with AI Diagnostics
+                      </p>
+                      <p className="text-base text-slate-600 leading-relaxed mb-6">
+                        Personalized engineering roadmaps, interactive code diagnostics, real-time AI mentoring, and verified certificates designed for ambitious developers.
+                      </p>
+                      
+                      {/* Features Tags */}
+                      <div className="flex flex-wrap gap-2 mb-8">
+                        {['AI Code Diagnostics', 'Personalized Roadmaps', 'Interactive Coding', 'Verified Certificates'].map((tag, j) => (
+                          <motion.span 
+                            key={j} 
+                            className="px-3 py-1.5 bg-purple-50 rounded-lg text-xs font-semibold text-[#723CFB] border border-purple-100"
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 + j * 0.1 }}
+                            whileHover={{ scale: 1.05 }}
+                          >
+                            {tag}
+                          </motion.span>
+                        ))}
+                      </div>
+
+                      {/* Quick Stats */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {[
+                          { label: '50K+ Inferences', Icon: Cpu },
+                          { label: '4.9★ Rating', Icon: Star },
+                          { label: '100+ Roadmaps', Icon: Target }
+                        ].map((stat, idx) => (
+                          <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.3 + idx * 0.1 }}
+                            className="text-left"
+                          >
+                            <div className="flex items-center gap-2 mb-1">
+                              <stat.Icon className="w-4 h-4 text-[#723CFB]" />
+                              <p className="text-sm font-bold text-[#060C17]">{stat.label.split(' ')[0]}</p>
+                            </div>
+                            <p className="text-xs text-slate-500">{stat.label.split(' ')[1]}</p>
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
 
-                    {/* Quick Stats - Horizontal Layout */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                      {[
-                        { label: '10K+ Users', Icon: Users },
-                        { label: '4.9★ Rating', Icon: Star },
-                        { label: '1M+ Files', Icon: Folder }
-                      ].map((stat, idx) => (
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, y: 20 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.3 + idx * 0.1 }}
-                          className="text-left"
-                        >
-                          <div className="flex items-center gap-2 mb-1">
-                            <stat.Icon className="w-4 h-4 text-[#3B82F6] dark:text-[#60A5FA]" />
-                            <p className="text-sm font-semibold text-[#0B1220] dark:text-[#E5E7EB]">{stat.label.split(' ')[0]}</p>
-                          </div>
-                          <p className="text-xs text-[#9CA3AF] dark:text-[#9CA3AF]">{stat.label.split(' ')[1]}</p>
-                        </motion.div>
-                      ))}
+                    {/* CTA Button */}
+                    <div className="mt-8">
+                      <motion.button
+                        whileHover={{ x: 5 }}
+                        className="flex items-center gap-2 px-6 py-3.5 bg-[#723CFB] hover:bg-[#5F27E5] text-white font-semibold rounded-xl transition-all shadow-md shadow-purple-500/20"
+                      >
+                        Explore Skillnavo
+                        <ArrowUpRight className="w-4 h-4" />
+                      </motion.button>
                     </div>
                   </div>
 
-                  {/* CTA Button */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="mt-8"
-                  >
-                    <motion.button
-                      whileHover={{ x: 5 }}
-                      className="flex items-center gap-2 px-5 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white font-medium rounded-lg transition-colors duration-200"
+                  {/* Right Section - Product Image */}
+                  <div className="relative bg-slate-50 p-0 flex items-center justify-center min-h-96 lg:min-h-full border-t lg:border-t-0 lg:border-l border-slate-100">
+                    <motion.div 
+                      className="relative w-full h-full overflow-hidden"
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.3 }}
                     >
-                      Explore DeskSweep
-                      <ArrowUpRight className="w-4 h-4" />
-                    </motion.button>
-                  </motion.div>
+                      <Image
+                        src="/Skillnavo/Skillnavo.png"
+                        alt="Skillnavo AI Platform Interface"
+                        width={1200}
+                        height={800}
+                        className="w-full h-full object-cover"
+                        priority
+                      />
+                    </motion.div>
+                  </div>
                 </div>
+              </Link>
+            </motion.div>
 
-                {/* Right Section - Product Image */}
-                <div className="relative bg-gradient-to-br from-[#F0F9FF] to-white dark:from-[#0F1419] dark:to-[#111827] p-0 flex items-center justify-center min-h-96 lg:min-h-full">
-                  <motion.div 
-                    className="relative w-full h-full overflow-hidden shadow-lg"
-                    whileHover={{ scale: 1.02, y: -4 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Image
-                      src="/DeskSweep/DeskSweep.png"
-                      alt="DeskSweep Software Interface"
-                      width={1200}
-                      height={800}
-                      className="w-full h-full object-cover"
-                      priority
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </motion.div>
+            {/* 2. DeskSweep Featured Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: 'spring', stiffness: 80 }}
+              className="relative rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-lg hover:shadow-xl transition-all"
+            >
+              <Link href="/products/desksweep" className="group block">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                  {/* Left Section - Content */}
+                  <div className="p-6 sm:p-10 md:p-12 flex flex-col justify-between bg-white">
+                    <div>
+                      <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 border border-amber-100">
+                        <Layers className="w-6 h-6 text-amber-500" />
+                      </div>
+                      
+                      <h3 className="text-2xl md:text-3xl font-bold text-[#060C17] mb-3">DeskSweep</h3>
+                      <p className="text-sm font-semibold text-amber-600 mb-4">
+                        Intelligent Desktop Organizer & File Manager
+                      </p>
+                      <p className="text-base text-slate-600 leading-relaxed mb-6">
+                        Transform your messy desktop into an organized workspace. Auto-sort files, find duplicates, and boost productivity with intelligent file management.
+                      </p>
+                      
+                      {/* Features Tags */}
+                      <div className="flex flex-wrap gap-2 mb-8">
+                        {['Desktop Cleaner', 'Auto-Sorting', 'Duplicate Finder'].map((tag, j) => (
+                          <motion.span 
+                            key={j} 
+                            className="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-semibold text-slate-700 border border-slate-200"
+                            initial={{ opacity: 0, y: 10 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 + j * 0.1 }}
+                            whileHover={{ scale: 1.05 }}
+                          >
+                            {tag}
+                          </motion.span>
+                        ))}
+                      </div>
+
+                      {/* Quick Stats */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {[
+                          { label: '10K+ Users', Icon: Users },
+                          { label: '4.9★ Rating', Icon: Star },
+                          { label: '1M+ Files', Icon: Folder }
+                        ].map((stat, idx) => (
+                          <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.3 + idx * 0.1 }}
+                            className="text-left"
+                          >
+                            <div className="flex items-center gap-2 mb-1">
+                              <stat.Icon className="w-4 h-4 text-amber-500" />
+                              <p className="text-sm font-bold text-[#060C17]">{stat.label.split(' ')[0]}</p>
+                            </div>
+                            <p className="text-xs text-slate-500">{stat.label.split(' ')[1]}</p>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <div className="mt-8">
+                      <motion.button
+                        whileHover={{ x: 5 }}
+                        className="flex items-center gap-2 px-6 py-3.5 bg-[#060C17] hover:bg-slate-800 text-white font-semibold rounded-xl transition-all shadow-sm"
+                      >
+                        Explore DeskSweep
+                        <ArrowUpRight className="w-4 h-4" />
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  {/* Right Section - Product Image */}
+                  <div className="relative bg-slate-50 p-0 flex items-center justify-center min-h-96 lg:min-h-full border-t lg:border-t-0 lg:border-l border-slate-100">
+                    <motion.div 
+                      className="relative w-full h-full overflow-hidden"
+                      whileHover={{ scale: 1.02 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Image
+                        src="/DeskSweep/DeskSweep.png"
+                        alt="DeskSweep Software Interface"
+                        width={1200}
+                        height={800}
+                        className="w-full h-full object-cover"
+                        priority
+                      />
+                    </motion.div>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          </motion.div>
+              </Link>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Pricing Section - Moved Up for Better Conversion */}
+      {/* Pricing Section */}
       <PricingSection />
 
-      {/* Merged Trust & Stats Section - 2x2 Grid, Centered, All Cards Visible */}
-      <section className="py-8 sm:py-16 bg-[#F9FAFB] dark:bg-[#0B1220] overflow-hidden">
+      {/* Merged Trust & Stats Section */}
+      <section className="py-12 sm:py-16 bg-white overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -386,11 +449,11 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="text-[#9CA3AF] text-base mb-10"
+              className="text-slate-500 font-medium text-base mb-10"
             >
               Trusted by professionals worldwide
             </motion.p>
-            {/* 2x2 Grid, All Cards Always Visible, Centered */}
+            {/* 2x2 Grid */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -405,16 +468,16 @@ export default function HomePage() {
               ].map((stat, i) => (
                 <motion.div 
                   key={i} 
-                  className="flex flex-col items-center justify-center text-center p-8 rounded-2xl bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-[#1F2937] min-h-[170px]"
+                  className="flex flex-col items-center justify-center text-center p-8 rounded-2xl bg-white border border-slate-200 min-h-[170px] shadow-sm hover:shadow-md transition-all"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1, type: 'spring', stiffness: 100 }}
-                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileHover={{ scale: 1.03, y: -4 }}
                 >
-                  <stat.Icon className="w-8 h-8 text-[#3B82F6] mb-4" />
-                  <div className="text-3xl font-bold text-[#3B82F6] mb-2">{stat.value}</div>
-                  <div className="text-base text-[#9CA3AF]">{stat.label}</div>
+                  <stat.Icon className="w-8 h-8 text-[#723CFB] mb-4" />
+                  <div className="text-3xl font-bold text-[#060C17] mb-2">{stat.value}</div>
+                  <div className="text-base text-slate-500 font-medium">{stat.label}</div>
                 </motion.div>
               ))}
             </motion.div>
@@ -422,23 +485,23 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Services Section - Simplified */}
-      <section className="py-10 sm:py-20 bg-[#F9FAFB] dark:bg-[#0B1220]">
+      {/* Services Section */}
+      <section className="py-12 sm:py-20 bg-[#FAFAFA] border-y border-slate-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-medium text-center mb-12 text-[#0B1220] dark:text-[#E5E7EB]"
+            className="text-3xl md:text-4xl font-semibold text-center mb-12 text-[#060C17]"
           >
             Why choose <span className="italic font-serif font-normal">Appsto</span>
           </motion.h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {[
-              { icon: Shield, title: 'Enterprise Security', desc: 'Bank-level encryption & PCI-DSS compliance for your peace of mind', color: 'bg-[#3B82F6]/20 dark:bg-[#3B82F6]/10', iconColor: 'text-[#3B82F6]', hoverGlow: 'rgba(59, 130, 246, 0.3)' },
-              { icon: Zap, title: 'Instant Delivery', desc: 'Get your license key immediately after purchase - no waiting', color: 'bg-[#22D3EE]/20 dark:bg-[#22D3EE]/10', iconColor: 'text-[#22D3EE]', hoverGlow: 'rgba(34, 211, 238, 0.3)' },
-              { icon: CheckCircle, title: 'Lifetime Support', desc: 'Dedicated support and free updates included with every purchase', color: 'bg-[#3B82F6]/20 dark:bg-[#3B82F6]/10', iconColor: 'text-[#3B82F6]', hoverGlow: 'rgba(59, 130, 246, 0.3)' },
+              { icon: Shield, title: 'Enterprise Security', desc: 'Bank-level encryption & PCI-DSS compliance for your peace of mind' },
+              { icon: Zap, title: 'Instant Delivery', desc: 'Get your license key immediately after purchase - no waiting' },
+              { icon: CheckCircle, title: 'Lifetime Support', desc: 'Dedicated support and free updates included with every purchase' },
             ].map((service, i) => (
               <motion.div
                 key={i}
@@ -447,20 +510,18 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, type: 'spring', stiffness: 100 }}
                 whileHover={{ 
-                  scale: 1.05, 
-                  y: -10,
-                  boxShadow: `0 25px 50px -12px ${service.hoverGlow}`,
-                  transition: { type: 'spring', stiffness: 300, damping: 20 }
+                  scale: 1.02, 
+                  y: -4,
+                  boxShadow: '0 20px 30px -10px rgba(114, 60, 251, 0.1)',
                 }}
-                className={`${service.color} rounded-3xl p-8 h-64 flex flex-col justify-between cursor-pointer`}
-                style={{ transformStyle: 'preserve-3d' }}
+                className="bg-white border border-slate-200 rounded-3xl p-8 h-64 flex flex-col justify-between cursor-pointer hover:border-purple-200 shadow-sm transition-all"
               >
                 <div>
-                  <service.icon className={`w-10 h-10 ${service.iconColor} mb-4`} />
+                  <service.icon className="w-10 h-10 text-[#723CFB] mb-4" />
                 </div>
                 <div>
-                  <h3 className={`text-2xl font-medium ${service.iconColor} mb-2`}>{service.title}</h3>
-                  <p className="text-[#9CA3AF] text-sm">{service.desc}</p>
+                  <h3 className="text-2xl font-bold text-[#060C17] mb-2">{service.title}</h3>
+                  <p className="text-slate-600 text-sm leading-relaxed">{service.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -468,14 +529,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Customer Reviews - Infinite Scroll */}
-      <section className="py-8 sm:py-16 bg-[#F9FAFB] dark:bg-[#0B1220] overflow-hidden">
+      {/* Customer Reviews */}
+      <section className="py-12 sm:py-16 bg-white overflow-hidden">
         <div className="max-w-full mx-auto">
           <motion.h2 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-medium text-center mb-12 text-[#0B1220] dark:text-[#E5E7EB] px-4"
+            className="text-3xl md:text-4xl font-semibold text-center mb-12 text-[#060C17] px-4"
           >
             Loved by <span className="italic font-serif font-normal">thousands</span> of users
           </motion.h2>
@@ -500,7 +561,7 @@ export default function HomePage() {
                   review: 'Finally, a tool that actually keeps my desktop clean! The auto-sorting is incredible.',
                   rating: 5,
                   initials: 'MR',
-                  color: 'bg-blue-500'
+                  color: 'bg-slate-900'
                 },
                 {
                   name: 'Emily Watson',
@@ -508,7 +569,7 @@ export default function HomePage() {
                   review: 'DeskSweep saved me hours of manual file organization. Worth every penny!',
                   rating: 5,
                   initials: 'EW',
-                  color: 'bg-purple-500'
+                  color: 'bg-[#723CFB]'
                 },
                 {
                   name: 'David Kim',
@@ -516,7 +577,7 @@ export default function HomePage() {
                   review: 'Best desktop organizer I have used. The duplicate finder alone is worth the price.',
                   rating: 5,
                   initials: 'DK',
-                  color: 'bg-pink-500'
+                  color: 'bg-pink-600'
                 },
                 {
                   name: 'Sarah Johnson',
@@ -524,7 +585,7 @@ export default function HomePage() {
                   review: 'Appsto platform makes purchasing software seamless. Instant licenses and great support!',
                   rating: 5,
                   initials: 'SJ',
-                  color: 'bg-green-500'
+                  color: 'bg-emerald-600'
                 },
                 {
                   name: 'Alex Martinez',
@@ -532,7 +593,7 @@ export default function HomePage() {
                   review: 'We use Appsto for all our software needs. Secure, fast, and reliable platform.',
                   rating: 5,
                   initials: 'AM',
-                  color: 'bg-red-500'
+                  color: 'bg-indigo-600'
                 },
                 {
                   name: 'Jessica Lee',
@@ -540,109 +601,12 @@ export default function HomePage() {
                   review: 'The licensing system is so intuitive. Made managing software licenses effortless for our team.',
                   rating: 5,
                   initials: 'JL',
-                  color: 'bg-amber-500'
-                },
-                {
-                  name: 'Thomas Brown',
-                  role: 'System Administrator',
-                  review: 'Enterprise-grade security with consumer-friendly interface. Exactly what we needed.',
-                  rating: 5,
-                  initials: 'TB',
-                  color: 'bg-indigo-500'
-                },
-                {
-                  name: 'Maria Garcia',
-                  role: 'UX Designer',
-                  review: 'The user experience on Appsto is outstanding. Purchased and activated in minutes!',
-                  rating: 5,
-                  initials: 'MG',
-                  color: 'bg-cyan-500'
-                },
-                {
-                  name: 'James Wilson',
-                  role: 'Startup Founder',
-                  review: 'Perfect solution for our growing team. Flexible licensing options and excellent service.',
-                  rating: 5,
-                  initials: 'JW',
-                  color: 'bg-teal-500'
-                },
-                // Duplicate for seamless looping
-                {
-                  name: 'Michael Rodriguez',
-                  role: 'Freelance Designer',
-                  review: 'Finally, a tool that actually keeps my desktop clean! The auto-sorting is incredible.',
-                  rating: 5,
-                  initials: 'MR',
-                  color: 'bg-blue-500'
-                },
-                {
-                  name: 'Emily Watson',
-                  role: 'Software Developer',
-                  review: 'DeskSweep saved me hours of manual file organization. Worth every penny!',
-                  rating: 5,
-                  initials: 'EW',
-                  color: 'bg-purple-500'
-                },
-                {
-                  name: 'David Kim',
-                  role: 'Marketing Director',
-                  review: 'Best desktop organizer I have used. The duplicate finder alone is worth the price.',
-                  rating: 5,
-                  initials: 'DK',
-                  color: 'bg-pink-500'
-                },
-                {
-                  name: 'Sarah Johnson',
-                  role: 'Content Creator',
-                  review: 'Appsto platform makes purchasing software seamless. Instant licenses and great support!',
-                  rating: 5,
-                  initials: 'SJ',
-                  color: 'bg-green-500'
-                },
-                {
-                  name: 'Alex Martinez',
-                  role: 'IT Manager',
-                  review: 'We use Appsto for all our software needs. Secure, fast, and reliable platform.',
-                  rating: 5,
-                  initials: 'AM',
-                  color: 'bg-red-500'
-                },
-                {
-                  name: 'Jessica Lee',
-                  role: 'Product Manager',
-                  review: 'The licensing system is so intuitive. Made managing software licenses effortless for our team.',
-                  rating: 5,
-                  initials: 'JL',
-                  color: 'bg-amber-500'
-                },
-                {
-                  name: 'Thomas Brown',
-                  role: 'System Administrator',
-                  review: 'Enterprise-grade security with consumer-friendly interface. Exactly what we needed.',
-                  rating: 5,
-                  initials: 'TB',
-                  color: 'bg-indigo-500'
-                },
-                {
-                  name: 'Maria Garcia',
-                  role: 'UX Designer',
-                  review: 'The user experience on Appsto is outstanding. Purchased and activated in minutes!',
-                  rating: 5,
-                  initials: 'MG',
-                  color: 'bg-cyan-500'
-                },
-                {
-                  name: 'James Wilson',
-                  role: 'Startup Founder',
-                  review: 'Perfect solution for our growing team. Flexible licensing options and excellent service.',
-                  rating: 5,
-                  initials: 'JW',
-                  color: 'bg-teal-500'
+                  color: 'bg-amber-600'
                 }
               ].map((review, idx) => (
                 <motion.div
                   key={idx}
-                  className="flex-shrink-0 w-80 bg-white dark:bg-[#111827] rounded-2xl p-6 border border-[#E5E7EB] dark:border-[#1F2937] hover:shadow-xl transition-shadow duration-300"
+                  className="flex-shrink-0 w-80 bg-white rounded-2xl p-6 border border-slate-200 hover:shadow-xl transition-shadow duration-300 shadow-sm"
                   whileHover={{ y: -5 }}
                 >
                   <div className="flex gap-1 mb-4">
@@ -650,16 +614,16 @@ export default function HomePage() {
                       <Star key={i} className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
                     ))}
                   </div>
-                  <p className="text-[#0B1220] dark:text-[#E5E7EB] mb-4 leading-relaxed text-sm min-h-16">
+                  <p className="text-slate-700 mb-4 leading-relaxed text-sm min-h-16">
                     &ldquo;{review.review}&rdquo;
                   </p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-[#E5E7EB] dark:border-[#1F2937]">
+                  <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
                     <div className={`w-10 h-10 ${review.color} rounded-full flex items-center justify-center flex-shrink-0`}>
                       <p className="text-white font-semibold text-sm">{review.initials}</p>
                     </div>
                     <div>
-                      <p className="text-[#0B1220] dark:text-[#E5E7EB] font-medium text-sm">{review.name}</p>
-                      <p className="text-[#9CA3AF] text-xs">{review.role}</p>
+                      <p className="text-[#060C17] font-semibold text-sm">{review.name}</p>
+                      <p className="text-slate-500 text-xs">{review.role}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -667,20 +631,20 @@ export default function HomePage() {
             </motion.div>
 
             {/* Gradient Overlays for smooth fade effect */}
-            <div className="absolute top-0 left-0 w-48 h-full bg-gradient-to-r from-[#F9FAFB] dark:from-[#0B1220] to-transparent pointer-events-none z-10" />
-            <div className="absolute top-0 right-0 w-48 h-full bg-gradient-to-l from-[#F9FAFB] dark:from-[#0B1220] to-transparent pointer-events-none z-10" />
+            <div className="absolute top-0 left-0 w-48 h-full bg-gradient-to-r from-white to-transparent pointer-events-none z-10" />
+            <div className="absolute top-0 right-0 w-48 h-full bg-gradient-to-l from-white to-transparent pointer-events-none z-10" />
           </div>
         </div>
       </section>
 
-      {/* FAQ Section - Simplified */}
-      <section className="py-8 sm:py-16 bg-[#F9FAFB] dark:bg-[#0B1220]">
-        <div className="max-w-3xl mx-auto px-2 sm:px-4 sm:px-6 lg:px-8">
+      {/* FAQ Section */}
+      <section className="py-12 sm:py-16 bg-[#FAFAFA] border-t border-slate-100">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-medium text-center mb-12 text-[#0B1220] dark:text-[#E5E7EB]"
+            className="text-3xl md:text-4xl font-semibold text-center mb-12 text-[#060C17]"
           >
             Common <span className="italic font-serif font-normal">questions</span>
           </motion.h2>
@@ -697,20 +661,20 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ scale: 1.01 }}
-                className="border border-[#0B1220]/10 dark:border-[#E5E7EB]/10 rounded-2xl overflow-hidden"
+                className="border border-slate-200 bg-white rounded-2xl overflow-hidden shadow-xs"
               >
                 <motion.button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between p-6 text-left hover:bg-[#0B1220]/5 dark:hover:bg-[#E5E7EB]/5 transition-colors"
+                  className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-50 transition-colors"
                   whileHover={{ x: 5 }}
                   whileTap={{ scale: 0.99 }}
                 >
-                  <span className="text-lg font-medium text-[#0B1220] dark:text-[#E5E7EB]">{faq.q}</span>
+                  <span className="text-lg font-semibold text-[#060C17]">{faq.q}</span>
                   <motion.div
                     animate={{ rotate: openFaq === i ? 45 : 0 }}
                     transition={{ duration: 0.3, type: 'spring', stiffness: 200 }}
                   >
-                    <Plus className="w-5 h-5 text-[#3B82F6]" />
+                    <Plus className="w-5 h-5 text-[#723CFB]" />
                   </motion.div>
                 </motion.button>
                 <motion.div
@@ -723,7 +687,7 @@ export default function HomePage() {
                   className="overflow-hidden"
                 >
                   <motion.div 
-                    className="px-6 pb-6 text-[#9CA3AF]"
+                    className="px-6 pb-6 text-slate-600 text-sm leading-relaxed"
                     initial={{ y: -10 }}
                     animate={{ y: openFaq === i ? 0 : -10 }}
                     transition={{ duration: 0.2 }}
@@ -737,8 +701,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section - Gradient Background with animations */}
-      <section className="py-6 px-2 sm:py-8 sm:px-4 pb-10 sm:pb-20">
+      {/* CTA Section - Crisp White Theme with Logo Arrow Head Accent */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24 bg-[#FAFAFA]">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
@@ -746,25 +710,17 @@ export default function HomePage() {
             viewport={{ once: true }}
             transition={{ type: 'spring', stiffness: 100 }}
             whileHover={{ scale: 1.01 }}
-            className="relative bg-gradient-to-r from-[#3B82F6]/20 via-[#F9FAFB] to-[#22D3EE]/20 dark:from-[#111827] dark:via-[#0B1220] dark:to-[#111827] dark:border dark:border-[#E5E7EB]/10 rounded-3xl p-6 sm:p-16 text-center overflow-hidden"
+            className="relative bg-white border-2 border-slate-200 rounded-3xl p-8 sm:p-16 text-center overflow-hidden shadow-xl"
           >
-            {/* Animated background orbs */}
-            <motion.div
-              className="absolute top-0 left-0 w-64 h-64 bg-[#3B82F6]/20 rounded-full blur-3xl"
-              animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <motion.div
-              className="absolute bottom-0 right-0 w-64 h-64 bg-[#22D3EE]/20 rounded-full blur-3xl"
-              animate={{ x: [0, -50, 0], y: [0, -30, 0] }}
-              transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-            />
+            {/* Subtle purple accent glow */}
+            <div className="absolute -top-24 -left-24 w-72 h-72 bg-purple-100 rounded-full blur-3xl pointer-events-none opacity-60" />
+            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-purple-100 rounded-full blur-3xl pointer-events-none opacity-60" />
             
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="relative z-10 text-4xl md:text-5xl font-medium mb-6 text-[#0B1220] dark:text-[#E5E7EB]"
+              className="relative z-10 text-4xl md:text-5xl font-bold mb-6 text-[#060C17]"
             >
               Ready to transform your <span className="italic font-serif font-normal">workflow?</span>
             </motion.h2>
@@ -772,7 +728,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="relative z-10 text-[#9CA3AF] text-lg mb-8 max-w-2xl mx-auto"
+              className="relative z-10 text-slate-600 text-lg mb-8 max-w-2xl mx-auto leading-relaxed"
             >
               Join thousands of professionals who trust Appsto for premium SaaS solutions. Discover enterprise-grade software with secure licensing, instant delivery, and dedicated support.
             </motion.p>
@@ -781,17 +737,14 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(59, 130, 246, 0.5)' }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
-                className="relative z-10 flex items-center gap-3 bg-[#3B82F6] text-white font-medium py-3 pl-6 pr-3 rounded-full mx-auto"
+                className="relative z-10 inline-flex items-center gap-3 bg-[#723CFB] hover:bg-[#5F27E5] text-white font-semibold py-3.5 pl-8 pr-4 rounded-full mx-auto shadow-lg shadow-purple-500/25 transition-all"
               >
                 Let&apos;s Collaborate
-                <motion.span 
-                  className="w-8 h-8 bg-[#22D3EE] rounded-full flex items-center justify-center"
-                  whileHover={{ rotate: 45 }}
-                >
-                  <ArrowUpRight className="w-4 h-4 text-[#0B1220]" />
-                </motion.span>
+                <span className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                  <ArrowUpRight className="w-4 h-4 text-white" />
+                </span>
               </motion.button>
             </Link>
           </motion.div>

@@ -19,9 +19,10 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-[#9CA3AF]">Redirecting...</p>
+          <div className="w-8 h-8 border-2 border-[#723CFB] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-slate-500 text-sm font-medium">Redirecting to account...</p>
         </div>
       </div>
     </ProtectedRoute>

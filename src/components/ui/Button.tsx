@@ -1,9 +1,8 @@
 import { cn } from '@/lib/utils'
 import { ButtonHTMLAttributes, forwardRef } from 'react'
-import Link from 'next/link'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'marketplace' | 'skillnavo' | 'accent'
   size?: 'sm' | 'md' | 'lg'
   isLoading?: boolean
   asChild?: boolean
@@ -11,29 +10,29 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
-    // Handle the 'asChild' pattern for Next.js Link compatibility
-    const Comp = 'button'
-    
     return (
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-300',
+          'inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-200',
           'focus:outline-none focus:ring-2 focus:ring-offset-2',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'relative overflow-hidden group',
           {
-            // Primary variant
-            'bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500 shadow-lg hover:shadow-xl hover:scale-105':
-              variant === 'primary',
+            // Primary, Accent, and Skillnavo variants (#723CFB)
+            'bg-[#723CFB] text-white hover:bg-[#5F27E5] focus:ring-[#723CFB] shadow-sm shadow-purple-500/20':
+              variant === 'primary' || variant === 'accent' || variant === 'skillnavo',
+            // Marketplace variant (Crisp Dark Slate)
+            'bg-[#060C17] text-white hover:bg-slate-800 focus:ring-slate-900 shadow-sm':
+              variant === 'marketplace',
             // Secondary variant
-            'bg-dark-700 text-white hover:bg-dark-800 focus:ring-dark-500 shadow-lg hover:shadow-xl hover:scale-105':
+            'bg-slate-100 text-slate-900 hover:bg-slate-200 focus:ring-slate-300':
               variant === 'secondary',
             // Outline variant
-            'border-2 border-brand-600 text-brand-600 hover:bg-brand-50 focus:ring-brand-500':
+            'border border-slate-300 text-slate-800 hover:bg-slate-50 focus:ring-slate-300':
               variant === 'outline',
             // Ghost variant
-            'text-dark-700 hover:bg-dark-100 focus:ring-dark-500':
+            'text-slate-700 hover:bg-slate-100 focus:ring-slate-300':
               variant === 'ghost',
             // Sizes
             'px-4 py-2 text-sm': size === 'sm',

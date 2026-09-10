@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
               padding: 20px;
             }
             .header {
-              background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+              background: #0F172A;
               color: white;
               padding: 30px;
               border-radius: 12px 12px 0 0;
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
             }
             .label {
               font-weight: 600;
-              color: #0B1220;
+              color: #0F172A;
               margin-bottom: 5px;
             }
             .value {
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
               white-space: pre-wrap;
             }
             .footer {
-              background: #0B1220;
+              background: #0F172A;
               color: #9CA3AF;
               padding: 20px;
               text-align: center;
@@ -86,8 +86,8 @@ export async function POST(request: NextRequest) {
             }
             .badge {
               display: inline-block;
-              background: #22D3EE;
-              color: #0B1220;
+              background: #334155;
+              color: white;
               padding: 4px 12px;
               border-radius: 20px;
               font-size: 12px;
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
             
             <div class="field">
               <div class="label">📧 Email:</div>
-              <div class="value"><a href="mailto:${email}" style="color: #3B82F6; text-decoration: none;">${email}</a></div>
+              <div class="value"><a href="mailto:${email}" style="color: #0F172A; font-weight: 600; text-decoration: underline;">${email}</a></div>
             </div>
             
             <div class="field">

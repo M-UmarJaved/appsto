@@ -6,7 +6,12 @@ import ThemeProvider from '@/components/theme/ThemeProvider'
 import ConditionalLayout from '@/components/layout/ConditionalLayout'
 import { AuthProvider } from '@/contexts/AuthContext'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+  adjustFontFallback: false,
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://appsto.software'),
@@ -48,9 +53,16 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/Favicon.png',
-    apple: '/Favicon.png',
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon.png', sizes: '96x96', type: 'image/png' },
+      { url: '/Favicon.png', sizes: '96x96', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
+  manifest: '/site.webmanifest',
   openGraph: {
     title: 'Appsto - The Software Marketplace',
     description: 'The premier marketplace for software tools. Buy and sell applications with secure licensing and instant delivery.',
@@ -86,8 +98,15 @@ export default function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-[#F9FAFB] dark:bg-[#0B1220]`}>
+    <html lang="en" className="light" style={{ colorScheme: 'light' }} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{localStorage.removeItem('theme');document.documentElement.classList.remove('dark');document.documentElement.classList.add('light');document.documentElement.style.colorScheme='light';}catch(e){}`,
+          }}
+        />
+      </head>
+      <body className={`${inter.className} bg-white text-[#060C17]`}>
         {/* Google Analytics */}
         {gaId && (
           <>

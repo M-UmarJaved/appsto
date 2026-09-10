@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * Test Webhook Simulator
  * Simulates a Paddle webhook call for local testing

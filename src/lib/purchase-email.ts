@@ -182,8 +182,8 @@ export async function sendPurchaseConfirmationEmail(data: PurchaseEmailData) {
               </div>
 
               <!-- Installation Steps -->
-              <div style="background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 20px; margin: 0 0 30px 0;">
-                <h3 style="color: #1e40af; font-size: 16px; margin: 0 0 15px 0; font-weight: 600;">
+              <div style="background: #f8fafc; border-left: 4px solid #0f172a; border-radius: 8px; padding: 20px; margin: 0 0 30px 0;">
+                <h3 style="color: #0f172a; font-size: 16px; margin: 0 0 15px 0; font-weight: 600;">
                   📦 Quick Installation Guide
                 </h3>
                 <ol style="color: #1f2937; margin: 0; padding-left: 20px; line-height: 1.8;">

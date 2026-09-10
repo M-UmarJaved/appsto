@@ -4,7 +4,7 @@
 
 @layer base {
   * {
-    @apply border-gray-200;
+    @apply border-slate-200;
   }
   
   /* Custom Scrollbar - Thin and Simple */
@@ -26,64 +26,70 @@
     background: #94A3B8;
   }
   
-  .dark ::-webkit-scrollbar-thumb {
-    background: #334155;
-  }
-  
-  .dark ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
-  }
-  
   /* Firefox scrollbar */
   * {
     scrollbar-width: thin;
     scrollbar-color: #CBD5E1 transparent;
   }
   
-  .dark * {
-    scrollbar-color: #334155 transparent;
+  :root {
+    color-scheme: light !important;
   }
   
   html {
     scroll-behavior: smooth;
     font-family: 'Inter', sans-serif;
+    color-scheme: light !important;
+    background-color: #FFFFFF !important;
+    color: #060C17 !important;
   }
   
   body {
-    @apply bg-[#F9FAFB] text-[#0B1220] antialiased;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    @apply bg-white text-[#060C17] antialiased;
+    background-color: #FFFFFF !important;
+    color: #060C17 !important;
+    color-scheme: light !important;
   }
   
-  /* Dark mode styles */
-  .dark body {
-    @apply bg-[#0B1220] text-[#E5E7EB];
+  /* Absolute guarantee: override any dark classes to pure light */
+  .dark, .dark body {
+    background-color: #FFFFFF !important;
+    color: #060C17 !important;
+    color-scheme: light !important;
   }
   
-  .dark {
-    color-scheme: dark;
+  @media (prefers-color-scheme: dark) {
+    :root, html, body {
+      background-color: #FFFFFF !important;
+      color: #060C17 !important;
+      color-scheme: light !important;
+    }
+  }
+  
+  ::selection {
+    background-color: rgba(114, 60, 251, 0.25);
+    color: #060c17;
   }
 }
 
 @layer utilities {
+  .accent-gradient {
+    background: linear-gradient(135deg, #4D2CFC 0%, #723CFB 50%, #8139FB 100%);
+  }
+  .accent-text-gradient {
+    @apply bg-gradient-to-r from-[#4D2CFC] via-[#723CFB] to-[#8139FB] bg-clip-text text-transparent;
+  }
   .text-gradient {
-    @apply bg-gradient-to-r from-brand-600 to-brand-800 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 bg-clip-text text-transparent;
   }
 
 .glass-effect {
-  @apply bg-white/95 backdrop-blur-sm border border-gray-100 shadow-lg;
+  @apply bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-sm;
   transition: all 0.3s ease;
 }
 
-.dark .glass-effect {
-  @apply bg-[#0B1220]/95 backdrop-blur-sm border border-white/10 shadow-lg;
-}
-
 .gradient-mesh {
-  background: linear-gradient(to bottom, #ffffff 0%, #f9fafb 100%);
-}
-
-.dark .gradient-mesh {
-  background: linear-gradient(to bottom, #0B1220 0%, #111827 100%);
+  background: linear-gradient(to bottom, #FFFFFF 0%, #FAFAFA 100%);
 }
 
 .hover-lift {
@@ -91,28 +97,7 @@
 }
 
 .hover-lift:hover {
-  @apply -translate-y-2 shadow-2xl;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-gray-100;
-}
-
-.dark ::-webkit-scrollbar-track {
-  @apply bg-[#0B1220];
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-brand-500 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-brand-600;
+  @apply -translate-y-2 shadow-xl;
 }
 
 /* Smooth scroll behavior */
@@ -122,7 +107,7 @@ html {
 
 /* Focus visible styles */
 :focus-visible {
-  @apply outline-2 outline-offset-2 outline-brand-500;
+  @apply outline-2 outline-offset-2 outline-[#723CFB];
 }
 
 /* Animation keyframes */

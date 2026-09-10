@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sendPurchaseConfirmationEmail } from '@/lib/purchase-email'
 import { sendPurchaseNotification } from '@/lib/discord'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * Test endpoint to verify email and Discord notifications work
  * Usage: POST http://localhost:3000/api/test/notifications

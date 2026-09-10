@@ -412,20 +412,20 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#3B82F6]" />
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#723CFB]" />
       </div>
     )
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Package className="w-20 h-20 text-[#9CA3AF] mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-2">Product not found</h2>
+          <Package className="w-20 h-20 text-slate-300 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-[#060C17] mb-2">Product not found</h2>
           <Link href="/products">
-            <Button>Back to Products</Button>
+            <Button className="bg-[#723CFB] hover:bg-[#5F27E5] text-white">Back to Products</Button>
           </Link>
         </div>
       </div>
@@ -442,12 +442,12 @@ export default function ProductDetailPage() {
         onError={() => console.error('❌ Failed to load Paddle.js script')}
       />
 
-      <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] pt-24">
+      <div className="min-h-screen bg-white pt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Back button */}
         <Link
           href="/products"
-          className="inline-flex items-center text-[#3B82F6] hover:text-[#2563EB] mb-8 font-medium transition-colors"
+          className="inline-flex items-center text-slate-700 hover:text-[#723CFB] mb-8 font-medium transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Products
@@ -462,7 +462,7 @@ export default function ProductDetailPage() {
             transition={{ duration: 0.6 }}
             className="space-y-6"
           >
-            <div className="bg-gradient-to-br from-[#3B82F6] via-[#2563EB] to-[#1D4ED8] rounded-2xl overflow-hidden shadow-2xl min-h-[500px] relative">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden shadow-lg min-h-[500px] relative">
               <Image
                 src="/DeskSweep/DeskSweepProductPage.png"
                 alt={product.name}
@@ -482,21 +482,21 @@ export default function ProductDetailPage() {
             {/* Badges */}
             <div className="flex items-center gap-2">
               <Badge 
-                variant="success"
+                variant="accent"
                 className="text-base font-semibold"
               >
                 💎 One-Time Purchase
               </Badge>
-              <div className="bg-gradient-to-r from-[#F59E0B] to-[#EAB308] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+              <div className="bg-[#060C17] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm">
                 LIFETIME ACCESS
               </div>
             </div>
             
             {/* Title */}
-            <h1 className="text-4xl md:text-5xl font-bold text-[#0B1220] dark:text-[#E5E7EB]">{product.name}</h1>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-[#060C17]">{product.name}</h1>
             
             {/* Description */}
-            <p className="text-lg text-[#6B7280] dark:text-[#9CA3AF] leading-relaxed">
+            <p className="text-lg text-slate-600 leading-relaxed">
               {product.description}
             </p>
 
@@ -507,26 +507,26 @@ export default function ProductDetailPage() {
                   <Star key={star} className="w-5 h-5 text-[#F59E0B] fill-[#F59E0B]" />
                 ))}
               </div>
-              <span className="text-[#6B7280] dark:text-[#9CA3AF] font-medium">4.8 (234 reviews)</span>
+              <span className="text-slate-600 font-medium">4.8 (234 reviews)</span>
             </div>
 
             {/* Quick Features */}
             <div className="grid grid-cols-2 gap-4 pt-4">
               <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-[#10B981]" />
-                <span className="text-sm text-[#6B7280] dark:text-[#9CA3AF]">14-day guarantee</span>
+                <Shield className="w-5 h-5 text-emerald-600" />
+                <span className="text-sm text-slate-600">14-day guarantee</span>
               </div>
               <div className="flex items-center gap-2">
-                <Download className="w-5 h-5 text-[#3B82F6]" />
-                <span className="text-sm text-[#6B7280] dark:text-[#9CA3AF]">Instant delivery</span>
+                <Download className="w-5 h-5 text-[#723CFB]" />
+                <span className="text-sm text-slate-600">Instant delivery</span>
               </div>
               <div className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-[#F59E0B]" />
-                <span className="text-sm text-[#6B7280] dark:text-[#9CA3AF]">Lifetime updates</span>
+                <Zap className="w-5 h-5 text-amber-500" />
+                <span className="text-sm text-slate-600">Lifetime updates</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-[#10B981]" />
-                <span className="text-sm text-[#6B7280] dark:text-[#9CA3AF]">Works offline</span>
+                <CheckCircle className="w-5 h-5 text-emerald-600" />
+                <span className="text-sm text-slate-600">Works offline</span>
               </div>
             </div>
           </motion.div>
@@ -541,10 +541,10 @@ export default function ProductDetailPage() {
           className="mb-20"
         >
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#060C17] mb-4">
               Choose Your Plan
             </h2>
-            <p className="text-lg text-[#6B7280] dark:text-[#9CA3AF]">
+            <p className="text-lg text-slate-600">
               One-time payment. Lifetime access. No subscriptions.
             </p>
           </div>
@@ -560,10 +560,10 @@ export default function ProductDetailPage() {
             >
               <div className="flex justify-center items-center gap-1 mb-2">
                 {[1,2,3,4,5].map(i => (
-                  <Star key={i} className="w-5 h-5 fill-[#F59E0B] text-[#F59E0B]" />
+                  <Star key={i} className="w-5 h-5 fill-amber-500 text-amber-500" />
                 ))}
               </div>
-              <p className="text-lg font-semibold text-[#0B1220] dark:text-[#E5E7EB]">
+              <p className="text-lg font-semibold text-[#060C17]">
                 4.8/5 from 234+ happy customers
               </p>
             </motion.div>
@@ -576,11 +576,11 @@ export default function ProductDetailPage() {
               transition={{ delay: 0.1 }}
               className="flex justify-center"
             >
-              <div className="flex items-center gap-4 bg-[#ECFDF5] dark:bg-[#064E3B]/20 border border-[#10B981]/30 rounded-xl p-4 max-w-md">
-                <Shield className="w-10 h-10 text-[#10B981] flex-shrink-0" />
+              <div className="flex items-center gap-4 bg-emerald-50 border border-emerald-200 rounded-xl p-4 max-w-md shadow-xs">
+                <Shield className="w-10 h-10 text-emerald-600 flex-shrink-0" />
                 <div className="text-left">
-                  <p className="font-bold text-[#0B1220] dark:text-[#E5E7EB]">14-Day Money-Back Guarantee</p>
-                  <p className="text-sm text-[#6B7280] dark:text-[#9CA3AF]">Try risk-free. Full refund if not satisfied.</p>
+                  <p className="font-bold text-[#060C17]">14-Day Money-Back Guarantee</p>
+                  <p className="text-sm text-slate-600">Try risk-free. Full refund if not satisfied.</p>
                 </div>
               </div>
             </motion.div>
@@ -591,31 +591,31 @@ export default function ProductDetailPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="bg-gradient-to-r from-[#EFF6FF] to-[#DBEAFE] dark:from-[#1E3A8A]/20 dark:to-[#1E40AF]/20 border border-[#3B82F6]/20 rounded-xl p-6"
+              className="bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-sm"
             >
-              <h3 className="font-bold text-[#1E40AF] dark:text-[#60A5FA] mb-3 text-center">
+              <h3 className="font-bold text-[#060C17] mb-3 text-center">
                 What Happens After You Buy?
               </h3>
               <div className="grid md:grid-cols-3 gap-4 text-sm">
                 <div className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-[#10B981] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Instant Delivery</p>
-                    <p className="text-[#6B7280] dark:text-[#9CA3AF]">License key via email in 2 minutes</p>
+                    <p className="font-semibold text-[#060C17]">Instant Delivery</p>
+                    <p className="text-slate-600">License key via email in 2 minutes</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-[#10B981] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Download Link</p>
-                    <p className="text-[#6B7280] dark:text-[#9CA3AF]">Get the installer immediately</p>
+                    <p className="font-semibold text-[#060C17]">Download Link</p>
+                    <p className="text-slate-600">Get the installer immediately</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <CheckCircle className="w-5 h-5 text-[#10B981] flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Lifetime Updates</p>
-                    <p className="text-[#6B7280] dark:text-[#9CA3AF]">Works 100% offline after activation</p>
+                    <p className="font-semibold text-[#060C17]">Lifetime Updates</p>
+                    <p className="text-slate-600">Works 100% offline after activation</p>
                   </div>
                 </div>
               </div>
@@ -629,23 +629,23 @@ export default function ProductDetailPage() {
               transition={{ delay: 0.3 }}
               className="text-center"
             >
-              <div className="flex items-center justify-center gap-4 flex-wrap text-xs text-[#6B7280] dark:text-[#9CA3AF]">
+              <div className="flex items-center justify-center gap-4 flex-wrap text-xs text-slate-600">
                 <div className="flex items-center gap-1">
-                  <Shield className="w-4 h-4 text-[#10B981]" />
+                  <Shield className="w-4 h-4 text-emerald-600" />
                   <span>SSL Encrypted</span>
                 </div>
                 <span>•</span>
                 <div className="flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4 text-[#3B82F6]" />
+                  <CheckCircle className="w-4 h-4 text-[#723CFB]" />
                   <span>Secure Payment via Paddle</span>
                 </div>
                 <span>•</span>
                 <div className="flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-[#F59E0B]" />
+                  <Zap className="w-4 h-4 text-amber-500" />
                   <span>Instant License Delivery</span>
                 </div>
               </div>
-              <p className="text-xs text-[#9CA3AF] mt-2">
+              <p className="text-xs text-slate-500 mt-2">
                 Payments processed by Paddle (Authorized Reseller) • Your card details never touch our servers
               </p>
             </motion.div>
@@ -673,22 +673,6 @@ export default function ProductDetailPage() {
                 formattedPrice = 'Loading...'
               }
               
-              // COMMENTED OUT DATABASE FALLBACK:
-              // else {
-              //   if (currency === 'PKR') {
-              //     displayPrice = plan.price_pkr
-              //     displayCurrency = 'PKR'
-              //   } else if (currency === 'INR') {
-              //     displayPrice = plan.price_inr
-              //     displayCurrency = 'INR'
-              //   } else {
-              //     displayPrice = plan.price_usd
-              //     displayCurrency = 'USD'
-              //   }
-              //   formattedPrice = formatPrice(displayPrice, displayCurrency as any)
-              //   console.log(`💾 Using database price for ${plan.plan_slug}:`, formattedPrice)
-              // }
-              
               return (
                 <motion.div
                   key={plan.id}
@@ -696,46 +680,45 @@ export default function ProductDetailPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(59, 130, 246, 0.2)' }}
                   className={`relative ${
                     isPopular 
-                      ? 'bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white shadow-2xl scale-105' 
-                      : 'bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-[#1F2937]'
-                  } rounded-2xl p-8`}
+                      ? 'bg-white text-[#060C17] border-2 border-[#723CFB] shadow-xl scale-105' 
+                      : 'bg-white border border-slate-200 text-[#060C17] shadow-sm hover:shadow-md'
+                  } rounded-2xl p-8 transition-all`}
                 >
                   {isPopular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-[#F59E0B] text-white px-4 py-1.5 text-sm font-bold shadow-lg">
+                    <div className="absolute -top-3.5 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-[#723CFB] text-white px-4 py-1 text-xs font-bold tracking-wider uppercase shadow-md rounded-full">
                         MOST POPULAR
-                      </Badge>
+                      </span>
                     </div>
                   )}
 
                   <div className="text-center mb-6">
-                    <h3 className={`text-2xl font-bold mb-2 ${isPopular ? 'text-white' : 'text-[#0B1220] dark:text-[#E5E7EB]'}`}>
+                    <h3 className="text-2xl font-bold mb-2 text-[#060C17]">
                       {plan.plan_name}
                     </h3>
-                    <p className={`text-sm ${isPopular ? 'text-white/80' : 'text-[#6B7280] dark:text-[#9CA3AF]'}`}>
+                    <p className="text-sm text-slate-500">
                       {plan.devices} Device{plan.devices > 1 ? 's' : ''}
                     </p>
                   </div>
 
                   <div className="text-center mb-8">
                     <div className="flex items-baseline justify-center gap-1">
-                      <span className={`text-4xl font-bold ${isPopular ? 'text-white' : 'text-[#3B82F6]'}`}>
+                      <span className="text-4xl font-extrabold text-[#060C17]">
                         {fetchingPrices ? '...' : formattedPrice}
                       </span>
                     </div>
-                    <p className={`text-sm mt-2 ${isPopular ? 'text-white/70' : 'text-[#9CA3AF]'}`}>
+                    <p className="text-sm mt-2 text-slate-500">
                       one-time payment • lifetime access
                     </p>
                   </div>
 
                   <Button
-                    className={`w-full mb-6 ${
+                    className={`w-full mb-6 font-semibold ${
                       isPopular
-                        ? 'bg-white text-[#3B82F6] hover:bg-[#F9FAFB]'
-                        : 'bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white hover:from-[#2563EB] hover:to-[#1D4ED8]'
+                        ? 'bg-[#723CFB] hover:bg-[#5F27E5] text-white shadow-md shadow-purple-500/20'
+                        : 'bg-[#060C17] hover:bg-[#723CFB] text-white shadow-sm'
                     }`}
                     onClick={() => handlePurchase(plan.plan_slug)}
                     isLoading={purchasing}
@@ -747,8 +730,8 @@ export default function ProductDetailPage() {
                   <div className="space-y-3">
                     {pricingPlanData?.features && pricingPlanData.features.map((feature: string, idx: number) => (
                       <div key={idx} className="flex items-start gap-2">
-                        <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isPopular ? 'text-white' : 'text-[#10B981]'}`} />
-                        <span className={`text-sm ${isPopular ? 'text-white/90' : 'text-[#6B7280] dark:text-[#9CA3AF]'}`}>
+                        <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isPopular ? 'text-[#723CFB]' : 'text-emerald-600'}`} />
+                        <span className="text-sm text-slate-600">
                           {feature}
                         </span>
                       </div>
@@ -768,18 +751,18 @@ export default function ProductDetailPage() {
           className="mb-20 overflow-hidden"
         >
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#060C17] mb-4">
               Loved by Thousands
             </h2>
-            <p className="text-lg text-[#6B7280] dark:text-[#9CA3AF]">
+            <p className="text-lg text-slate-600">
               See what our customers are saying about DeskSweep
             </p>
           </div>
 
           <div className="relative">
             {/* Gradient Overlays */}
-            <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#F9FAFB] dark:from-[#0B1220] to-transparent z-10" />
-            <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#F9FAFB] dark:from-[#0B1220] to-transparent z-10" />
+            <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent z-10" />
+            <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent z-10" />
 
             {/* Scrolling Reviews Container */}
             <motion.div
@@ -803,19 +786,19 @@ export default function ProductDetailPage() {
                     <motion.div
                       key={`${setIndex}-${idx}`}
                       whileHover={{ scale: 1.02, animationPlayState: "paused" }}
-                      className="bg-white dark:bg-[#111827] rounded-2xl p-6 border border-[#E5E7EB] dark:border-[#1F2937] w-[400px] flex-shrink-0 shadow-lg hover:shadow-xl transition-shadow"
+                      className="bg-white rounded-2xl p-6 border border-slate-200 w-[400px] flex-shrink-0 shadow-sm hover:shadow-md transition-shadow"
                     >
                       <div className="flex gap-1 mb-4">
                         {[...Array(review.rating)].map((_, i) => (
                           <Star key={i} className="w-5 h-5 fill-[#F59E0B] text-[#F59E0B]" />
                         ))}
                       </div>
-                      <p className="text-[#0B1220] dark:text-[#E5E7EB] mb-6 leading-relaxed">
+                      <p className="text-slate-700 mb-6 leading-relaxed">
                         &ldquo;{formatReviewText(review, currency)}&rdquo;
                       </p>
-                      <div className="pt-4 border-t border-[#E5E7EB] dark:border-[#1F2937]">
-                        <p className="text-[#0B1220] dark:text-[#E5E7EB] font-semibold">{review.name}</p>
-                        <p className="text-[#9CA3AF] text-sm">{review.title}</p>
+                      <div className="pt-4 border-t border-slate-100">
+                        <p className="text-[#060C17] font-semibold">{review.name}</p>
+                        <p className="text-slate-500 text-sm">{review.title}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -833,10 +816,10 @@ export default function ProductDetailPage() {
           className="mb-20"
         >
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#060C17] mb-4">
               Powerful Features
             </h2>
-            <p className="text-lg text-[#6B7280] dark:text-[#9CA3AF]">
+            <p className="text-lg text-slate-600">
               Everything you need to keep your desktop organized
             </p>
           </div>
@@ -844,7 +827,7 @@ export default function ProductDetailPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                icon: <Sparkles className="w-8 h-8 text-[#3B82F6]" />,
+                icon: <Sparkles className="w-8 h-8 text-amber-500" />,
                 title: 'One-Click Clean',
                 description: 'Instantly scan your desktop and solve chaos in seconds. No manual sorting required.'
               },
@@ -859,7 +842,7 @@ export default function ProductDetailPage() {
                 description: 'Schedule automated organization that safely moves files to specific folders based on your rules. No files are ever permanently deleted—they are simply sorted to keep your workspace clutter-free.'
               },
               {
-                icon: <FolderSync className="w-8 h-8 text-[#8B5CF6]" />,
+                icon: <FolderSync className="w-8 h-8 text-[#723CFB]" />,
                 title: 'Smart Rules Engine',
                 description: 'Sort by file type, name, size, or date. Create powerful rules like "Move .jpg to Images" or "Archive files older than 30 days."'
               },
@@ -880,14 +863,14 @@ export default function ProductDetailPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(59, 130, 246, 0.15)' }}
-                className="bg-white dark:bg-[#111827] rounded-2xl p-8 border border-[#E5E7EB] dark:border-[#1F2937] hover:border-[#3B82F6] dark:hover:border-[#3B82F6] transition-all"
+                whileHover={{ y: -5 }}
+                className="bg-white rounded-2xl p-8 border border-slate-200 hover:border-[#723CFB]/40 hover:shadow-md transition-all shadow-sm"
               >
                 <div className="mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-3">
+                <h3 className="text-xl font-bold text-[#060C17] mb-3">
                   {feature.title}
                 </h3>
-                <p className="text-[#6B7280] dark:text-[#9CA3AF] leading-relaxed">
+                <p className="text-slate-600 leading-relaxed">
                   {feature.description}
                 </p>
               </motion.div>

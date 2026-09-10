@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { Mail, ArrowLeft, AlertCircle, Check } from 'lucide-react'
+import { Mail, AlertCircle, Check } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
@@ -41,15 +41,15 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F9FAFB] via-white to-[#EFF6FF] dark:from-[#0B1220] dark:via-[#0F172A] dark:to-[#0B1220] flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 overflow-hidden relative">
+    <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 overflow-hidden relative">
       {/* Background orbs */}
       <motion.div
-        className="absolute top-20 left-20 w-96 h-96 bg-[#3B82F6]/10 dark:bg-[#3B82F6]/20 rounded-full blur-[120px] pointer-events-none"
+        className="absolute top-20 left-20 w-96 h-96 bg-purple-200/40 rounded-full blur-[120px] pointer-events-none"
         animate={{ y: [0, -30, 0], scale: [1, 1.1, 1] }}
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div
-        className="absolute bottom-20 right-20 w-96 h-96 bg-[#22D3EE]/10 dark:bg-[#22D3EE]/15 rounded-full blur-[120px] pointer-events-none"
+        className="absolute bottom-20 right-20 w-96 h-96 bg-purple-100/40 rounded-full blur-[120px] pointer-events-none"
         animate={{ y: [0, 30, 0], scale: [1, 1.1, 1] }}
         transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
       />
@@ -66,9 +66,9 @@ export default function ForgotPasswordPage() {
             <Image
               src="/Logo.png"
               alt="Appsto"
-              width={200}
-              height={50}
-              className="h-[50px] w-auto object-contain mx-auto"
+              width={180}
+              height={71}
+              className="h-[52px] w-auto object-contain mx-auto"
               priority
             />
           </Link>
@@ -79,11 +79,11 @@ export default function ForgotPasswordPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="bg-white dark:bg-[#111827] rounded-3xl shadow-2xl border border-[#E5E7EB] dark:border-[#1F2937] p-8 md:p-10"
+          className="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 md:p-10"
         >
           {/* Icon */}
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#2563EB] flex items-center justify-center mx-auto mb-6">
-            <Mail className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 rounded-2xl bg-[#723CFB] text-white flex items-center justify-center mx-auto mb-6 shadow-md shadow-purple-500/20">
+            <Mail className="w-8 h-8" />
           </div>
 
           {/* Header */}
@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-3xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-2"
+              className="text-3xl font-bold text-[#060C17] mb-2"
             >
               Forgot Password?
             </motion.h1>
@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-[#9CA3AF]"
+              className="text-slate-600"
             >
               {emailSent 
                 ? "We've sent you a password reset link"
@@ -112,7 +112,7 @@ export default function ForgotPasswordPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Input */}
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-[#0B1220] dark:text-[#E5E7EB] mb-2">
+                <label htmlFor="email" className="block text-sm font-semibold text-[#060C17] mb-2">
                   Email Address
                 </label>
                 <input
@@ -120,7 +120,7 @@ export default function ForgotPasswordPage() {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-[#F9FAFB] dark:bg-[#0B1220] border border-[#E5E7EB] dark:border-[#1F2937] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3B82F6] text-[#0B1220] dark:text-[#E5E7EB]"
+                  className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#723CFB] focus:border-[#723CFB] text-[#060C17] placeholder:text-slate-400 transition-all"
                   placeholder="name@company.com"
                   required
                 />
@@ -131,7 +131,7 @@ export default function ForgotPasswordPage() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 p-4 bg-[#EF4444]/10 text-[#EF4444] rounded-xl"
+                  className="flex items-center gap-2 p-4 bg-red-50 text-red-600 rounded-xl border border-red-200"
                 >
                   <AlertCircle className="w-5 h-5 flex-shrink-0" />
                   <span className="text-sm font-medium">{message.text}</span>
@@ -142,7 +142,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full px-6 py-3 bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white font-semibold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full px-6 py-3.5 bg-[#723CFB] hover:bg-[#5F27E5] text-white font-semibold rounded-xl transition-all shadow-md shadow-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
@@ -161,7 +161,7 @@ export default function ForgotPasswordPage() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 p-4 bg-[#10B981]/10 text-[#10B981] rounded-xl"
+                  className="flex items-center gap-2 p-4 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-200"
                 >
                   <Check className="w-5 h-5 flex-shrink-0" />
                   <span className="text-sm font-medium">{message.text}</span>
@@ -169,11 +169,11 @@ export default function ForgotPasswordPage() {
               )}
 
               {/* Instructions */}
-              <div className="bg-[#F9FAFB] dark:bg-[#0B1220] rounded-xl p-4 space-y-2">
-                <p className="text-sm text-[#0B1220] dark:text-[#E5E7EB]">
-                  <strong>What's next?</strong>
+              <div className="bg-purple-50/50 rounded-xl p-4 space-y-2 border border-purple-100">
+                <p className="text-sm text-[#060C17] font-semibold">
+                  What&apos;s next?
                 </p>
-                <ul className="text-sm text-[#9CA3AF] space-y-1 list-disc list-inside">
+                <ul className="text-sm text-slate-600 space-y-1 list-disc list-inside">
                   <li>Check your email inbox for {email}</li>
                   <li>Click the reset password link in the email</li>
                   <li>Create a new password for your account</li>
@@ -186,7 +186,7 @@ export default function ForgotPasswordPage() {
                   setEmailSent(false)
                   setMessage(null)
                 }}
-                className="w-full px-6 py-3 bg-[#0B1220]/5 dark:bg-[#E5E7EB]/5 text-[#0B1220] dark:text-[#E5E7EB] font-semibold rounded-xl hover:bg-[#0B1220]/10 dark:hover:bg-[#E5E7EB]/10 transition-colors"
+                className="w-full px-6 py-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-[#060C17] font-semibold rounded-xl transition-all shadow-sm"
               >
                 Send Another Link
               </button>
@@ -194,14 +194,26 @@ export default function ForgotPasswordPage() {
           )}
 
           {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-[#E5E7EB] dark:border-[#1F2937] text-center">
-            <p className="text-sm text-[#9CA3AF]">
+          <div className="mt-8 pt-6 border-t border-slate-200 text-center">
+            <p className="text-sm text-slate-600">
               Remember your password?{' '}
-              <Link href="/signin" className="text-[#3B82F6] hover:text-[#2563EB] font-semibold transition-colors">
+              <Link href="/signin" className="text-[#723CFB] hover:text-[#5F27E5] hover:underline font-semibold transition-colors">
                 Sign In
               </Link>
             </p>
           </div>
+        </motion.div>
+
+        {/* Back to Home */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.1 }}
+          className="mt-6 text-center"
+        >
+          <Link href="/" className="text-sm text-slate-500 hover:text-[#723CFB] font-medium transition-colors">
+            ← Back to Home
+          </Link>
         </motion.div>
       </div>
     </div>

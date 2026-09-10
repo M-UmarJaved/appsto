@@ -57,10 +57,10 @@ export default function LicenseEmailPreview({
             </p>
 
             {/* License Token Box */}
-            <div className="bg-gradient-to-br from-brand-50 to-blue-50 border-2 border-brand-500 rounded-xl p-8 mb-8 text-center">
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-slate-900 rounded-xl p-8 mb-8 text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Shield className="w-6 h-6 text-brand-600" />
-                <p className="text-sm font-bold text-brand-600 uppercase tracking-wide">Your License Token</p>
+                <Shield className="w-6 h-6 text-slate-900" />
+                <p className="text-sm font-bold text-slate-900 uppercase tracking-wide">Your License Token</p>
               </div>
               <div className="bg-white rounded-lg px-6 py-4 border-2 border-brand-300 mb-4">
                 <p className="text-3xl font-mono font-bold text-gray-900 tracking-wider">

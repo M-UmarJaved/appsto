@@ -58,57 +58,41 @@ export default function ProductsPage() {
         strategy="afterInteractive"
       />
 
-      <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] overflow-hidden">
+      <div className="min-h-screen bg-[#FAFAFA] overflow-hidden">
       {/* Hero Section */}
       <section className="relative pt-32 pb-16">
-        {/* Background gradients */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-[#F8FAFC] to-[#EFF6FF] dark:from-[#0B1220] dark:via-[#0F172A] dark:to-[#0B1220]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.08)_0%,_transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,_rgba(59,130,246,0.15)_0%,_transparent_50%)]" />
-        
-        {/* Floating orbs */}
-        <motion.div
-          className="absolute top-20 left-20 w-72 h-72 bg-[#3B82F6]/10 dark:bg-[#3B82F6]/20 rounded-full blur-[100px]"
-          animate={{ y: [0, -20, 0], scale: [1, 1.05, 1] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-20 w-96 h-96 bg-[#22D3EE]/10 dark:bg-[#22D3EE]/15 rounded-full blur-[120px]"
-          animate={{ y: [0, 20, 0], scale: [1, 1.08, 1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        />
+        {/* Subtle studio radial background */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(114,60,251,0.04)_0%,_transparent_60%)] pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-14">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-[#3B82F6]/10 dark:bg-[#3B82F6]/20 px-4 py-2 rounded-full mb-6"
+              className="inline-flex items-center gap-2 bg-purple-50 px-3.5 py-1.5 rounded-full mb-5 border border-purple-100 shadow-xs"
             >
-              <Sparkles className="w-4 h-4 text-[#3B82F6]" />
-              <span className="text-[#3B82F6] font-semibold text-sm">Premium Software</span>
+              <Sparkles className="w-3.5 h-3.5 text-[#723CFB]" />
+              <span className="text-[#723CFB] font-semibold text-xs">Curated Software & SaaS</span>
             </motion.div>
             
             <motion.h1 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-5xl md:text-7xl font-bold mb-6 text-[#0B1220] dark:text-[#E5E7EB]"
+              className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-5 text-[#060C17]"
             >
-              Our{' '}
-              <span className="bg-gradient-to-r from-[#3B82F6] to-[#22D3EE] bg-clip-text text-transparent">
-                Products
-              </span>
+              Appsto Catalog
             </motion.h1>
             
             <motion.p 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-xl text-[#9CA3AF] max-w-3xl mx-auto leading-relaxed"
+              className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed"
             >
-              Explore our curated collection of enterprise-grade SaaS applications. From productivity tools to development platforms—find the perfect software solution for your business with secure licensing and instant delivery.
+              Discover high-utility desktop software and modern AI SaaS applications. Authoritative licensing, multi-currency checkout, and instant delivery.
             </motion.p>
           </div>
 
@@ -117,27 +101,25 @@ export default function ProductsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex justify-center mb-16"
+            className="flex justify-center mb-14"
           >
-            <div className="inline-flex bg-white dark:bg-[#111827] rounded-2xl p-1.5 shadow-xl border border-[#E5E7EB] dark:border-[#1F2937]">
+            <div className="inline-flex bg-white rounded-full p-1.5 border border-slate-200 shadow-sm">
               {[
                 { key: 'all', label: 'All Products' },
                 { key: 'one_time', label: 'One-Time Purchase' },
                 { key: 'subscription', label: 'Subscription' }
               ].map((tab) => (
-                <motion.button
+                <button
                   key={tab.key}
                   onClick={() => setFilter(tab.key as typeof filter)}
-                  className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 ${
                     filter === tab.key
-                      ? 'bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white shadow-lg'
-                      : 'text-[#9CA3AF] hover:text-[#3B82F6]'
+                      ? 'bg-[#723CFB] text-white shadow-md shadow-purple-500/20'
+                      : 'text-slate-600 hover:text-[#060C17]'
                   }`}
-                  whileHover={{ scale: filter === tab.key ? 1 : 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                 >
                   {tab.label}
-                </motion.button>
+                </button>
               ))}
             </div>
           </motion.div>
@@ -152,7 +134,7 @@ export default function ProductsPage() {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <motion.div 
                   key={i} 
-                  className="bg-white dark:bg-[#111827] rounded-2xl h-[480px] shadow-lg"
+                  className="bg-white border border-slate-200 rounded-2xl h-[480px] shadow-sm"
                   animate={{ opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 />
@@ -168,10 +150,10 @@ export default function ProductsPage() {
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <Package className="w-20 h-20 text-[#9CA3AF] mx-auto mb-4" />
+                <Package className="w-20 h-20 text-slate-300 mx-auto mb-4" />
               </motion.div>
-              <h3 className="text-2xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-2">No products found</h3>
-              <p className="text-[#9CA3AF]">Check back soon for new applications!</p>
+              <h3 className="text-2xl font-bold text-[#060C17] mb-2">No products found</h3>
+              <p className="text-slate-500">Check back soon for new applications!</p>
             </motion.div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -186,27 +168,33 @@ export default function ProductsPage() {
                 >
                   <Card
                     hover
-                    className="relative overflow-hidden bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-[#1F2937] shadow-lg h-full"
+                    className="relative overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-purple-200 rounded-3xl h-full transition-all duration-300"
                   >
-                    {/* Premium Badge */}
-                    {product.product_type === 'one_time' && (
-                      <motion.div 
-                        className="absolute top-4 right-4 z-10"
-                        initial={{ scale: 0, rotate: -10 }}
-                        animate={{ scale: 1, rotate: 0 }}
-                        transition={{ delay: 0.3 + index * 0.1, type: 'spring' }}
-                      >
-                        <div className="bg-gradient-to-r from-[#F59E0B] to-[#EAB308] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
+                    {/* Native Product Brand Tag */}
+                    {product.slug === 'desksweep' ? (
+                      <div className="absolute top-4 right-4 z-10">
+                        <div className="bg-[#F59E0B] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-xs flex items-center gap-1.5 uppercase tracking-wider">
                           <Sparkles className="w-3 h-3" /> LIFETIME ACCESS
                         </div>
-                      </motion.div>
+                      </div>
+                    ) : product.slug === 'skillnavo' ? (
+                      <div className="absolute top-4 right-4 z-10">
+                        <div className="bg-[#723CFB] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-xs flex items-center gap-1.5 uppercase tracking-wider">
+                          <Sparkles className="w-3 h-3" /> MONTHLY SUBSCRIPTION
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="absolute top-4 right-4 z-10">
+                        <div className="bg-[#060C17] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-xs flex items-center gap-1.5 uppercase tracking-wider">
+                          <Sparkles className="w-3 h-3" /> {product.product_type === 'one_time' ? 'LIFETIME' : 'SUBSCRIPTION'}
+                        </div>
+                      </div>
                     )}
 
                     <CardHeader>
-                      {/* Product Image/Logo */}
-                      <motion.div 
-                        className="w-full h-52 bg-gradient-to-br from-white to-[#F9FAFB] dark:from-[#1F2937] dark:to-[#111827] rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative border border-[#E5E7EB] dark:border-[#1F2937]"
-                        whileHover={{ scale: 1.02 }}
+                      {/* Product Image/Logo Box */}
+                      <div 
+                        className="w-full h-52 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative border border-slate-200/60"
                       >
                         {product.slug === 'desksweep' ? (
                           <Image
@@ -214,7 +202,15 @@ export default function ProductsPage() {
                             alt={product.name}
                             width={200}
                             height={200}
-                            className="object-contain transition-all group-hover:scale-110 duration-500 p-4"
+                            className="object-contain transition-all group-hover:scale-105 duration-300 p-4"
+                          />
+                        ) : product.slug === 'skillnavo' ? (
+                          <Image
+                            src="/Skillnavo/SkillnavoIcon.png"
+                            alt="Skillnavo"
+                            width={130}
+                            height={130}
+                            className="object-contain rounded-3xl shadow-sm transition-all group-hover:scale-105 duration-300 p-2"
                           />
                         ) : product.icon_url ? (
                           <Image
@@ -222,97 +218,99 @@ export default function ProductsPage() {
                             alt={product.name}
                             width={140}
                             height={140}
-                            className="object-contain transition-all group-hover:scale-110 duration-500"
+                            className="object-contain transition-all group-hover:scale-105 duration-300"
                           />
                         ) : (
-                          <motion.div
-                            whileHover={{ scale: 1.1, rotate: 5 }}
-                            transition={{ type: 'spring', stiffness: 300 }}
-                          >
-                            <Package className="w-24 h-24 text-[#9CA3AF]" />
-                          </motion.div>
+                          <Package className="w-20 h-20 text-slate-400" />
                         )}
-                        {/* Subtle glow effect */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#3B82F6]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      </motion.div>
-                      
-                      {/* Product Type Badge */}
-                      <div className="flex items-center gap-2 mb-3">
-                        <Badge 
-                          variant={product.product_type === 'one_time' ? 'success' : 'default'}
-                          className="font-semibold text-xs px-3 py-1 flex items-center gap-1.5">
-                          {product.product_type === 'one_time' ? (
-                            <><Sparkles className="w-3 h-3" /> One-Time Purchase</>
-                          ) : (
-                            <><ArrowRight className="w-3 h-3" /> Subscription</>
-                          )}
-                        </Badge>
                       </div>
                       
-                      <h3 className="text-2xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mt-4 group-hover:text-[#3B82F6] transition-colors">
+                      {/* Product Type Badge */}
+                      <div className="flex items-center gap-2 mb-2">
+                        {product.slug === 'desksweep' ? (
+                          <Badge variant="lifetime" className="font-semibold text-xs px-2.5 py-0.5 flex items-center gap-1.5">
+                            <Sparkles className="w-3 h-3" /> Desktop Utility (Lifetime)
+                          </Badge>
+                        ) : product.slug === 'skillnavo' ? (
+                          <Badge variant="accent" className="font-semibold text-xs px-2.5 py-0.5 flex items-center gap-1.5">
+                            <Sparkles className="w-3 h-3" /> SaaS Platform (Subscription)
+                          </Badge>
+                        ) : (
+                          <Badge variant={product.product_type === 'one_time' ? 'lifetime' : 'subscription'} className="font-semibold text-xs px-2.5 py-0.5 flex items-center gap-1.5">
+                            <Sparkles className="w-3 h-3" /> {product.product_type === 'one_time' ? 'One-Time License' : 'Subscription'}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <h3 className="text-2xl font-bold text-[#060C17] mt-2 group-hover:text-[#723CFB] transition-colors">
                         {product.name}
                       </h3>
                     </CardHeader>
                     
                     <CardContent>
-                      <p className="text-[#9CA3AF] mb-4 line-clamp-2">{product.short_description}</p>
+                      <p className="text-slate-600 mb-4 line-clamp-2 text-sm leading-relaxed">{product.short_description}</p>
                       
                       {/* Reviews Section */}
-                      <motion.div 
-                        className="flex items-center gap-2 mb-4 pb-4 border-b border-[#E5E7EB] dark:border-[#1F2937]"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                      >
+                      <div className="flex items-center gap-2 mb-4 pb-4 border-b border-slate-100">
                         <div className="flex items-center gap-1">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <Star
                               key={star}
-                              className={`w-4 h-4 ${
-                                star <= 4.8
-                                  ? 'fill-[#F59E0B] text-[#F59E0B]'
-                                  : 'text-[#D1D5DB] dark:text-[#4B5563]'
+                              className={`w-3.5 h-3.5 ${
+                                star <= 5
+                                  ? 'fill-amber-400 text-amber-400'
+                                  : 'text-slate-200'
                               }`}
                             />
                           ))}
                         </div>
-                        <span className="text-sm font-semibold text-[#0B1220] dark:text-[#E5E7EB]">4.8</span>
-                        <span className="text-sm text-[#9CA3AF]">(234 reviews)</span>
-                      </motion.div>
+                        <span className="text-xs font-semibold text-slate-900">5.0</span>
+                        <span className="text-xs text-slate-400">(Verified Users)</span>
+                      </div>
                       
-                      {/* Price - Solo Plan with Paddle Pricing */}
+                      {/* Price Section */}
                       <div className="flex items-baseline mb-4">
                         {product.slug === 'desksweep' ? (
                           <>
                             {!paddleLoading && paddlePrices.get(PADDLE_PRICE_IDS.solo) ? (
                               <>
-                                <span className="text-3xl font-bold bg-gradient-to-r from-[#3B82F6] to-[#2563EB] bg-clip-text text-transparent">
+                                <span className="text-3xl font-extrabold text-[#060C17]">
                                   {paddlePrices.get(PADDLE_PRICE_IDS.solo)?.formattedPrice}
                                 </span>
-                                <span className="text-[#9CA3AF] ml-2 text-sm">one-time</span>
+                                <span className="text-slate-500 ml-2 text-sm font-medium">one-time</span>
                               </>
                             ) : (
                               <>
-                                <span className="text-3xl font-bold text-[#9CA3AF]">
-                                  {paddleLoading ? 'Loading...' : 'N/A'}
+                                <span className="text-3xl font-extrabold text-[#060C17]">
+                                  {paddleLoading ? 'Loading...' : '$49.00'}
                                 </span>
-                                <span className="text-[#9CA3AF] ml-2 text-sm">one-time</span>
+                                <span className="text-slate-500 ml-2 text-sm font-medium">one-time</span>
                               </>
                             )}
                           </>
+                        ) : product.slug === 'skillnavo' ? (
+                          <>
+                            <span className="text-3xl font-extrabold text-[#060C17]">
+                              $4.99
+                            </span>
+                            <span className="text-slate-500 ml-2 text-sm font-medium">/month</span>
+                            <span className="text-xs text-[#723CFB] bg-purple-50 px-2.5 py-0.5 rounded-full font-medium ml-auto border border-purple-200/60">
+                              Starter Tier
+                            </span>
+                          </>
                         ) : product.product_type === 'subscription' ? (
                           <>
-                            <span className="text-3xl font-bold text-[#10B981]">FREE</span>
-                            <span className="text-[#9CA3AF] ml-2 text-sm">then from ${product.price}/mo</span>
+                            <span className="text-3xl font-extrabold text-[#060C17]">
+                              ${product.price}
+                            </span>
+                            <span className="text-slate-500 ml-2 text-sm">/month</span>
                           </>
                         ) : (
                           <>
-                            <span className="text-3xl font-bold text-[#3B82F6]">
+                            <span className="text-3xl font-extrabold text-[#060C17]">
                               {formatPriceUtil(product.price, product.currency)}
                             </span>
-                            <span className="text-[#9CA3AF] ml-2 text-sm line-through">
-                              {formatPriceUtil(product.price * 1.5, product.currency)}
-                            </span>
+                            <span className="text-slate-500 ml-2 text-sm">one-time</span>
                           </>
                         )}
                       </div>
@@ -320,41 +318,38 @@ export default function ProductsPage() {
                       {/* Feature highlights */}
                       <div className="space-y-2">
                         {product.features && product.features.slice(0, 3).map((feature, idx) => (
-                          <motion.div 
+                          <div 
                             key={idx} 
-                            className="flex items-start text-sm text-[#9CA3AF]"
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.4 + idx * 0.1 }}
+                            className="flex items-start text-xs text-slate-600"
                           >
-                            <CheckCircle className="w-4 h-4 text-[#10B981] mr-2 flex-shrink-0 mt-0.5" />
+                            <CheckCircle className="w-3.5 h-3.5 text-emerald-500 mr-2 flex-shrink-0 mt-0.5" />
                             <span className="line-clamp-1">{feature}</span>
-                          </motion.div>
+                          </div>
                         ))}
                       </div>
 
-                      {/* Key Info */}
-                      <div className="mt-4 pt-4 border-t border-[#E5E7EB] dark:border-[#1F2937]">
-                        <div className="flex items-center gap-2 text-xs text-[#9CA3AF]">
+                      {/* Key Info Footer */}
+                      <div className="mt-4 pt-4 border-t border-slate-100">
+                        <div className="flex items-center gap-3 text-xs text-slate-500">
                           {product.product_type === 'one_time' ? (
                             <>
                               <span className="inline-flex items-center gap-1">
-                                <span className="w-2 h-2 bg-[#10B981] rounded-full"></span>
-                                Instant License
+                                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                Solo License
                               </span>
                               <span className="inline-flex items-center gap-1">
-                                <span className="w-2 h-2 bg-[#3B82F6] rounded-full"></span>
-                                Offline Usage
+                                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
+                                Windows 10/11
                               </span>
                             </>
                           ) : (
                             <>
                               <span className="inline-flex items-center gap-1">
-                                <span className="w-2 h-2 bg-[#8B5CF6] rounded-full"></span>
-                                In-App Billing
+                                <span className="w-1.5 h-1.5 bg-[#723CFB] rounded-full"></span>
+                                Cloud Web App
                               </span>
                               <span className="inline-flex items-center gap-1">
-                                <span className="w-2 h-2 bg-[#F59E0B] rounded-full"></span>
+                                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
                                 Cancel Anytime
                               </span>
                             </>
@@ -365,20 +360,24 @@ export default function ProductsPage() {
                     
                     <CardFooter>
                       <Link href={`/products/${product.slug}`} className="w-full">
-                        <motion.button
-                          className={`w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold transition-all ${
-                            product.product_type === 'one_time'
-                              ? 'bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white'
-                              : 'border-2 border-[#3B82F6] text-[#3B82F6]'
-                          }`}
-                          whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)' }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          {product.product_type === 'one_time' ? 'Buy Now' : 'Free Download'}
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </motion.button>
+                        {product.slug === 'skillnavo' ? (
+                          <button
+                            className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold bg-[#723CFB] hover:bg-[#5F27E5] text-white shadow-md shadow-purple-500/20 hover:shadow-lg transition-all text-sm"
+                          >
+                            View Plans & Subscribe
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </button>
+                        ) : (
+                          <button
+                            className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold bg-[#060C17] hover:bg-[#723CFB] text-white shadow-sm transition-all text-sm"
+                          >
+                            View Product Details
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </button>
+                        )}
                       </Link>
                     </CardFooter>
+
                   </Card>
                 </motion.div>
               ))}
@@ -394,47 +393,23 @@ export default function ProductsPage() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-br from-[#3B82F6] via-[#2563EB] to-[#1D4ED8] rounded-3xl p-12 text-center text-white shadow-2xl relative overflow-hidden"
+            className="bg-white rounded-3xl p-10 sm:p-12 text-center border border-slate-200 shadow-xl relative overflow-hidden"
           >
-            {/* Background effects */}
-            <motion.div
-              className="absolute top-10 left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"
-              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-              transition={{ duration: 6, repeat: Infinity }}
-            />
-            <motion.div
-              className="absolute bottom-10 right-10 w-48 h-48 bg-[#22D3EE]/20 rounded-full blur-3xl"
-              animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.4, 0.2] }}
-              transition={{ duration: 8, repeat: Infinity, delay: 1 }}
-            />
-            
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(114,60,251,0.05)_0%,_transparent_70%)] pointer-events-none" />
             <div className="relative z-10">
-              <motion.h2 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-3xl md:text-4xl font-bold mb-4"
-              >
-                Can&apos;t Find What You Need?
-              </motion.h2>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="text-white/90 mb-8 text-lg"
-              >
-                We&apos;re constantly expanding our SaaS marketplace. Tell us what enterprise software your business needs, and we&apos;ll work to add it to our platform!
-              </motion.p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 text-[#060C17]">
+                Looking for Specific Software?
+              </h2>
+              <p className="text-slate-600 mb-8 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+                We are constantly onboarding innovative software creators and enterprise utilities. Reach out to request a tool or partner with our marketplace.
+              </p>
               <Link href="/contact">
-                <motion.button 
-                  className="inline-flex items-center gap-2 bg-white text-[#3B82F6] font-semibold py-4 px-8 rounded-full"
-                  whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(255, 255, 255, 0.3)' }}
-                  whileTap={{ scale: 0.98 }}
+                <button 
+                  className="inline-flex items-center gap-2 bg-[#723CFB] hover:bg-[#5F27E5] text-white font-semibold py-3.5 px-8 rounded-full shadow-md shadow-purple-500/20 hover:shadow-lg transition-all text-sm"
                 >
-                  Contact Us
-                  <ArrowUpRight className="w-5 h-5" />
-                </motion.button>
+                  Contact Marketplace Team
+                  <ArrowUpRight className="w-4 h-4" />
+                </button>
               </Link>
             </div>
           </motion.div>
@@ -479,6 +454,37 @@ function getMockProducts(): Product[] {
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+    },
+    {
+      id: '2',
+      name: 'Skillnavo',
+      slug: 'skillnavo',
+      description: 'AI-powered technical skill roadmap platform, interactive code diagnostics, and adaptive practice engineering. Master technical skills with personalized roadmaps and continuous feedback.',
+      short_description: 'AI-powered technical skill roadmaps & interactive code diagnostics',
+      price: 4.99,
+      currency: 'USD',
+      product_type: 'subscription',
+      paddle_product_id: 'pro_skillnavo',
+      features: [
+        'AI-Powered Personalized Skill Roadmaps',
+        'Interactive Code Diagnostics & Challenges',
+        'Adaptive Practice Engineering & Streaks',
+        'Milestone Certificates & Portfolio Badges',
+        'Cloud Progress Sync Across All Devices',
+        'Priority AI Model Inferences'
+      ],
+      screenshots: [],
+      system_requirements: {
+        os: ['Cross-Platform Web App'],
+        processor: 'Modern Web Browser',
+        memory: '2GB RAM minimum',
+        storage: 'Web-based application'
+      },
+      icon_url: '',
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     }
   ]
 }
+

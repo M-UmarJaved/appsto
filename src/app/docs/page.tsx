@@ -49,7 +49,7 @@ export default function DocsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0B1220] pt-24 pb-16">
+    <div className="min-h-screen bg-[#FAFAFA] pt-24 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -58,10 +58,10 @@ export default function DocsPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-4">
+          <h1 className="text-4xl font-bold text-[#060C17] mb-4">
             Documentation
           </h1>
-          <p className="text-lg text-[#9CA3AF] max-w-2xl mx-auto">
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
             Everything you need to know about using our platform, APIs, and integrations
           </p>
         </motion.div>
@@ -74,11 +74,11 @@ export default function DocsPage() {
           className="max-w-2xl mx-auto mb-12"
         >
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9CA3AF]" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input
               type="text"
               placeholder="Search documentation..."
-              className="w-full pl-12 pr-4 py-4 bg-white dark:bg-[#111827] border border-[#E5E7EB] dark:border-[#1F2937] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#3B82F6] text-[#0B1220] dark:text-[#E5E7EB]"
+              className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#723CFB] focus:border-transparent text-[#060C17] placeholder:text-slate-400 transition-all shadow-sm"
             />
           </div>
         </motion.div>
@@ -91,17 +91,17 @@ export default function DocsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
-              className="bg-white dark:bg-[#111827] rounded-2xl p-6 border border-[#E5E7EB] dark:border-[#1F2937] hover:border-[#3B82F6] dark:hover:border-[#3B82F6] transition-all"
+              className="bg-white rounded-2xl p-6 border border-slate-200 hover:border-[#723CFB]/40 hover:shadow-md transition-all shadow-sm"
             >
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#3B82F6] to-[#2563EB] flex items-center justify-center">
-                  <section.icon className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-xl bg-[#723CFB]/10 border border-[#723CFB]/20 flex items-center justify-center text-[#723CFB] shadow-sm">
+                  <section.icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-[#0B1220] dark:text-[#E5E7EB] mb-2">
+                  <h2 className="text-xl font-bold text-[#060C17] mb-2">
                     {section.title}
                   </h2>
-                  <p className="text-sm text-[#9CA3AF]">{section.description}</p>
+                  <p className="text-sm text-slate-600">{section.description}</p>
                 </div>
               </div>
               <ul className="space-y-2">
@@ -109,9 +109,9 @@ export default function DocsPage() {
                   <li key={link.title}>
                     <a
                       href={link.href}
-                      className="flex items-center gap-2 text-sm text-[#9CA3AF] hover:text-[#3B82F6] transition-colors group"
+                      className="flex items-center gap-2 text-sm text-slate-600 hover:text-[#723CFB] transition-colors group"
                     >
-                      <FileText className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <FileText className="w-4 h-4 text-[#723CFB] opacity-0 group-hover:opacity-100 transition-opacity" />
                       {link.title}
                     </a>
                   </li>
@@ -126,24 +126,24 @@ export default function DocsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="bg-gradient-to-r from-[#3B82F6] to-[#2563EB] rounded-2xl p-8 text-center"
+          className="bg-white rounded-2xl p-8 text-center shadow-sm border border-slate-200"
         >
-          <h2 className="text-2xl font-bold text-white mb-4">
+          <h2 className="text-2xl font-bold text-[#060C17] mb-4">
             Need More Help?
           </h2>
-          <p className="text-white/90 mb-6 max-w-xl mx-auto">
-            Can't find what you're looking for? Our support team is here to help you.
+          <p className="text-slate-600 mb-6 max-w-xl mx-auto">
+            Can&apos;t find what you&apos;re looking for? Our support team is here to help you.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link
               href="/contact"
-              className="px-6 py-3 bg-white text-[#3B82F6] font-semibold rounded-xl hover:bg-[#F9FAFB] transition-colors"
+              className="px-6 py-3 bg-[#723CFB] hover:bg-[#5F27E5] text-white font-semibold rounded-xl transition-colors shadow-md shadow-purple-500/20"
             >
               Contact Support
             </Link>
             <Link
               href="/support"
-              className="px-6 py-3 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-colors"
+              className="px-6 py-3 bg-white hover:bg-slate-50 text-[#060C17] font-semibold rounded-xl transition-colors border border-slate-200 shadow-sm"
             >
               Support Center
             </Link>

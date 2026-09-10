@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendTestNotification } from '@/lib/discord'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * Test Discord Webhook Endpoint
  * GET /api/test/discord?key=YOUR_API_SECRET

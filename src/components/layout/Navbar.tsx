@@ -42,14 +42,6 @@ export default function Navbar() {
     router.push('/')
   }
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsSticky(window.scrollY >= 80)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/products', label: 'Products' },
@@ -67,7 +59,9 @@ export default function Navbar() {
       <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-in-out ${isSticky ? 'py-1' : 'py-3'}`}>
         <motion.nav 
           className={`flex items-center justify-between px-4 transition-all duration-500 ease-in-out ${
-            isSticky ? 'py-2 rounded-full shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1)] bg-[#F9FAFB]/95 dark:bg-[#0B1220]/95 backdrop-blur-md' : 'py-3'
+            isSticky 
+              ? 'py-2 rounded-full shadow-md bg-white/95 backdrop-blur-md border border-slate-200/90' 
+              : 'py-3'
           }`}
           layout
           transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
@@ -82,16 +76,16 @@ export default function Navbar() {
               <Image
                 src="/Logo.png"
                 alt="Appsto"
-                width={200}
-                height={50}
-                className={`w-auto object-contain transition-all duration-500 ease-in-out ${isSticky ? 'h-[38px]' : 'h-[50px]'}`}
+                width={160}
+                height={63}
+                className={`w-auto object-contain transition-all duration-500 ease-in-out ${isSticky ? 'h-[36px]' : 'h-[46px]'}`}
                 priority
               />
             </motion.div>
           </Link>
 
           {/* Desktop Navigation - Pill Container */}
-          <div className="hidden lg:flex items-center bg-[#0B1220]/5 dark:bg-[#E5E7EB]/5 rounded-3xl p-3">
+          <div className="hidden lg:flex items-center bg-slate-100/90 rounded-full p-1.5 border border-slate-200/80 shadow-xs">
             {navLinks.map((link, i) => {
               const isActive = pathname === link.href
               return (
@@ -106,13 +100,16 @@ export default function Navbar() {
                     className="relative block"
                   >
                     <motion.span
-                      animate={{ backgroundColor: isActive ? 'rgb(59, 130, 246)' : 'transparent', color: isActive ? 'white' : undefined }}
-                      className={`px-4 py-2 text-sm font-medium block rounded-3xl transition-colors duration-200 ${
+                      animate={{ 
+                        backgroundColor: isActive ? '#060C17' : 'transparent', 
+                        color: isActive ? '#FFFFFF' : '#475569' 
+                      }}
+                      className={`px-4 py-1.5 text-sm font-medium block rounded-full transition-colors duration-200 ${
                         isActive 
-                          ? 'bg-[#3B82F6] text-white shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1)]' 
-                          : 'text-[#0B1220] dark:text-[#E5E7EB]'
+                          ? 'bg-[#060C17] text-white shadow-xs' 
+                          : 'text-slate-600 hover:text-slate-900'
                       }`}
-                      whileHover={{ scale: 1.05, backgroundColor: isActive ? undefined : 'rgba(59, 130, 246, 0.1)' }}
+                      whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       {link.label}
@@ -135,7 +132,7 @@ export default function Navbar() {
               >
                 <motion.button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-3 px-4 py-2 rounded-full bg-[#0B1220]/5 dark:bg-[#E5E7EB]/5 hover:bg-[#0B1220]/10 dark:hover:bg-[#E5E7EB]/10 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200/80 border border-slate-200/80 transition-colors"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -150,16 +147,16 @@ export default function Navbar() {
                       />
                     </div>
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#2563EB] flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-[#723CFB] flex items-center justify-center">
                       <span className="text-sm font-bold text-white">
                         {user.user_metadata?.full_name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
                       </span>
                     </div>
                   )}
-                  <span className="text-sm font-medium text-[#0B1220] dark:text-[#E5E7EB]">
+                  <span className="text-sm font-medium text-slate-900">
                     {user.user_metadata?.full_name || user.email?.split('@')[0]}
                   </span>
-                  <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
                 </motion.button>
 
                 <AnimatePresence>
@@ -169,31 +166,31 @@ export default function Navbar() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#111827] rounded-2xl shadow-xl border border-[#E5E7EB] dark:border-[#1F2937] overflow-hidden"
+                      className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-50"
                     >
-                      <div className="p-3 border-b border-[#E5E7EB] dark:border-[#1F2937]">
-                        <p className="text-sm font-semibold text-[#0B1220] dark:text-[#E5E7EB] truncate">
+                      <div className="p-3 border-b border-slate-100">
+                        <p className="text-sm font-semibold text-slate-900 truncate">
                           {user.user_metadata?.full_name || 'User'}
                         </p>
-                        <p className="text-xs text-[#9CA3AF] truncate">{user.email}</p>
+                        <p className="text-xs text-slate-500 truncate">{user.email}</p>
                       </div>
                       <div className="p-2">
                         <Link
                           href="/account"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#F9FAFB] dark:hover:bg-[#1F2937] transition-colors"
+                          className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors text-slate-700"
                         >
-                          <Settings className="w-4 h-4 text-[#9CA3AF]" />
-                          <span className="text-sm font-medium text-[#0B1220] dark:text-[#E5E7EB]">Account Settings</span>
+                          <Settings className="w-4 h-4 text-slate-400" />
+                          <span className="text-sm font-medium">Account Settings</span>
                         </Link>
                       </div>
-                      <div className="p-2 border-t border-[#E5E7EB] dark:border-[#1F2937]">
+                      <div className="p-2 border-t border-slate-100">
                         <button
                           onClick={handleSignOut}
-                          className="flex items-center gap-3 px-3 py-2 w-full rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          className="flex items-center gap-3 px-3 py-2 w-full rounded-xl hover:bg-red-50 transition-colors"
                         >
-                          <LogOut className="w-4 h-4 text-red-600 dark:text-red-400" />
-                          <span className="text-sm font-medium text-red-600 dark:text-red-400">Sign Out</span>
+                          <LogOut className="w-4 h-4 text-red-600" />
+                          <span className="text-sm font-medium text-red-600">Sign Out</span>
                         </button>
                       </div>
                     </motion.div>
@@ -209,8 +206,8 @@ export default function Navbar() {
                 >
                   <Link href="/signin">
                     <motion.span 
-                      className="px-4 py-2 text-sm font-medium border border-[#3B82F6] text-[#3B82F6] rounded-full block"
-                      whileHover={{ scale: 1.05, backgroundColor: '#3B82F6', color: '#ffffff' }}
+                      className="px-4 py-1.5 text-sm font-medium border border-slate-300 text-slate-700 rounded-full block transition-colors hover:bg-slate-50"
+                      whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       Sign In
@@ -224,8 +221,8 @@ export default function Navbar() {
                 >
                   <Link href="/signup">
                     <motion.span 
-                      className="px-4 py-2 text-sm font-medium bg-[#3B82F6] text-white rounded-full block"
-                      whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(59, 130, 246, 0.4)' }}
+                      className="px-4 py-1.5 text-sm font-medium bg-[#723CFB] hover:bg-[#5F27E5] text-white rounded-full block shadow-sm transition-all duration-200 shadow-purple-500/20"
+                      whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       Sign Up
@@ -240,12 +237,12 @@ export default function Navbar() {
           <div className="lg:hidden flex items-center gap-2">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl hover:bg-[#0B1220]/5 dark:hover:bg-[#E5E7EB]/5 transition-colors"
+              className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
             >
               {mobileMenuOpen ? (
-                <X className="w-6 h-6 text-[#0B1220] dark:text-[#E5E7EB]" />
+                <X className="w-6 h-6 text-slate-900" />
               ) : (
-                <Menu className="w-6 h-6 text-[#0B1220] dark:text-[#E5E7EB]" />
+                <Menu className="w-6 h-6 text-slate-900" />
               )}
             </button>
           </div>
@@ -260,25 +257,28 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="lg:hidden fixed top-0 right-0 h-full w-full max-w-xs bg-[#F9FAFB] dark:bg-[#0B1220] shadow-lg"
+            className="lg:hidden fixed top-0 right-0 h-full w-full max-w-xs bg-white shadow-2xl border-l border-slate-200 z-50"
           >
             <div className="p-6">
               <div className="flex justify-between items-center mb-8">
                 <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-                  <div className="w-10 h-10 bg-[#3B82F6] rounded-xl flex items-center justify-center">
-                    <Package className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-xl font-semibold text-[#0B1220] dark:text-[#E5E7EB]">Appsto</span>
+                  <Image
+                    src="/Logo.png"
+                    alt="Appsto"
+                    width={140}
+                    height={55}
+                    className="h-[36px] w-auto object-contain"
+                  />
                 </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-xl hover:bg-[#0B1220]/5 dark:hover:bg-[#E5E7EB]/5"
+                  className="p-2 rounded-xl hover:bg-slate-100 transition-colors"
                 >
-                  <X className="w-6 h-6 text-[#0B1220] dark:text-[#E5E7EB]" />
+                  <X className="w-6 h-6 text-slate-900" />
                 </button>
               </div>
 
-              <nav className="space-y-2">
+              <nav className="space-y-1.5">
                 {navLinks.map((link, i) => {
                   const isActive = pathname === link.href
                   return (
@@ -291,10 +291,10 @@ export default function Navbar() {
                       <Link
                         href={link.href}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={`block px-4 py-3 font-medium rounded-xl transition-colors ${
+                        className={`block px-4 py-2.5 font-medium rounded-xl transition-colors ${
                           isActive
-                            ? 'bg-[#3B82F6] text-white'
-                            : 'text-[#0B1220] dark:text-[#E5E7EB] hover:bg-[#0B1220]/5 dark:hover:bg-[#E5E7EB]/5'
+                            ? 'bg-[#723CFB] text-white shadow-xs'
+                            : 'text-slate-700 hover:bg-slate-100'
                         }`}
                       >
                         {link.label}
@@ -307,10 +307,10 @@ export default function Navbar() {
               <div className="mt-8 space-y-3">
                 {!loading && (user ? (
                   <>
-                    <div className="px-4 py-3 bg-[#0B1220]/5 dark:bg-[#E5E7EB]/5 rounded-xl mb-4">
+                    <div className="px-4 py-3 bg-slate-50 rounded-xl mb-4 border border-slate-200/80">
                       <div className="flex items-center gap-4">
                         {user.user_metadata?.avatar_url ? (
-                          <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                          <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                             <Image
                               src={user.user_metadata.avatar_url}
                               alt="Avatar"
@@ -320,31 +320,31 @@ export default function Navbar() {
                             />
                           </div>
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#3B82F6] to-[#2563EB] flex items-center justify-center flex-shrink-0">
-                            <span className="text-lg font-bold text-white">
+                          <div className="w-10 h-10 rounded-full bg-[#723CFB] text-white flex items-center justify-center flex-shrink-0">
+                            <span className="text-sm font-bold">
                               {user.user_metadata?.full_name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
                             </span>
                           </div>
                         )}
                         <div>
-                          <p className="text-sm font-semibold text-[#0B1220] dark:text-[#E5E7EB] truncate">
+                          <p className="text-sm font-semibold text-slate-900 truncate">
                             {user.user_metadata?.full_name || 'User'}
                           </p>
-                          <p className="text-xs text-[#9CA3AF] truncate">{user.email}</p>
+                          <p className="text-xs text-slate-500 truncate">{user.email}</p>
                         </div>
                       </div>
                     </div>
                     <Link
                       href="/account"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-[#0B1220] dark:text-[#E5E7EB] font-medium rounded-xl hover:bg-[#0B1220]/5 dark:hover:bg-[#E5E7EB]/5 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors"
                     >
-                      <Settings className="w-5 h-5" />
+                      <Settings className="w-5 h-5 text-slate-500" />
                       Account Settings
                     </Link>
                     <button
                       onClick={handleSignOut}
-                      className="flex items-center gap-3 px-4 py-3 w-full text-red-600 dark:text-red-400 font-medium rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2.5 w-full text-red-600 font-medium rounded-xl hover:bg-red-50 transition-colors"
                     >
                       <LogOut className="w-5 h-5" />
                       Sign Out
@@ -355,14 +355,14 @@ export default function Navbar() {
                     <Link 
                       href="/signin"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block w-full text-center px-4 py-3 text-sm font-medium border border-[#3B82F6] text-[#3B82F6] rounded-full hover:bg-[#3B82F6] hover:text-white transition-colors"
+                      className="block w-full text-center px-4 py-2.5 text-sm font-medium border border-slate-300 text-slate-800 rounded-full hover:bg-slate-50 transition-colors"
                     >
                       Sign In
                     </Link>
                     <Link 
                       href="/signup"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="block w-full text-center px-4 py-3 text-sm font-medium bg-[#3B82F6] text-white rounded-full hover:bg-[#2563EB] transition-colors"
+                      className="block w-full text-center px-4 py-2.5 text-sm font-medium bg-[#723CFB] text-white rounded-full hover:bg-[#5F27E5] transition-colors shadow-sm shadow-purple-500/20"
                     >
                       Sign Up
                     </Link>
