@@ -54,9 +54,9 @@ export async function GET(request: NextRequest) {
       symbol = '₹';
       tier_name = 'India (INR)';
     } else if (country === 'PK') {
-      currency = 'PKR';
-      symbol = 'Rs. ';
-      tier_name = 'Pakistan (PKR)';
+      currency = 'USD';
+      symbol = '$';
+      tier_name = 'Pakistan (USD)';
     }
 
     const region = {

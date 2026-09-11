@@ -27,39 +27,8 @@ export function PricingSection() {
   ];
 
   const handleOpenPaddleCheckout = (priceId: string | undefined, planSlug: string) => {
-    if (!priceId) return;
-
-    if (typeof window !== 'undefined' && window.Paddle && window.Paddle.Checkout) {
-      try {
-        window.Paddle.Checkout.open({
-          settings: {
-            displayMode: 'overlay',
-            variant: 'one-page',
-            theme: 'light',
-            locale: 'en',
-            allowLogout: false,
-            showAddDiscounts: true,
-            showAddTaxId: false,
-            successUrl: `${window.location.origin}/purchase/success?product=skillnavo&plan=${planSlug}`,
-          },
-          items: [
-            {
-              priceId: priceId,
-              quantity: 1,
-            },
-          ],
-          customData: {
-            product_slug: 'skillnavo',
-            plan_slug: planSlug,
-          },
-        });
-      } catch (err) {
-        console.error('Paddle overlay checkout error:', err);
-        window.location.href = `/skillnavo/checkout?plan=${planSlug}`;
-      }
-    } else {
-      window.location.href = `/skillnavo/checkout?plan=${planSlug}`;
-    }
+    // Navigate directly to Appsto's integrated, authentic inline checkout page
+    window.location.href = `/skillnavo/checkout?plan=${planSlug}`;
   };
 
   return (

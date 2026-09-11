@@ -257,7 +257,7 @@ export const SKILLNAVO_PRICING: PricingPlan[] = [
     badge: 'MOST POPULAR',
     popular: true,
     prices: {
-      USD: 4.99,
+      USD: 4.00,
       INR: 399,
       PKR: 1399,
     },
@@ -284,12 +284,12 @@ export const SKILLNAVO_PRICING: PricingPlan[] = [
     popular: true,
     savings: '16% off',
     prices: {
-      USD: 39.99,
+      USD: 40.00,
       INR: 3999,
       PKR: 11199,
     },
     originalPrices: {
-      USD: 59.88,
+      USD: 48.00,
       INR: 4788,
       PKR: 16788,
     },
@@ -313,7 +313,7 @@ export const SKILLNAVO_PRICING: PricingPlan[] = [
     tagline: 'For professionals seeking mastery and speed.',
     description: 'Billed monthly',
     prices: {
-      USD: 9.99,
+      USD: 8.00,
       INR: 699,
       PKR: 2799,
     },
@@ -339,12 +339,12 @@ export const SKILLNAVO_PRICING: PricingPlan[] = [
     description: 'Billed annually — ₹6,999 / yr • 17% less',
     savings: '17% off',
     prices: {
-      USD: 79.99,
+      USD: 80.00,
       INR: 6999,
       PKR: 21999,
     },
     originalPrices: {
-      USD: 119.88,
+      USD: 96.00,
       INR: 8388,
       PKR: 33588,
     },

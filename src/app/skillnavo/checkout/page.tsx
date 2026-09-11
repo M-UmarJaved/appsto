@@ -18,6 +18,9 @@ import {
   Check
 } from 'lucide-react'
 
+import { useAuth } from '@/contexts/AuthContext'
+import { SKILLNAVO_PADDLE_PRICE_IDS, SKILLNAVO_PRICING, formatPrice } from '@/lib/currency'
+
 declare global {
   interface Window {
     Paddle?: any
@@ -31,6 +34,7 @@ interface VerifiedSession {
   paddle_price_id?: string
   skillnavo_user_id: string
   return_to?: string
+  isDirect?: boolean
 }
 
 interface LivePricingPlan {
@@ -48,70 +52,113 @@ interface LivePricingPlan {
 function CheckoutContent() {
   const searchParams = useSearchParams()
   const sessionToken = searchParams.get('session')
+  const initialPlanParam = searchParams.get('plan') || 'starter_monthly'
+  const { user } = useAuth()
   
   const [error, setError] = useState<string | null>(null)
   const [sessionData, setSessionData] = useState<VerifiedSession | null>(null)
   const [isVerifying, setIsVerifying] = useState(true)
   const [isPaddleLoading, setIsPaddleLoading] = useState(true)
   const [isLaunchingOverlay, setIsLaunchingOverlay] = useState(false)
+  const [allLivePlans, setAllLivePlans] = useState<Record<string, LivePricingPlan> | null>(null)
   const [livePlanData, setLivePlanData] = useState<LivePricingPlan | null>(null)
   const [currencySymbol, setCurrencySymbol] = useState('$')
   const [regionName, setRegionName] = useState('Global (USD)')
 
   const paddleInitializedRef = useRef(false)
 
-  const isPro = sessionData?.plan.toLowerCase().includes('pro') || false
-  const isAnnual = sessionData?.plan.toLowerCase().includes('annual') || false
+  // Normalize initial plan key
+  const normalizePlan = (rawPlan: string | null): string => {
+    if (!rawPlan) return 'starter_monthly'
+    const lower = rawPlan.toLowerCase()
+    if (lower === 'starter') return 'starter_monthly'
+    if (lower === 'pro') return 'pro_monthly'
+    if (SKILLNAVO_PADDLE_PRICE_IDS[lower]) return lower
+    return 'starter_monthly'
+  }
 
-  // 1. Authenticate Session Token & Fetch Live Pricing in parallel
+  const activePlanKey = sessionData?.plan || normalizePlan(initialPlanParam)
+  const isPro = activePlanKey.toLowerCase().includes('pro')
+  const isAnnual = activePlanKey.toLowerCase().includes('annual')
+  const isDirectCheckout = !sessionToken || sessionData?.isDirect
+
+  // 1. Authenticate Session Token OR Setup Direct Appsto Checkout & Fetch Live Pricing
   useEffect(() => {
-    if (!sessionToken) {
-      setError('Missing checkout session token. Please initiate checkout from Skillnavo.')
-      setIsVerifying(false)
-      return
-    }
-
     let isMounted = true
 
     async function initCheckout() {
       try {
         setIsVerifying(true)
+        setError(null)
 
-        // Authenticate session token on Appsto server & fetch live pricing
-        const [validateRes, pricingRes] = await Promise.all([
-          fetch('/api/billing/validate-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionToken }),
-          }),
-          fetch('/api/pricing/skillnavo').catch(() => null)
-        ])
+        // Fetch live pricing in parallel
+        const pricingPromise = fetch('/api/pricing/skillnavo').then(r => r.ok ? r.json() : null).catch(() => null)
 
-        const validateData = await validateRes.json()
+        if (sessionToken) {
+          // Token session from Skillnavo app
+          const [validateRes, pricingJson] = await Promise.all([
+            fetch('/api/billing/validate-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ sessionToken }),
+            }),
+            pricingPromise,
+          ])
 
-        if (!validateRes.ok || !validateData.valid) {
-          throw new Error(validateData.error || 'Failed to authenticate checkout session.')
-        }
+          const validateData = await validateRes.json()
 
-        if (!isMounted) return
+          if (!validateRes.ok || !validateData.valid) {
+            throw new Error(validateData.error || 'Failed to authenticate checkout session.')
+          }
 
-        const planKey = validateData.plan
-        setSessionData({
-          email: validateData.email,
-          plan: planKey,
-          priceId: validateData.paddle_price_id || validateData.priceId,
-          paddle_price_id: validateData.paddle_price_id || validateData.priceId,
-          skillnavo_user_id: validateData.skillnavo_user_id,
-          return_to: validateData.return_to || '/dashboard',
-        })
+          if (!isMounted) return
 
-        // Process live pricing if available
-        if (pricingRes && pricingRes.ok) {
-          const pricingJson = await pricingRes.json()
-          if (pricingJson.success && pricingJson.plans) {
-            const matchedPlan = pricingJson.plans[planKey]
-            if (matchedPlan) {
-              setLivePlanData(matchedPlan)
+          const planKey = normalizePlan(validateData.plan)
+          const resolvedPriceId = validateData.paddle_price_id || validateData.priceId || SKILLNAVO_PADDLE_PRICE_IDS[planKey]
+
+          setSessionData({
+            email: validateData.email || '',
+            plan: planKey,
+            priceId: resolvedPriceId,
+            paddle_price_id: resolvedPriceId,
+            skillnavo_user_id: validateData.skillnavo_user_id || '',
+            return_to: validateData.return_to || '/dashboard',
+            isDirect: false,
+          })
+
+          if (pricingJson?.success && pricingJson.plans) {
+            setAllLivePlans(pricingJson.plans)
+            if (pricingJson.plans[planKey]) {
+              setLivePlanData(pricingJson.plans[planKey])
+            }
+            if (pricingJson.region) {
+              setCurrencySymbol(pricingJson.region.symbol || '$')
+              setRegionName(pricingJson.region.tier_name || 'Global')
+            }
+          }
+        } else {
+          // Direct checkout from Appsto (e.g. /products/skillnavo or homepage)
+          const planKey = normalizePlan(initialPlanParam)
+          const resolvedPriceId = SKILLNAVO_PADDLE_PRICE_IDS[planKey] || 'pri_01m252y0prb2nrjmay8ecgc1q0'
+
+          const pricingJson = await pricingPromise
+
+          if (!isMounted) return
+
+          setSessionData({
+            email: user?.email || '',
+            plan: planKey,
+            priceId: resolvedPriceId,
+            paddle_price_id: resolvedPriceId,
+            skillnavo_user_id: user?.id || '',
+            return_to: 'https://skillnavo.com/dashboard',
+            isDirect: true,
+          })
+
+          if (pricingJson?.success && pricingJson.plans) {
+            setAllLivePlans(pricingJson.plans)
+            if (pricingJson.plans[planKey]) {
+              setLivePlanData(pricingJson.plans[planKey])
             }
             if (pricingJson.region) {
               setCurrencySymbol(pricingJson.region.symbol || '$')
@@ -122,7 +169,7 @@ function CheckoutContent() {
 
         setIsVerifying(false)
       } catch (err: any) {
-        console.error('[SkillnavoCheckout] Verification error:', err)
+        console.error('[SkillnavoCheckout] Initialization error:', err)
         if (isMounted) {
           setError(err.message || 'An unexpected error occurred verifying your session.')
           setIsVerifying(false)
@@ -135,7 +182,27 @@ function CheckoutContent() {
     return () => {
       isMounted = false
     }
-  }, [sessionToken])
+  }, [sessionToken, initialPlanParam, user])
+
+  // Function to switch plans when in direct checkout mode
+  const handleSelectPlan = (newPlanKey: string) => {
+    const resolvedPriceId = SKILLNAVO_PADDLE_PRICE_IDS[newPlanKey]
+    if (!resolvedPriceId) return
+
+    setSessionData((prev) => {
+      if (!prev) return null
+      return {
+        ...prev,
+        plan: newPlanKey,
+        priceId: resolvedPriceId,
+        paddle_price_id: resolvedPriceId,
+      }
+    })
+
+    if (allLivePlans && allLivePlans[newPlanKey]) {
+      setLivePlanData(allLivePlans[newPlanKey])
+    }
+  }
 
   // 2. Launch Inline Paddle Checkout directly into our card container
   const openInlinePaddle = async () => {
@@ -175,6 +242,12 @@ function CheckoutContent() {
               setIsPaddleLoading(false)
             } else if (event.name === 'checkout.closed') {
               setIsPaddleLoading(false)
+            } else if (event.name === 'checkout.completed') {
+              setIsPaddleLoading(false)
+              const destUrl = sessionToken
+                ? `https://appsto.software/skillnavo/payment-success?session=${encodeURIComponent(sessionToken)}`
+                : `https://appsto.software/skillnavo/payment-success?tier=${encodeURIComponent(sessionData.plan)}&returnTo=${encodeURIComponent(sessionData.return_to || '/dashboard')}`
+              window.location.href = destUrl
             }
           },
         })
@@ -187,7 +260,13 @@ function CheckoutContent() {
       }
 
       const returnPath = sessionData.return_to || '/dashboard'
-      const successUrl = `https://appsto.software/skillnavo/payment-success?session=${encodeURIComponent(sessionToken || '')}`
+      const successUrl = sessionToken
+        ? `https://appsto.software/skillnavo/payment-success?session=${encodeURIComponent(sessionToken)}`
+        : `https://appsto.software/skillnavo/payment-success?tier=${encodeURIComponent(sessionData.plan)}&returnTo=${encodeURIComponent(returnPath)}${sessionData.email ? `&email=${encodeURIComponent(sessionData.email)}` : ''}`
+
+      const customerConfig = sessionData.email && sessionData.email.trim().length > 0
+        ? { email: sessionData.email.trim() }
+        : undefined
 
       // Launch INLINE checkout inside our styled HTML frame target
       paddle.Checkout.open({
@@ -203,9 +282,7 @@ function CheckoutContent() {
           showAddDiscounts: true,
           showAddTaxId: false,
         },
-        customer: {
-          email: sessionData.email,
-        },
+        customer: customerConfig,
         items: [
           {
             priceId: sessionData.paddle_price_id || sessionData.priceId,
@@ -214,8 +291,8 @@ function CheckoutContent() {
         ],
         customData: {
           product_slug: 'skillnavo',
-          user_id: sessionData.skillnavo_user_id,
-          skillnavo_user_id: sessionData.skillnavo_user_id,
+          ...(sessionData.skillnavo_user_id ? { user_id: sessionData.skillnavo_user_id } : {}),
+          ...(sessionData.skillnavo_user_id ? { skillnavo_user_id: sessionData.skillnavo_user_id } : {}),
           plan_id: sessionData.plan,
           plan: sessionData.plan,
           plan_slug: sessionData.plan,
@@ -237,7 +314,13 @@ function CheckoutContent() {
       if (!paddle) return
 
       const returnPath = sessionData.return_to || '/dashboard'
-      const successUrl = `https://appsto.software/skillnavo/payment-success?session=${encodeURIComponent(sessionToken || '')}`
+      const successUrl = sessionToken
+        ? `https://appsto.software/skillnavo/payment-success?session=${encodeURIComponent(sessionToken)}`
+        : `https://appsto.software/skillnavo/payment-success?tier=${encodeURIComponent(sessionData.plan)}&returnTo=${encodeURIComponent(returnPath)}${sessionData.email ? `&email=${encodeURIComponent(sessionData.email)}` : ''}`
+
+      const customerConfig = sessionData.email && sessionData.email.trim().length > 0
+        ? { email: sessionData.email.trim() }
+        : undefined
 
       paddle.Checkout.open({
         settings: {
@@ -250,9 +333,7 @@ function CheckoutContent() {
           showAddDiscounts: true,
           showAddTaxId: false,
         },
-        customer: {
-          email: sessionData.email,
-        },
+        customer: customerConfig,
         items: [
           {
             priceId: sessionData.paddle_price_id || sessionData.priceId,
@@ -261,8 +342,8 @@ function CheckoutContent() {
         ],
         customData: {
           product_slug: 'skillnavo',
-          user_id: sessionData.skillnavo_user_id,
-          skillnavo_user_id: sessionData.skillnavo_user_id,
+          ...(sessionData.skillnavo_user_id ? { user_id: sessionData.skillnavo_user_id } : {}),
+          ...(sessionData.skillnavo_user_id ? { skillnavo_user_id: sessionData.skillnavo_user_id } : {}),
           plan_id: sessionData.plan,
           plan: sessionData.plan,
           plan_slug: sessionData.plan,
@@ -284,7 +365,7 @@ function CheckoutContent() {
       }, 150)
       return () => clearTimeout(timer)
     }
-  }, [isVerifying, sessionData, error])
+  }, [isVerifying, sessionData?.priceId, error])
 
   if (error) {
     return (
@@ -433,6 +514,45 @@ function CheckoutContent() {
                 </div>
               </div>
 
+              {/* Plan Selector (when user arrives directly from Appsto) */}
+              {isDirectCheckout && (
+                <div className="py-4 border-b border-slate-100">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2.5">
+                    Select Plan & Billing
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { key: 'starter_monthly', label: 'Starter Monthly', badge: 'Flexible' },
+                      { key: 'starter_annual', label: 'Starter Annual', badge: 'Save 33%' },
+                      { key: 'pro_monthly', label: 'Pro Monthly', badge: 'Full AI Access' },
+                      { key: 'pro_annual', label: 'Pro Annual', badge: 'Save 43%' },
+                    ].map((p) => {
+                      const isSelected = activePlanKey === p.key
+                      return (
+                        <button
+                          key={p.key}
+                          type="button"
+                          onClick={() => handleSelectPlan(p.key)}
+                          className={`p-2.5 rounded-2xl border text-left transition-all ${
+                            isSelected
+                              ? 'border-[#723CFB] bg-purple-50/70 text-[#723CFB] ring-2 ring-[#723CFB]/20 shadow-xs'
+                              : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                          }`}
+                        >
+                          <div className="text-xs font-bold leading-tight flex items-center justify-between">
+                            <span>{p.label}</span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-[#723CFB] stroke-[3]" />}
+                          </div>
+                          <span className={`text-[10px] font-semibold block mt-0.5 ${isSelected ? 'text-[#723CFB]' : 'text-slate-400'}`}>
+                            {p.badge}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Selected Tier & Price Card */}
               <div className="py-5 border-b border-slate-100">
                 <div className="flex items-center justify-between mb-2">
@@ -467,16 +587,23 @@ function CheckoutContent() {
                 <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
                   <div className="min-w-0 pr-2">
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                      Linked Student Account
+                      {sessionData?.email ? 'Linked Student Account' : 'Student Account Email'}
                     </p>
                     <p className="text-xs sm:text-sm font-bold text-[#060C17] truncate mt-0.5">
-                      {sessionData?.email}
+                      {sessionData?.email || 'Enter in checkout form below'}
                     </p>
                   </div>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex-shrink-0">
-                    <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
-                    Verified
-                  </span>
+                  {sessionData?.email ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex-shrink-0">
+                      <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />
+                      Verified
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-[#723CFB] border border-purple-200/80 flex-shrink-0">
+                      <Sparkles className="w-3 h-3 text-[#723CFB]" />
+                      Instant Setup
+                    </span>
+                  )}
                 </div>
               </div>
 

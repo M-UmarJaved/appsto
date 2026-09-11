@@ -53,9 +53,8 @@ export default function ProductDetailPage() {
 
   // Load product and pricing on mount
   useEffect(() => {
-    console.log('🔄 useEffect: Loading product and pricing plans')
+    console.log('🔄 useEffect: Loading product and pricing plans for slug:', params.slug)
     loadProduct()
-    loadPricingPlans()
   }, [params.slug])
 
   // Initialize Paddle when component mounts
@@ -196,11 +195,13 @@ export default function ProductDetailPage() {
         .eq('is_active', true)
         .single()
 
-      if (error) {
+      if (error || !data) {
         console.error('Error loading product:', error)
         setProduct(null)
       } else {
         setProduct(data)
+        // Load only the pricing plans that belong specifically to this product!
+        loadPricingPlans(data.id)
       }
     } catch (err) {
       console.error('Error:', err)
@@ -210,17 +211,18 @@ export default function ProductDetailPage() {
     }
   }
 
-  async function loadPricingPlans() {
+  async function loadPricingPlans(productId: string) {
     try {
       const { data, error } = await supabase
         .from('pricing_plans')
         .select('*')
+        .eq('product_id', productId)
         .order('price_usd', { ascending: true })
 
       if (error) {
-        console.error('Error loading pricing plans:', error)
+        console.error('Error loading pricing plans for product:', error)
       } else {
-        console.log('Loaded pricing plans:', data)
+        console.log('Loaded pricing plans for product:', productId, data)
         setPricingPlans(data || [])
       }
     } catch (err) {
