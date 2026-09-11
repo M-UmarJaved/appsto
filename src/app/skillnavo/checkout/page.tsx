@@ -26,7 +26,9 @@ interface VerifiedSession {
   email: string
   plan: string
   priceId: string
+  paddle_price_id?: string
   skillnavo_user_id: string
+  return_to?: string
 }
 
 function CheckoutContent() {
@@ -70,8 +72,10 @@ function CheckoutContent() {
         setSessionData({
           email: data.email,
           plan: data.plan,
-          priceId: data.priceId,
+          priceId: data.paddle_price_id || data.priceId,
+          paddle_price_id: data.paddle_price_id || data.priceId,
           skillnavo_user_id: data.skillnavo_user_id,
+          return_to: data.return_to || '/dashboard',
         })
         setIsVerifying(false)
       } catch (err: any) {
@@ -128,6 +132,8 @@ function CheckoutContent() {
         }
       }
 
+      const successUrl = `https://appsto.software/skillnavo/payment-success?session=${encodeURIComponent(sessionToken || '')}`
+
       // Open Paddle Checkout modal
       paddle.Checkout.open({
         settings: {
@@ -135,23 +141,28 @@ function CheckoutContent() {
           variant: 'one-page',
           theme: 'light',
           locale: 'en',
-          successUrl: 'https://skillnavo.com/billing/success',
+          successUrl: successUrl,
           allowLogout: false,
           showAddDiscounts: true,
+          showAddTaxId: false,
         },
         customer: {
           email: sessionData.email,
         },
         items: [
           {
-            priceId: sessionData.priceId,
+            priceId: sessionData.paddle_price_id || sessionData.priceId,
             quantity: 1,
           },
         ],
         customData: {
           product_slug: 'skillnavo',
-          plan_slug: sessionData.plan,
+          user_id: sessionData.skillnavo_user_id,
           skillnavo_user_id: sessionData.skillnavo_user_id,
+          plan_id: sessionData.plan,
+          plan: sessionData.plan,
+          plan_slug: sessionData.plan,
+          return_to: sessionData.return_to || '/dashboard',
         },
       })
     } catch (err: any) {
@@ -350,7 +361,7 @@ function CheckoutContent() {
                 ) : (
                   <>
                     <CreditCard className="w-4 h-4" />
-                    Proceed to Payment via Paddle
+                    Pay with Paddle
                   </>
                 )}
               </button>

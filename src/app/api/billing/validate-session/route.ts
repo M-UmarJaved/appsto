@@ -16,6 +16,7 @@ interface SessionPayload {
   plan: string
   tier?: string
   interval?: string
+  return_to?: string
   iat: number
   exp: number
   nonce?: string
@@ -121,7 +122,9 @@ export async function POST(req: NextRequest) {
       email: result.payload.email,
       plan: result.payload.plan,
       priceId,
+      paddle_price_id: priceId,
       skillnavo_user_id: result.payload.skillnavo_user_id,
+      return_to: result.payload.return_to || '/dashboard',
       payload: result.payload,
     })
   } catch (err) {
@@ -156,7 +159,9 @@ export async function GET(req: NextRequest) {
       email: result.payload.email,
       plan: result.payload.plan,
       priceId,
+      paddle_price_id: priceId,
       skillnavo_user_id: result.payload.skillnavo_user_id,
+      return_to: result.payload.return_to || '/dashboard',
       payload: result.payload,
     })
   } catch (err) {

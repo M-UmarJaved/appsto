@@ -426,6 +426,29 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
         }
       } else {
         console.log('ℹ️ Skillnavo Subscription: Purchaser retained in public.purchases. DeskSweep licensing bypassed.')
+
+        // Dispatch instant unlock notification to Skillnavo
+        const skillnavoUserId = customData?.skillnavo_user_id || customData?.user_id
+        if (skillnavoUserId) {
+          console.log('🚀 Dispatching instant subscription unlock sync to Skillnavo for user:', skillnavoUserId)
+          try {
+            await dispatchSkillnavoSync({
+              event: 'subscription.created',
+              event_id: transactionId + '_tx_completed',
+              subscription_id: data.subscription_id || transactionId,
+              customer_id: customerId,
+              customer_email: customerEmail,
+              customer_name: customerName,
+              skillnavo_user_id: skillnavoUserId,
+              plan: customData?.plan_slug || customData?.plan || pricingPlan.plan_slug,
+              status: 'active',
+              currency: currency,
+              price: amount,
+            })
+          } catch (syncErr) {
+            console.error('❌ Error during Skillnavo dispatch on transaction.completed:', syncErr)
+          }
+        }
       }
 
       console.log('📢 Sending Discord notification...')
@@ -466,8 +489,10 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
 async function handleSubscriptionCreated(data: any) {
   console.log('🎯 Subscription created event received:', data.id)
   const customData = data.custom_data || {}
+  const skillnavoUserId = customData.skillnavo_user_id || customData.user_id
+  const planSlug = customData.plan_id || customData.plan_slug || customData.plan || 'starter_monthly'
 
-  if (customData.product_slug === 'skillnavo' && customData.skillnavo_user_id) {
+  if (customData.product_slug === 'skillnavo' && skillnavoUserId) {
     const customerEmail = data.customer?.email || customData.email || ''
     const customerName = data.customer?.name || 'Customer'
 
@@ -478,8 +503,8 @@ async function handleSubscriptionCreated(data: any) {
       customer_id: data.customer_id,
       customer_email: customerEmail,
       customer_name: customerName,
-      skillnavo_user_id: customData.skillnavo_user_id,
-      plan: customData.plan_slug || 'starter_monthly',
+      skillnavo_user_id: skillnavoUserId,
+      plan: planSlug,
       status: data.status || 'active',
       currency: data.currency_code || 'USD',
       price: data.items?.[0]?.price?.unit_price?.amount
@@ -498,8 +523,10 @@ async function handleSubscriptionCreated(data: any) {
 async function handleSubscriptionUpdated(data: any, eventId?: string) {
   console.log('🎯 Subscription updated event received:', data.id)
   const customData = data.custom_data || {}
+  const skillnavoUserId = customData.skillnavo_user_id || customData.user_id
+  const planSlug = customData.plan_id || customData.plan_slug || customData.plan || 'starter_monthly'
 
-  if (customData.product_slug === 'skillnavo' && customData.skillnavo_user_id) {
+  if (customData.product_slug === 'skillnavo' && skillnavoUserId) {
     const customerEmail = data.customer?.email || customData.email || ''
     const customerName = data.customer?.name || 'Customer'
 
@@ -510,8 +537,8 @@ async function handleSubscriptionUpdated(data: any, eventId?: string) {
       customer_id: data.customer_id,
       customer_email: customerEmail,
       customer_name: customerName,
-      skillnavo_user_id: customData.skillnavo_user_id,
-      plan: customData.plan_slug || 'starter_monthly',
+      skillnavo_user_id: skillnavoUserId,
+      plan: planSlug,
       status: data.status || 'active',
       currency: data.currency_code || 'USD',
       price: data.items?.[0]?.price?.unit_price?.amount
@@ -530,8 +557,10 @@ async function handleSubscriptionUpdated(data: any, eventId?: string) {
 async function handleSubscriptionCanceled(data: any, eventId?: string) {
   console.log('🎯 Subscription canceled event received:', data.id)
   const customData = data.custom_data || {}
+  const skillnavoUserId = customData.skillnavo_user_id || customData.user_id
+  const planSlug = customData.plan_id || customData.plan_slug || customData.plan || 'starter_monthly'
 
-  if (customData.product_slug === 'skillnavo' && customData.skillnavo_user_id) {
+  if (customData.product_slug === 'skillnavo' && skillnavoUserId) {
     const customerEmail = data.customer?.email || customData.email || ''
     const customerName = data.customer?.name || 'Customer'
 
@@ -542,8 +571,8 @@ async function handleSubscriptionCanceled(data: any, eventId?: string) {
       customer_id: data.customer_id,
       customer_email: customerEmail,
       customer_name: customerName,
-      skillnavo_user_id: customData.skillnavo_user_id,
-      plan: customData.plan_slug || 'starter_monthly',
+      skillnavo_user_id: skillnavoUserId,
+      plan: planSlug,
       status: 'canceled',
       current_period_end: data.current_billing_period?.ends_at || null,
       cancel_at_period_end: true,
@@ -557,8 +586,10 @@ async function handleSubscriptionCanceled(data: any, eventId?: string) {
 async function handleSubscriptionPastDue(data: any, eventId?: string) {
   console.log('🎯 Subscription past_due event received:', data.id)
   const customData = data.custom_data || {}
+  const skillnavoUserId = customData.skillnavo_user_id || customData.user_id
+  const planSlug = customData.plan_id || customData.plan_slug || customData.plan || 'starter_monthly'
 
-  if (customData.product_slug === 'skillnavo' && customData.skillnavo_user_id) {
+  if (customData.product_slug === 'skillnavo' && skillnavoUserId) {
     const customerEmail = data.customer?.email || customData.email || ''
     const customerName = data.customer?.name || 'Customer'
 
@@ -569,8 +600,8 @@ async function handleSubscriptionPastDue(data: any, eventId?: string) {
       customer_id: data.customer_id,
       customer_email: customerEmail,
       customer_name: customerName,
-      skillnavo_user_id: customData.skillnavo_user_id,
-      plan: customData.plan_slug || 'starter_monthly',
+      skillnavo_user_id: skillnavoUserId,
+      plan: planSlug,
       status: 'past_due',
       current_period_end: data.current_billing_period?.ends_at || null,
     })
