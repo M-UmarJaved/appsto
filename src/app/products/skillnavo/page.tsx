@@ -28,12 +28,20 @@ import {
 } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
-import { SKILLNAVO_PRICING, SKILLNAVO_FREE_PLAN, formatPrice } from '@/lib/currency'
+import { SKILLNAVO_PRICING, SKILLNAVO_FREE_PLAN, formatPrice, detectUserCurrency, type Currency } from '@/lib/currency'
 import { usePaddlePrices } from '@/hooks/usePaddlePrices'
 
 export default function SkillnavoProductPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
+  const [currency, setCurrency] = useState<Currency>('USD')
   const { prices: paddlePrices, isLoading } = usePaddlePrices()
+
+  // Detect currency on client
+  useState(() => {
+    if (typeof window !== 'undefined') {
+      setCurrency(detectUserCurrency())
+    }
+  })
 
   const starterPlan = SKILLNAVO_PRICING.find((p) =>
     billingCycle === 'monthly' ? p.id === 'starter_monthly' : p.id === 'starter_annual'
@@ -457,7 +465,7 @@ export default function SkillnavoProductPage() {
                             </span>
                           ) : (
                             <span className="text-4xl font-extrabold text-[#060C17]">
-                              {formatPrice(plan.prices.INR || plan.prices.USD, 'INR')}
+                              {formatPrice(plan.prices[currency] || plan.prices.USD, currency)}
                             </span>
                           )}
 

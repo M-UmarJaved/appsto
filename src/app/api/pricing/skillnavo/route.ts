@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SKILLNAVO_PADDLE_PRICE_IDS } from '@/lib/currency';
+import { SKILLNAVO_PADDLE_PRICE_IDS, SKILLNAVO_PRICING, formatPrice, type Currency } from '@/lib/currency';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,47 +45,65 @@ export async function GET(request: NextRequest) {
     const country = queryCountry || cfCountry || vercelCountry || customCountry || 'US';
 
     // 2. Resolve Regional Pricing Configuration
-    let region = {
-      country,
-      currency: 'USD',
-      symbol: '$',
-      tier_name: 'Global (USD)',
-    };
-
-    let pricingTier = {
-      starter_monthly: { price: 12.0, formatted: '$12.00', period: '/ mo', subtext: 'Billed monthly' },
-      starter_annual: { price: 96.0, formatted: '$96.00', period: '/ yr', subtext: 'Billed annually — $96 / yr ($8/mo) • 33% less', savings: 'Save 33%' },
-      pro_monthly: { price: 29.0, formatted: '$29.00', period: '/ mo', subtext: 'Billed monthly' },
-      pro_annual: { price: 199.0, formatted: '$199.00', period: '/ yr', subtext: 'Billed annually — $199 / yr ($16.50/mo) • 43% less', savings: 'Save 43%' },
-    };
+    let currency: Currency = 'USD';
+    let symbol = '$';
+    let tier_name = 'Global (USD)';
 
     if (country === 'IN') {
-      region = {
-        country: 'IN',
-        currency: 'INR',
-        symbol: '₹',
-        tier_name: 'India (INR)',
-      };
-      pricingTier = {
-        starter_monthly: { price: 349, formatted: '₹349', period: '/ mo', subtext: 'Billed monthly' },
-        starter_annual: { price: 2799, formatted: '₹2,799', period: '/ yr', subtext: 'Billed annually — ₹2,799 / yr • 33% less', savings: 'Save 33%' },
-        pro_monthly: { price: 699, formatted: '₹699', period: '/ mo', subtext: 'Billed monthly' },
-        pro_annual: { price: 5499, formatted: '₹5,499', period: '/ yr', subtext: 'Billed annually — ₹5,499 / yr • 34% less', savings: 'Save 34%' },
-      };
+      currency = 'INR';
+      symbol = '₹';
+      tier_name = 'India (INR)';
     } else if (country === 'PK') {
-      region = {
-        country: 'PK',
-        currency: 'USD',
-        symbol: '$',
-        tier_name: 'Pakistan (USD Parity)',
-      };
-      pricingTier = {
-        starter_monthly: { price: 3.5, formatted: '$3.50', period: '/ mo', subtext: 'Billed monthly (under Rs 1,000 PKR)' },
-        starter_annual: { price: 28.0, formatted: '$28.00', period: '/ yr', subtext: 'Billed annually — $28 / yr • 33% less', savings: 'Save 33%' },
-        pro_monthly: { price: 7.0, formatted: '$7.00', period: '/ mo', subtext: 'Billed monthly (under Rs 2,000 PKR)' },
-        pro_annual: { price: 55.0, formatted: '$55.00', period: '/ yr', subtext: 'Billed annually — $55 / yr • 35% less', savings: 'Save 35%' },
-      };
+      currency = 'PKR';
+      symbol = 'Rs. ';
+      tier_name = 'Pakistan (PKR)';
     }
+
+    const region = {
+      country,
+      currency,
+      symbol,
+      tier_name,
+    };
+
+    const starterMonthly = SKILLNAVO_PRICING.find((p) => p.id === 'starter_monthly')!;
+    const starterAnnual = SKILLNAVO_PRICING.find((p) => p.id === 'starter_annual')!;
+    const proMonthly = SKILLNAVO_PRICING.find((p) => p.id === 'pro_monthly')!;
+    const proAnnual = SKILLNAVO_PRICING.find((p) => p.id === 'pro_annual')!;
+
+    const starterMonthlyPrice = starterMonthly.prices[currency] ?? starterMonthly.prices.USD;
+    const starterAnnualPrice = starterAnnual.prices[currency] ?? starterAnnual.prices.USD;
+    const proMonthlyPrice = proMonthly.prices[currency] ?? proMonthly.prices.USD;
+    const proAnnualPrice = proAnnual.prices[currency] ?? proAnnual.prices.USD;
+
+    const pricingTier = {
+      starter_monthly: {
+        price: starterMonthlyPrice,
+        formatted: formatPrice(starterMonthlyPrice, currency),
+        period: '/ mo',
+        subtext: starterMonthly.description,
+      },
+      starter_annual: {
+        price: starterAnnualPrice,
+        formatted: formatPrice(starterAnnualPrice, currency),
+        period: '/ yr',
+        subtext: starterAnnual.description,
+        savings: starterAnnual.savings,
+      },
+      pro_monthly: {
+        price: proMonthlyPrice,
+        formatted: formatPrice(proMonthlyPrice, currency),
+        period: '/ mo',
+        subtext: proMonthly.description,
+      },
+      pro_annual: {
+        price: proAnnualPrice,
+        formatted: formatPrice(proAnnualPrice, currency),
+        period: '/ yr',
+        subtext: proAnnual.description,
+        savings: proAnnual.savings,
+      },
+    };
 
     // 3. Build Synchronized Plans Payload matching Skillnavo UI
     const payload = {
