@@ -12,16 +12,28 @@ import { supabase, type Product } from '@/lib/supabase'
 import { formatPrice as formatPriceUtil } from '@/lib/utils'
 import { Package, ArrowRight, ArrowUpRight, Sparkles, CheckCircle, Star } from 'lucide-react'
 import { DESKSWEEP_PRICING } from '@/lib/currency'
-import { usePaddlePrices, PADDLE_PRICE_IDS } from '@/hooks/usePaddlePrices'
+import { usePaddlePrices, PADDLE_PRICE_IDS, SKILLNAVO_PADDLE_PRICE_IDS } from '@/hooks/usePaddlePrices'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'one_time' | 'subscription'>('all')
   const { prices: paddlePrices, isLoading: paddleLoading } = usePaddlePrices()
+  const [skillnavoFallbackPrice, setSkillnavoFallbackPrice] = useState<string | null>(null)
 
   useEffect(() => {
     loadProducts()
+
+    // Also fetch live localized price from Appsto pricing API as secondary backup
+    fetch('/api/pricing/skillnavo')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const formatted = data?.plans?.starter_monthly?.formatted_price || data?.pricingTier?.starter_monthly?.formatted
+        if (formatted) {
+          setSkillnavoFallbackPrice(formatted)
+        }
+      })
+      .catch(() => {})
   }, [])
 
   async function loadProducts() {
@@ -282,7 +294,7 @@ export default function ProductsPage() {
                             ) : (
                               <>
                                 <span className="text-3xl font-extrabold text-[#060C17]">
-                                  {paddleLoading ? 'Loading...' : '$49.00'}
+                                  {paddleLoading ? 'Loading...' : '$9.00'}
                                 </span>
                                 <span className="text-slate-500 ml-2 text-sm font-medium">one-time</span>
                               </>
@@ -290,10 +302,21 @@ export default function ProductsPage() {
                           </>
                         ) : product.slug === 'skillnavo' ? (
                           <>
-                            <span className="text-3xl font-extrabold text-[#060C17]">
-                              $4.99
-                            </span>
-                            <span className="text-slate-500 ml-2 text-sm font-medium">/month</span>
+                            {!paddleLoading && paddlePrices.get(SKILLNAVO_PADDLE_PRICE_IDS.starter_monthly) ? (
+                              <>
+                                <span className="text-3xl font-extrabold text-[#060C17]">
+                                  {paddlePrices.get(SKILLNAVO_PADDLE_PRICE_IDS.starter_monthly)?.formattedPrice}
+                                </span>
+                                <span className="text-slate-500 ml-2 text-sm font-medium">/month</span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-3xl font-extrabold text-[#060C17]">
+                                  {paddleLoading ? 'Loading...' : (paddlePrices.get(SKILLNAVO_PADDLE_PRICE_IDS.starter_monthly)?.formattedPrice || '$3.99')}
+                                </span>
+                                <span className="text-slate-500 ml-2 text-sm font-medium">/month</span>
+                              </>
+                            )}
                             <span className="text-xs text-[#723CFB] bg-purple-50 px-2.5 py-0.5 rounded-full font-medium ml-auto border border-purple-200/60">
                               Starter Tier
                             </span>
@@ -429,7 +452,7 @@ function getMockProducts(): Product[] {
       slug: 'desksweep',
       description: 'The ultimate desktop cleaner and file organizer for Windows. DeskSweep automatically sorts your files with intelligent rules, scheduled cleaning, and background automation. Keep your workspace organized with one-click clean and auto-pilot mode.',
       short_description: 'Intelligent desktop cleaner with auto-sorting and file organization',
-      price: 49.00,
+      price: 9.00,
       currency: 'USD',
       product_type: 'one_time',
       paddle_product_id: 'pro_desksweep001',
@@ -461,10 +484,10 @@ function getMockProducts(): Product[] {
       slug: 'skillnavo',
       description: 'AI-powered technical skill roadmap platform, interactive code diagnostics, and adaptive practice engineering. Master technical skills with personalized roadmaps and continuous feedback.',
       short_description: 'AI-powered technical skill roadmaps & interactive code diagnostics',
-      price: 4.99,
+      price: 3.99,
       currency: 'USD',
       product_type: 'subscription',
-      paddle_product_id: 'pro_skillnavo',
+      paddle_product_id: 'pro_01m2524ck45ckjmnh6yam91w01',
       features: [
         'AI-Powered Personalized Skill Roadmaps',
         'Interactive Code Diagnostics & Challenges',

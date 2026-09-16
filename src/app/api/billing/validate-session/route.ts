@@ -117,6 +117,24 @@ export async function POST(req: NextRequest) {
 
     const priceId = await resolvePriceId(result.payload.plan)
 
+    // Record checkout session attempt for conversion & cart abandonment tracking
+    try {
+      await supabase.from('skillnavo_checkout_sessions').insert({
+        session_token: sessionToken.substring(0, 32) + '...',
+        skillnavo_user_id: result.payload.skillnavo_user_id,
+        customer_email: result.payload.email.toLowerCase(),
+        plan_slug: result.payload.plan,
+        paddle_price_id: priceId,
+        status: 'pending',
+        metadata: {
+          return_to: result.payload.return_to || '/dashboard',
+          source: 'skillnavo_direct',
+        },
+      })
+    } catch (logErr) {
+      console.warn('⚠️ Could not log checkout session tracking:', logErr)
+    }
+
     return NextResponse.json({
       valid: true,
       email: result.payload.email,

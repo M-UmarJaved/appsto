@@ -175,7 +175,10 @@ export function formatPrice(amount: number, currency: Currency): string {
     PKR: 'Rs.',
   };
 
-  const formatted = amount.toLocaleString('en-US');
+  const formatted = amount.toLocaleString('en-US', {
+    minimumFractionDigits: amount % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
   
   if (currency === 'PKR') {
     return `${symbols[currency]} ${formatted}`;
@@ -257,9 +260,9 @@ export const SKILLNAVO_PRICING: PricingPlan[] = [
     badge: 'MOST POPULAR',
     popular: true,
     prices: {
-      USD: 4.00,
-      INR: 399,
-      PKR: 1399,
+      USD: 3.99,
+      INR: 299,
+      PKR: 1100,
     },
     paddlePriceId: SKILLNAVO_PADDLE_PRICE_IDS.starter_monthly,
     cta: 'Get Starter',
@@ -279,19 +282,19 @@ export const SKILLNAVO_PRICING: PricingPlan[] = [
     id: 'starter_annual',
     name: 'Starter',
     tagline: 'For consistent learners building new skills.',
-    description: 'Billed annually — ₹3,999 / yr • 16% less',
+    description: 'Billed annually • 16% less',
     badge: 'MOST POPULAR',
     popular: true,
     savings: '16% off',
     prices: {
-      USD: 40.00,
-      INR: 3999,
-      PKR: 11199,
+      USD: 39.99,
+      INR: 2999,
+      PKR: 11000,
     },
     originalPrices: {
-      USD: 48.00,
-      INR: 4788,
-      PKR: 16788,
+      USD: 47.88,
+      INR: 3588,
+      PKR: 13200,
     },
     paddlePriceId: SKILLNAVO_PADDLE_PRICE_IDS.starter_annual,
     cta: 'Get Starter',
@@ -313,9 +316,9 @@ export const SKILLNAVO_PRICING: PricingPlan[] = [
     tagline: 'For professionals seeking mastery and speed.',
     description: 'Billed monthly',
     prices: {
-      USD: 8.00,
+      USD: 7.99,
       INR: 699,
-      PKR: 2799,
+      PKR: 2200,
     },
     paddlePriceId: SKILLNAVO_PADDLE_PRICE_IDS.pro_monthly,
     cta: 'Get Pro',
@@ -336,17 +339,17 @@ export const SKILLNAVO_PRICING: PricingPlan[] = [
     id: 'pro_annual',
     name: 'Pro',
     tagline: 'For professionals seeking mastery and speed.',
-    description: 'Billed annually — ₹6,999 / yr • 17% less',
+    description: 'Billed annually • 17% less',
     savings: '17% off',
     prices: {
-      USD: 80.00,
+      USD: 79.99,
       INR: 6999,
-      PKR: 21999,
+      PKR: 22000,
     },
     originalPrices: {
-      USD: 96.00,
+      USD: 95.88,
       INR: 8388,
-      PKR: 33588,
+      PKR: 26400,
     },
     paddlePriceId: SKILLNAVO_PADDLE_PRICE_IDS.pro_annual,
     cta: 'Get Pro',

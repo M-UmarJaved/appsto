@@ -428,9 +428,9 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
         console.log('ℹ️ Skillnavo Subscription: Purchaser retained in public.purchases. DeskSweep licensing bypassed.')
 
         // Dispatch instant unlock notification to Skillnavo
-        const skillnavoUserId = customData?.skillnavo_user_id || customData?.user_id
-        if (skillnavoUserId) {
-          console.log('🚀 Dispatching instant subscription unlock sync to Skillnavo for user:', skillnavoUserId)
+        const skillnavoUserId = customData?.skillnavo_user_id || customData?.user_id || ''
+        if (skillnavoUserId || customerEmail) {
+          console.log('🚀 Dispatching instant subscription unlock sync to Skillnavo for:', customerEmail || skillnavoUserId)
           try {
             await dispatchSkillnavoSync({
               event: 'subscription.created',
@@ -445,6 +445,22 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
               currency: currency,
               price: amount,
             })
+
+            // Mark checkout session as completed
+            if (customerEmail) {
+              await supabase
+                .from('skillnavo_checkout_sessions')
+                .update({
+                  status: 'completed',
+                  paddle_transaction_id: transactionId,
+                  paddle_subscription_id: data.subscription_id || null,
+                  amount: amount,
+                  currency: currency,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq('customer_email', customerEmail.toLowerCase())
+                .eq('status', 'pending')
+            }
           } catch (syncErr) {
             console.error('❌ Error during Skillnavo dispatch on transaction.completed:', syncErr)
           }
@@ -489,13 +505,12 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
 async function handleSubscriptionCreated(data: any) {
   console.log('🎯 Subscription created event received:', data.id)
   const customData = data.custom_data || {}
-  const skillnavoUserId = customData.skillnavo_user_id || customData.user_id
+  const skillnavoUserId = customData.skillnavo_user_id || customData.user_id || ''
   const planSlug = customData.plan_id || customData.plan_slug || customData.plan || 'starter_monthly'
+  const customerEmail = data.customer?.email || customData.email || ''
+  const customerName = data.customer?.name || 'Customer'
 
-  if (customData.product_slug === 'skillnavo' && skillnavoUserId) {
-    const customerEmail = data.customer?.email || customData.email || ''
-    const customerName = data.customer?.name || 'Customer'
-
+  if (customData.product_slug === 'skillnavo' && (skillnavoUserId || customerEmail)) {
     await dispatchSkillnavoSync({
       event: 'subscription.created',
       event_id: data.id + '_created',
@@ -523,13 +538,12 @@ async function handleSubscriptionCreated(data: any) {
 async function handleSubscriptionUpdated(data: any, eventId?: string) {
   console.log('🎯 Subscription updated event received:', data.id)
   const customData = data.custom_data || {}
-  const skillnavoUserId = customData.skillnavo_user_id || customData.user_id
+  const skillnavoUserId = customData.skillnavo_user_id || customData.user_id || ''
   const planSlug = customData.plan_id || customData.plan_slug || customData.plan || 'starter_monthly'
+  const customerEmail = data.customer?.email || customData.email || ''
+  const customerName = data.customer?.name || 'Customer'
 
-  if (customData.product_slug === 'skillnavo' && skillnavoUserId) {
-    const customerEmail = data.customer?.email || customData.email || ''
-    const customerName = data.customer?.name || 'Customer'
-
+  if (customData.product_slug === 'skillnavo' && (skillnavoUserId || customerEmail)) {
     await dispatchSkillnavoSync({
       event: 'subscription.updated',
       event_id: eventId || data.id + '_updated',
@@ -557,13 +571,12 @@ async function handleSubscriptionUpdated(data: any, eventId?: string) {
 async function handleSubscriptionCanceled(data: any, eventId?: string) {
   console.log('🎯 Subscription canceled event received:', data.id)
   const customData = data.custom_data || {}
-  const skillnavoUserId = customData.skillnavo_user_id || customData.user_id
+  const skillnavoUserId = customData.skillnavo_user_id || customData.user_id || ''
   const planSlug = customData.plan_id || customData.plan_slug || customData.plan || 'starter_monthly'
+  const customerEmail = data.customer?.email || customData.email || ''
+  const customerName = data.customer?.name || 'Customer'
 
-  if (customData.product_slug === 'skillnavo' && skillnavoUserId) {
-    const customerEmail = data.customer?.email || customData.email || ''
-    const customerName = data.customer?.name || 'Customer'
-
+  if (customData.product_slug === 'skillnavo' && (skillnavoUserId || customerEmail)) {
     await dispatchSkillnavoSync({
       event: 'subscription.canceled',
       event_id: eventId || data.id + '_canceled',

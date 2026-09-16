@@ -20,6 +20,7 @@ import {
 
 import { useAuth } from '@/contexts/AuthContext'
 import { SKILLNAVO_PADDLE_PRICE_IDS, SKILLNAVO_PRICING, formatPrice } from '@/lib/currency'
+import { usePaddlePrices } from '@/hooks/usePaddlePrices'
 
 declare global {
   interface Window {
@@ -54,6 +55,7 @@ function CheckoutContent() {
   const sessionToken = searchParams.get('session')
   const initialPlanParam = searchParams.get('plan') || 'starter_monthly'
   const { user } = useAuth()
+  const { prices: paddlePrices } = usePaddlePrices()
   
   const [error, setError] = useState<string | null>(null)
   const [sessionData, setSessionData] = useState<VerifiedSession | null>(null)
@@ -154,6 +156,19 @@ function CheckoutContent() {
             return_to: 'https://skillnavo.com/dashboard',
             isDirect: true,
           })
+
+          if (user?.email) {
+            void fetch('/api/billing/track-checkout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: user.email,
+                plan_slug: planKey,
+                paddle_price_id: resolvedPriceId,
+                skillnavo_user_id: user?.id || null,
+              }),
+            }).catch(() => {})
+          }
 
           if (pricingJson?.success && pricingJson.plans) {
             setAllLivePlans(pricingJson.plans)
@@ -440,8 +455,9 @@ function CheckoutContent() {
     'Cancel anytime with instant sync'
   ]
 
+  const currentPaddlePrice = sessionData?.priceId ? paddlePrices.get(sessionData.priceId) : undefined
   const displayFeatures = livePlanData?.features || (isPro ? defaultProFeatures : defaultStarterFeatures)
-  const displayPrice = livePlanData?.formatted_price || (isPro ? (isAnnual ? '$199.00' : '$29.00') : (isAnnual ? '$96.00' : '$12.00'))
+  const displayPrice = currentPaddlePrice?.formattedPrice || livePlanData?.formatted_price || (isPro ? (isAnnual ? '$79.99' : '$7.99') : (isAnnual ? '$39.99' : '$3.99'))
   const displayPeriodSuffix = livePlanData?.period_suffix || (isAnnual ? '/ yr' : '/ mo')
 
   return (

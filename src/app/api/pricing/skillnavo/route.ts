@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SKILLNAVO_PADDLE_PRICE_IDS, SKILLNAVO_PRICING, formatPrice, type Currency } from '@/lib/currency';
+import { fetchLivePaddlePricesServer } from '@/lib/paddle-server-api';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,12 +45,23 @@ export async function GET(request: NextRequest) {
 
     const country = queryCountry || cfCountry || vercelCountry || customCountry || 'US';
 
-    // 2. Resolve Regional Pricing Configuration
-    let currency: Currency = 'USD';
+    // 2. Query Live Prices from Paddle REST API
+    const livePriceData = await fetchLivePaddlePricesServer(
+      [
+        SKILLNAVO_PADDLE_PRICE_IDS.starter_monthly,
+        SKILLNAVO_PADDLE_PRICE_IDS.starter_annual,
+        SKILLNAVO_PADDLE_PRICE_IDS.pro_monthly,
+        SKILLNAVO_PADDLE_PRICE_IDS.pro_annual,
+      ],
+      country
+    );
+
+    // Resolve Regional Pricing Configuration
+    let currency: Currency = (livePriceData.currency as Currency) || 'USD';
     let symbol = '$';
     let tier_name = 'Global (USD)';
 
-    if (country === 'IN') {
+    if (country === 'IN' || currency === 'INR') {
       currency = 'INR';
       symbol = '₹';
       tier_name = 'India (INR)';
@@ -71,34 +83,45 @@ export async function GET(request: NextRequest) {
     const proMonthly = SKILLNAVO_PRICING.find((p) => p.id === 'pro_monthly')!;
     const proAnnual = SKILLNAVO_PRICING.find((p) => p.id === 'pro_annual')!;
 
-    const starterMonthlyPrice = starterMonthly.prices[currency] ?? starterMonthly.prices.USD;
-    const starterAnnualPrice = starterAnnual.prices[currency] ?? starterAnnual.prices.USD;
-    const proMonthlyPrice = proMonthly.prices[currency] ?? proMonthly.prices.USD;
-    const proAnnualPrice = proAnnual.prices[currency] ?? proAnnual.prices.USD;
+    // Resolve live prices from Paddle API if present, otherwise fallback
+    const liveStarterMonthly = livePriceData.items.get(SKILLNAVO_PADDLE_PRICE_IDS.starter_monthly);
+    const liveStarterAnnual = livePriceData.items.get(SKILLNAVO_PADDLE_PRICE_IDS.starter_annual);
+    const liveProMonthly = livePriceData.items.get(SKILLNAVO_PADDLE_PRICE_IDS.pro_monthly);
+    const liveProAnnual = livePriceData.items.get(SKILLNAVO_PADDLE_PRICE_IDS.pro_annual);
+
+    const starterMonthlyPrice = liveStarterMonthly?.amount ?? (starterMonthly.prices[currency] ?? starterMonthly.prices.USD);
+    const starterAnnualPrice = liveStarterAnnual?.amount ?? (starterAnnual.prices[currency] ?? starterAnnual.prices.USD);
+    const proMonthlyPrice = liveProMonthly?.amount ?? (proMonthly.prices[currency] ?? proMonthly.prices.USD);
+    const proAnnualPrice = liveProAnnual?.amount ?? (proAnnual.prices[currency] ?? proAnnual.prices.USD);
+
+    const starterMonthlyFormatted = liveStarterMonthly?.formattedPrice ?? formatPrice(starterMonthlyPrice, currency);
+    const starterAnnualFormatted = liveStarterAnnual?.formattedPrice ?? formatPrice(starterAnnualPrice, currency);
+    const proMonthlyFormatted = liveProMonthly?.formattedPrice ?? formatPrice(proMonthlyPrice, currency);
+    const proAnnualFormatted = liveProAnnual?.formattedPrice ?? formatPrice(proAnnualPrice, currency);
 
     const pricingTier = {
       starter_monthly: {
         price: starterMonthlyPrice,
-        formatted: formatPrice(starterMonthlyPrice, currency),
+        formatted: starterMonthlyFormatted,
         period: '/ mo',
         subtext: starterMonthly.description,
       },
       starter_annual: {
         price: starterAnnualPrice,
-        formatted: formatPrice(starterAnnualPrice, currency),
+        formatted: starterAnnualFormatted,
         period: '/ yr',
         subtext: starterAnnual.description,
         savings: starterAnnual.savings,
       },
       pro_monthly: {
         price: proMonthlyPrice,
-        formatted: formatPrice(proMonthlyPrice, currency),
+        formatted: proMonthlyFormatted,
         period: '/ mo',
         subtext: proMonthly.description,
       },
       pro_annual: {
         price: proAnnualPrice,
-        formatted: formatPrice(proAnnualPrice, currency),
+        formatted: proAnnualFormatted,
         period: '/ yr',
         subtext: proAnnual.description,
         savings: proAnnual.savings,
@@ -108,6 +131,7 @@ export async function GET(request: NextRequest) {
     // 3. Build Synchronized Plans Payload matching Skillnavo UI
     const payload = {
       success: true,
+      source: livePriceData.source,
       product: 'skillnavo',
       product_name: 'Skillnavo AI Platform',
       paddle: {
@@ -254,7 +278,7 @@ export async function GET(request: NextRequest) {
       },
       meta: {
         timestamp: new Date().toISOString(),
-        cached_ttl_seconds: 3600,
+        cached_ttl_seconds: 60,
       },
     };
 
@@ -262,7 +286,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         ...corsHeaders,
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
       },
     });
   } catch (error: any) {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Script from 'next/script'
@@ -35,6 +35,7 @@ export default function SkillnavoProductPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly')
   const [currency, setCurrency] = useState<Currency>('USD')
   const { prices: paddlePrices, isLoading } = usePaddlePrices()
+  const [apiPlans, setApiPlans] = useState<Record<string, any> | null>(null)
 
   // Detect currency on client
   useState(() => {
@@ -42,6 +43,21 @@ export default function SkillnavoProductPage() {
       setCurrency(detectUserCurrency())
     }
   })
+
+  // Fetch dynamic live pricing from Appsto pricing engine
+  useEffect(() => {
+    fetch('/api/pricing/skillnavo')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.success && data?.plans) {
+          setApiPlans(data.plans)
+          if (data.region?.currency) {
+            setCurrency(data.region.currency)
+          }
+        }
+      })
+      .catch((err) => console.warn('[SkillnavoProductPage] Pricing API fetch warning:', err))
+  }, [])
 
   const starterPlan = SKILLNAVO_PRICING.find((p) =>
     billingCycle === 'monthly' ? p.id === 'starter_monthly' : p.id === 'starter_annual'
@@ -434,7 +450,7 @@ export default function SkillnavoProductPage() {
                             </span>
                           ) : (
                             <span className="text-4xl font-extrabold text-[#060C17]">
-                              {formatPrice(plan.prices[currency] || plan.prices.USD, currency)}
+                              {isLoading ? 'Loading...' : (paddlePrice?.formattedPrice || (plan.id.includes('annual') ? (plan.id.includes('pro') ? '$79.99' : '$39.99') : (plan.id.includes('pro') ? '$7.99' : '$3.99')))}
                             </span>
                           )}
 
@@ -445,7 +461,7 @@ export default function SkillnavoProductPage() {
                           )}
                         </div>
                         <p className="text-sm mt-2 text-slate-500">
-                          {isFree ? 'free forever' : plan.description}
+                          {isFree ? 'free forever' : (apiPlans && apiPlans[plan.id]?.description) || plan.description}
                         </p>
                       </div>
 
