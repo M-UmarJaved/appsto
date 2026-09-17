@@ -3,6 +3,7 @@ import { SKILLNAVO_PADDLE_PRICE_IDS, SKILLNAVO_PRICING, formatPrice, type Curren
 import { fetchLivePaddlePricesServer } from '@/lib/paddle-server-api';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
@@ -45,6 +46,11 @@ export async function GET(request: NextRequest) {
 
     const country = queryCountry || cfCountry || vercelCountry || customCountry || 'US';
 
+    // Check for cache-busting flags
+    const bypassCache = request.nextUrl.searchParams.has('t') ||
+      request.nextUrl.searchParams.has('nocache') ||
+      request.nextUrl.searchParams.has('fresh');
+
     // 2. Query Live Prices from Paddle REST API
     const livePriceData = await fetchLivePaddlePricesServer(
       [
@@ -53,7 +59,8 @@ export async function GET(request: NextRequest) {
         SKILLNAVO_PADDLE_PRICE_IDS.pro_monthly,
         SKILLNAVO_PADDLE_PRICE_IDS.pro_annual,
       ],
-      country
+      country,
+      bypassCache
     );
 
     // Resolve Regional Pricing Configuration
@@ -286,7 +293,11 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         ...corsHeaders,
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store',
+        'Pragma': 'no-cache',
+        'Expires': '0',
       },
     });
   } catch (error: any) {

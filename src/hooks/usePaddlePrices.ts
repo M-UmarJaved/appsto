@@ -106,6 +106,15 @@ export function usePaddlePrices(priceIds?: string[]): UsePaddlePricesResult {
           return;
         }
 
+        // Set environment before initialization (Paddle v2 requirement)
+        const environment = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT || 'production';
+        if (environment === 'sandbox') {
+          window.Paddle.Environment?.set('sandbox');
+          console.log('✅ Paddle environment set to SANDBOX');
+        } else {
+          console.log('✅ Paddle environment set to PRODUCTION');
+        }
+
         // Initialize Paddle with same config as product detail page
         console.log('🚀 Initializing Paddle with token:', token.substring(0, 10) + '...');
         window.Paddle.Initialize({
@@ -134,15 +143,6 @@ export function usePaddlePrices(priceIds?: string[]): UsePaddlePricesResult {
             }
           }
         });
-
-        // Set environment
-        const environment = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT || 'sandbox';
-        if (environment === 'sandbox') {
-          window.Paddle.Environment.set('sandbox');
-          console.log('✅ Paddle environment set to SANDBOX');
-        } else {
-          console.log('✅ Paddle environment set to PRODUCTION');
-        }
 
         setPaddleInitialized(true);
         globalPaddleInitialized = true;

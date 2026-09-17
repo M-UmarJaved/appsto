@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState, useRef, Suspense } from 'react'
+import { useEffect, useState, useRef, Suspense, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
-import Script from 'next/script'
 import Link from 'next/link'
 import Image from 'next/image'
 import { 
@@ -10,17 +9,17 @@ import {
   ShieldCheck, 
   AlertCircle, 
   ArrowLeft, 
-  CheckCircle2, 
   Lock, 
   RefreshCw, 
   CreditCard, 
   Zap,
-  Check
+  Check,
+  Shield,
+  ExternalLink
 } from 'lucide-react'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { SKILLNAVO_PADDLE_PRICE_IDS, SKILLNAVO_PRICING, formatPrice } from '@/lib/currency'
-import { usePaddlePrices } from '@/hooks/usePaddlePrices'
+import { SKILLNAVO_PADDLE_PRICE_IDS } from '@/lib/currency'
 
 declare global {
   interface Window {
@@ -55,7 +54,6 @@ function CheckoutContent() {
   const sessionToken = searchParams.get('session')
   const initialPlanParam = searchParams.get('plan') || 'starter_monthly'
   const { user } = useAuth()
-  const { prices: paddlePrices } = usePaddlePrices()
   
   const [error, setError] = useState<string | null>(null)
   const [sessionData, setSessionData] = useState<VerifiedSession | null>(null)
@@ -68,16 +66,18 @@ function CheckoutContent() {
   const [regionName, setRegionName] = useState('Global (USD)')
 
   const paddleInitializedRef = useRef(false)
+  const checkoutOpenedRef = useRef(false)
+  const observerRef = useRef<MutationObserver | null>(null)
 
   // Normalize initial plan key
-  const normalizePlan = (rawPlan: string | null): string => {
+  const normalizePlan = useCallback((rawPlan: string | null): string => {
     if (!rawPlan) return 'starter_monthly'
     const lower = rawPlan.toLowerCase()
     if (lower === 'starter') return 'starter_monthly'
     if (lower === 'pro') return 'pro_monthly'
     if (SKILLNAVO_PADDLE_PRICE_IDS[lower]) return lower
     return 'starter_monthly'
-  }
+  }, [])
 
   const activePlanKey = sessionData?.plan || normalizePlan(initialPlanParam)
   const isPro = activePlanKey.toLowerCase().includes('pro')
@@ -93,8 +93,10 @@ function CheckoutContent() {
         setIsVerifying(true)
         setError(null)
 
-        // Fetch live pricing in parallel
-        const pricingPromise = fetch('/api/pricing/skillnavo').then(r => r.ok ? r.json() : null).catch(() => null)
+        // Fetch live pricing from Appsto Paddle pricing engine
+        const pricingPromise = fetch('/api/pricing/skillnavo')
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null)
 
         if (sessionToken) {
           // Token session from Skillnavo app
@@ -116,7 +118,10 @@ function CheckoutContent() {
           if (!isMounted) return
 
           const planKey = normalizePlan(validateData.plan)
-          const resolvedPriceId = validateData.paddle_price_id || validateData.priceId || SKILLNAVO_PADDLE_PRICE_IDS[planKey]
+          const resolvedPriceId =
+            validateData.paddle_price_id ||
+            validateData.priceId ||
+            SKILLNAVO_PADDLE_PRICE_IDS[planKey]
 
           setSessionData({
             email: validateData.email || '',
@@ -141,7 +146,8 @@ function CheckoutContent() {
         } else {
           // Direct checkout from Appsto (e.g. /products/skillnavo or homepage)
           const planKey = normalizePlan(initialPlanParam)
-          const resolvedPriceId = SKILLNAVO_PADDLE_PRICE_IDS[planKey] || 'pri_01m252y0prb2nrjmay8ecgc1q0'
+          const resolvedPriceId =
+            SKILLNAVO_PADDLE_PRICE_IDS[planKey] || 'pri_01m252y0prb2nrjmay8ecgc1q0'
 
           const pricingJson = await pricingPromise
 
@@ -197,7 +203,7 @@ function CheckoutContent() {
     return () => {
       isMounted = false
     }
-  }, [sessionToken, initialPlanParam, user])
+  }, [sessionToken, initialPlanParam, user, normalizePlan])
 
   // Function to switch plans when in direct checkout mode
   const handleSelectPlan = (newPlanKey: string) => {
@@ -217,10 +223,30 @@ function CheckoutContent() {
     if (allLivePlans && allLivePlans[newPlanKey]) {
       setLivePlanData(allLivePlans[newPlanKey])
     }
+
+    // Seamlessly update already open inline checkout without remounting iframe
+    try {
+      if (window.Paddle?.Checkout?.updateCheckout) {
+        window.Paddle.Checkout.updateCheckout({
+          items: [{ priceId: resolvedPriceId, quantity: 1 }],
+          customData: {
+            product_slug: 'skillnavo',
+            plan_id: newPlanKey,
+            plan_slug: newPlanKey,
+          },
+        })
+      } else {
+        // Fallback: reload inline checkout
+        checkoutOpenedRef.current = false
+        openInlinePaddle()
+      }
+    } catch (e) {
+      console.warn('Paddle updateCheckout note:', e)
+    }
   }
 
   // 2. Launch Inline Paddle Checkout directly into our card container
-  const openInlinePaddle = async () => {
+  const openInlinePaddle = useCallback(async () => {
     if (!sessionData) return
     setIsPaddleLoading(true)
 
@@ -238,59 +264,118 @@ function CheckoutContent() {
 
       // Ensure target DOM container exists
       let containerAttempts = 0
-      while (containerAttempts < 30 && !document.getElementById('paddle-checkout-container')) {
+      let container = document.getElementById('paddle-checkout-container')
+      while (containerAttempts < 30 && !container) {
         await new Promise((resolve) => setTimeout(resolve, 100))
+        container = document.getElementById('paddle-checkout-container')
         containerAttempts++
+      }
+
+      if (!container) {
+        throw new Error('Checkout container element could not be found.')
       }
 
       const paddle = window.Paddle
       const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN
+      const isSandbox = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === 'sandbox'
 
-      if (clientToken && !paddleInitializedRef.current) {
-        paddle.Initialize({
-          token: clientToken,
-          eventCallback: function (event: any) {
-            if (event.name === 'checkout.loaded') {
-              setIsPaddleLoading(false)
-            } else if (event.name === 'checkout.error') {
-              console.error('Paddle inline error:', event)
-              setIsPaddleLoading(false)
-            } else if (event.name === 'checkout.closed') {
-              setIsPaddleLoading(false)
-            } else if (event.name === 'checkout.completed') {
-              setIsPaddleLoading(false)
-              const destUrl = sessionToken
-                ? `https://appsto.software/skillnavo/payment-success?session=${encodeURIComponent(sessionToken)}`
-                : `https://appsto.software/skillnavo/payment-success?tier=${encodeURIComponent(sessionData.plan)}&returnTo=${encodeURIComponent(sessionData.return_to || '/dashboard')}`
-              window.location.href = destUrl
-            }
-          },
-        })
+      // Master event listener for Paddle lifecycle
+      const handlePaddleEvent = (event: any) => {
+        console.log('💳 [Paddle Checkout Event]', event?.name, event)
+        if (
+          event?.name === 'checkout.loaded' ||
+          event?.name === 'checkout.payment_selected' ||
+          event?.name === 'checkout.customer.created'
+        ) {
+          setIsPaddleLoading(false)
+        } else if (event?.name === 'checkout.completed') {
+          setIsPaddleLoading(false)
+          const destUrl = sessionToken
+            ? `https://appsto.software/skillnavo/payment-success?session=${encodeURIComponent(sessionToken)}`
+            : `https://appsto.software/skillnavo/payment-success?tier=${encodeURIComponent(sessionData.plan)}&returnTo=${encodeURIComponent(sessionData.return_to || '/dashboard')}${sessionData.email ? `&email=${encodeURIComponent(sessionData.email)}` : ''}`
+          window.location.href = destUrl
+        } else if (event?.name === 'checkout.error') {
+          console.error('Paddle inline error event:', event)
+          setIsPaddleLoading(false)
+        } else if (event?.name === 'checkout.closed') {
+          setIsPaddleLoading(false)
+        }
+      }
 
-        if (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === 'sandbox') {
+      // Initialize Paddle (Strictly ONCE per page per Paddle.js v2 docs)
+      if (clientToken && !paddle.Initialized && !paddleInitializedRef.current) {
+        if (isSandbox) {
           paddle.Environment?.set('sandbox')
         }
-
+        paddle.Initialize({
+          token: clientToken,
+          checkout: {
+            settings: {
+              displayMode: 'inline',
+              theme: 'light',
+              locale: 'en',
+              frameTarget: 'paddle-checkout-container',
+              frameInitialHeight: 450,
+              frameStyle: 'width: 100%; min-width: 312px; background-color: transparent; border: none;',
+              allowLogout: false,
+              showAddDiscounts: true,
+              showAddTaxId: false,
+            },
+          },
+          eventCallback: handlePaddleEvent,
+        })
         paddleInitializedRef.current = true
+      } else if (paddle.Update) {
+        // If already initialized on a previous client navigation, update callback
+        try {
+          paddle.Update({
+            eventCallback: handlePaddleEvent,
+          })
+        } catch (updateErr) {
+          console.warn('Paddle.Update callback note:', updateErr)
+        }
       }
+
+      // Setup DOM MutationObserver on container to dismiss loader as soon as iframe mounts
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+      }
+      if (container.querySelector('iframe')) {
+        setIsPaddleLoading(false)
+      } else {
+        const observer = new MutationObserver(() => {
+          if (container && (container.querySelector('iframe') || container.children.length > 0)) {
+            setIsPaddleLoading(false)
+            observer.disconnect()
+          }
+        })
+        observer.observe(container, { childList: true, subtree: true })
+        observerRef.current = observer
+      }
+
+      // Safety fail-safe timeout: Never keep the user locked in a spinner for > 3.5s
+      const safetyTimeout = setTimeout(() => {
+        setIsPaddleLoading(false)
+      }, 3500)
 
       const returnPath = sessionData.return_to || '/dashboard'
       const successUrl = sessionToken
         ? `https://appsto.software/skillnavo/payment-success?session=${encodeURIComponent(sessionToken)}`
         : `https://appsto.software/skillnavo/payment-success?tier=${encodeURIComponent(sessionData.plan)}&returnTo=${encodeURIComponent(returnPath)}${sessionData.email ? `&email=${encodeURIComponent(sessionData.email)}` : ''}`
 
-      const customerConfig = sessionData.email && sessionData.email.trim().length > 0
-        ? { email: sessionData.email.trim() }
-        : undefined
+      const customerConfig =
+        sessionData.email && sessionData.email.trim().length > 0
+          ? { email: sessionData.email.trim() }
+          : undefined
 
-      // Launch INLINE checkout inside our styled HTML frame target
+      // Open Inline checkout
       paddle.Checkout.open({
         settings: {
           displayMode: 'inline',
           theme: 'light',
           locale: 'en',
           frameTarget: 'paddle-checkout-container',
-          frameInitialHeight: 480,
+          frameInitialHeight: 450,
           frameStyle: 'width: 100%; min-width: 312px; background-color: transparent; border: none;',
           successUrl: successUrl,
           allowLogout: false,
@@ -314,13 +399,19 @@ function CheckoutContent() {
           return_to: returnPath,
         },
       })
+
+      checkoutOpenedRef.current = true
+
+      return () => {
+        clearTimeout(safetyTimeout)
+      }
     } catch (err: any) {
       console.error('Failed to open Inline Paddle checkout:', err)
       setIsPaddleLoading(false)
     }
-  }
+  }, [sessionData, sessionToken])
 
-  // Fallback: Open overlay modal if user prefers or if inline has issue
+  // Fallback: Open overlay modal if user has aggressive browser blockers
   const openOverlayPaddle = async () => {
     if (!sessionData) return
     setIsLaunchingOverlay(true)
@@ -333,9 +424,10 @@ function CheckoutContent() {
         ? `https://appsto.software/skillnavo/payment-success?session=${encodeURIComponent(sessionToken)}`
         : `https://appsto.software/skillnavo/payment-success?tier=${encodeURIComponent(sessionData.plan)}&returnTo=${encodeURIComponent(returnPath)}${sessionData.email ? `&email=${encodeURIComponent(sessionData.email)}` : ''}`
 
-      const customerConfig = sessionData.email && sessionData.email.trim().length > 0
-        ? { email: sessionData.email.trim() }
-        : undefined
+      const customerConfig =
+        sessionData.email && sessionData.email.trim().length > 0
+          ? { email: sessionData.email.trim() }
+          : undefined
 
       paddle.Checkout.open({
         settings: {
@@ -366,7 +458,7 @@ function CheckoutContent() {
         },
       })
     } catch (err) {
-      console.error('Failed overlay:', err)
+      console.error('Failed overlay fallback:', err)
     } finally {
       setIsLaunchingOverlay(false)
     }
@@ -377,10 +469,19 @@ function CheckoutContent() {
     if (!isVerifying && sessionData && !error) {
       const timer = setTimeout(() => {
         openInlinePaddle()
-      }, 150)
+      }, 100)
       return () => clearTimeout(timer)
     }
-  }, [isVerifying, sessionData?.priceId, error])
+  }, [isVerifying, sessionData?.priceId, error, openInlinePaddle])
+
+  // Cleanup observer on unmount
+  useEffect(() => {
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+      }
+    }
+  }, [])
 
   if (error) {
     return (
@@ -438,13 +539,13 @@ function CheckoutContent() {
     )
   }
 
-  // Fallback feature sets if live pricing not yet ready
+  // Plan features fallback
   const defaultProFeatures = [
     'Unlimited AI Roadmap Journeys',
     'Interactive Code Quizzes & AI Mentor',
     'Custom Skill Trees & Priority Review',
     'Verifiable Course Completion Certificates',
-    'Cancel anytime with instant sync'
+    'Cancel anytime with instant sync',
   ]
 
   const defaultStarterFeatures = [
@@ -452,19 +553,21 @@ function CheckoutContent() {
     'Guided AI Mentor Feedback & Quizzes',
     'Standard Skill Tree Progressions',
     'Verifiable Course Completion Certificates',
-    'Cancel anytime with instant sync'
+    'Cancel anytime with instant sync',
   ]
 
-  const currentPaddlePrice = sessionData?.priceId ? paddlePrices.get(sessionData.priceId) : undefined
-  const displayFeatures = livePlanData?.features || (isPro ? defaultProFeatures : defaultStarterFeatures)
-  const displayPrice = currentPaddlePrice?.formattedPrice || livePlanData?.formatted_price || (isPro ? (isAnnual ? '$79.99' : '$7.99') : (isAnnual ? '$39.99' : '$3.99'))
+  const displayFeatures =
+    livePlanData?.features || (isPro ? defaultProFeatures : defaultStarterFeatures)
+  const displayPrice =
+    livePlanData?.formatted_price ||
+    (isPro ? (isAnnual ? '$79.99' : '$7.99') : isAnnual ? '$39.99' : '$3.99')
   const displayPeriodSuffix = livePlanData?.period_suffix || (isAnnual ? '/ yr' : '/ mo')
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#060C17]">
-      {/* 1. Dedicated Appsto Checkout Header (No overlapping Navbar) */}
+      {/* 1. Header */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2">
               <Image 
@@ -500,17 +603,16 @@ function CheckoutContent() {
       </header>
 
       {/* 2. Main 2-Column Checkout Grid */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Column (5 Cols): Plan Details, Student Well & Value Summary */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* Left Column (5 Cols): Unified Order Summary & Student Credentials */}
+          <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
             
-            {/* Main Plan Summary Card */}
             <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-sm">
-              {/* Product Header */}
+              {/* Product Brand Header */}
               <div className="flex items-center gap-3.5 pb-5 border-b border-slate-100">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-[#723CFB] p-2 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-[#723CFB] p-2 flex items-center justify-center text-white shadow-md shadow-purple-500/20 flex-shrink-0">
                   <Image
                     src="/Skillnavo/SkillnavoIcon.png"
                     alt="Skillnavo"
@@ -519,18 +621,18 @@ function CheckoutContent() {
                     className="w-8 h-8 object-contain rounded-lg"
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base font-bold text-[#060C17]">Skillnavo</h2>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-purple-50 text-[#723CFB] border border-purple-100 uppercase">
+                    <h2 className="text-base font-bold text-[#060C17] truncate">Skillnavo</h2>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider bg-purple-50 text-[#723CFB] border border-purple-100 uppercase flex-shrink-0">
                       Official
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500">AI-Powered Engineering Roadmaps</p>
+                  <p className="text-xs text-slate-500 truncate">AI-Powered Engineering Roadmaps</p>
                 </div>
               </div>
 
-              {/* Plan Selector (when user arrives directly from Appsto) */}
+              {/* Direct Plan Selector (only visible if user arrived without a signed token) */}
               {isDirectCheckout && (
                 <div className="py-4 border-b border-slate-100">
                   <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2.5">
@@ -569,17 +671,20 @@ function CheckoutContent() {
                 </div>
               )}
 
-              {/* Selected Tier & Price Card */}
-              <div className="py-5 border-b border-slate-100">
-                <div className="flex items-center justify-between mb-2">
+              {/* Selected Tier & Pricing */}
+              <div className="py-4 border-b border-slate-100">
+                <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-extrabold text-[#060C17]">
                       {isPro ? 'Skillnavo Pro' : 'Skillnavo Starter'}
                     </h3>
-                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#723CFB] text-white">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#723CFB] text-white">
                       {isPro ? 'PRO' : 'STARTER'}
                     </span>
                   </div>
+                  <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                    7-Day Free Trial
+                  </span>
                 </div>
 
                 <div className="flex items-baseline gap-1.5 mt-1">
@@ -591,22 +696,22 @@ function CheckoutContent() {
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-500 mt-2">
+                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
                   {isAnnual 
                     ? 'Billed annually with 7-day free trial on Paddle. Save up to 43%.' 
                     : 'Billed monthly with 7-day free trial on Paddle. Cancel anytime.'}
                 </p>
               </div>
 
-              {/* Student Account Well */}
-              <div className="py-4">
-                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
+              {/* Student Account Badge */}
+              <div className="py-3.5 border-b border-slate-100">
+                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between">
                   <div className="min-w-0 pr-2">
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                       {sessionData?.email ? 'Linked Student Account' : 'Student Account Email'}
                     </p>
                     <p className="text-xs sm:text-sm font-bold text-[#060C17] truncate mt-0.5">
-                      {sessionData?.email || 'Enter in checkout form below'}
+                      {sessionData?.email || 'Enter in checkout form'}
                     </p>
                   </div>
                   {sessionData?.email ? (
@@ -624,11 +729,11 @@ function CheckoutContent() {
               </div>
 
               {/* Plan Inclusions Checklist */}
-              <div className="pt-2 space-y-3">
+              <div className="pt-3.5 pb-4 border-b border-slate-100 space-y-2.5">
                 <p className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                   Plan Inclusions
                 </p>
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   {displayFeatures.slice(0, 5).map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-600">
                       <div className="w-4 h-4 rounded-full bg-purple-50 text-[#723CFB] flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -640,8 +745,8 @@ function CheckoutContent() {
                 </div>
               </div>
 
-              {/* Trust Badges */}
-              <div className="mt-6 pt-5 border-t border-slate-100 grid grid-cols-2 gap-3 text-xs text-slate-600">
+              {/* Trust Guarantees */}
+              <div className="pt-3.5 grid grid-cols-2 gap-3 text-xs text-slate-600">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <span className="text-[11px] font-medium">14-Day Money-Back</span>
@@ -653,53 +758,63 @@ function CheckoutContent() {
               </div>
             </div>
 
-            {/* Merchant of Record & Guarantee Note */}
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 text-slate-500 text-[11px] leading-relaxed shadow-sm">
-              <p className="font-semibold text-slate-700 mb-1">
-                Merchant of Record Notice
-              </p>
-              <p>
-                This subscription is processed by <strong>Appsto</strong> via Paddle, our authorized Merchant of Record. Your card statement will read <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-mono text-[10px]">PADDLE.NET* APPSTO</code>.
-              </p>
+            {/* Merchant of Record Notice (Clean Integrated Box) */}
+            <div className="p-3.5 rounded-2xl bg-white border border-slate-200 text-slate-500 text-[11px] leading-relaxed shadow-xs flex items-start gap-2.5">
+              <Shield className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <span className="font-semibold text-slate-700">Merchant of Record: </span>
+                This subscription is securely processed by <strong>Appsto</strong> via Paddle. Statement will read <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-mono text-[10px]">PADDLE.NET* APPSTO</code>.
+              </div>
             </div>
+
           </div>
 
-          {/* Right Column (7 Cols): Embedded Inline Paddle Checkout */}
+          {/* Right Column (7 Cols): Embedded Inline Paddle Checkout Frame */}
           <div className="lg:col-span-7">
-            <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden relative">
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden relative">
               
               {/* Payment Box Header */}
-              <div className="p-6 sm:p-7 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-5 sm:p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-bold text-[#060C17] flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-bold text-[#060C17] flex items-center gap-2">
                     <CreditCard className="w-5 h-5 text-[#723CFB]" />
                     <span>Payment Information</span>
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Enter your payment method below to complete your order.
+                    Enter your payment method below to activate your Skillnavo access.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60 self-start sm:self-auto">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60 self-start sm:self-auto">
                   <Lock className="w-3.5 h-3.5" />
                   <span>Secure SSL</span>
                 </div>
               </div>
 
               {/* Inline Checkout Frame Container */}
-              <div className="p-6 sm:p-8 min-h-[500px] relative">
+              <div className="p-5 sm:p-6 min-h-[420px] relative flex flex-col justify-between">
                 
-                {/* Clean Loading Overlay while Paddle initializes */}
+                {/* Clean Branded Loading Overlay while Paddle mounts */}
                 {isPaddleLoading && (
-                  <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-8 text-center">
-                    <div className="relative w-14 h-14 mb-4">
-                      <div className="w-14 h-14 rounded-full border-4 border-purple-100 border-t-[#723CFB] animate-spin" />
+                  <div className="absolute inset-0 bg-white/95 backdrop-blur-xs z-10 flex flex-col items-center justify-center p-6 text-center">
+                    <div className="relative w-12 h-12 mb-3">
+                      <div className="w-12 h-12 rounded-full border-3 border-purple-100 border-t-[#723CFB] animate-spin" />
                     </div>
                     <p className="text-sm font-bold text-[#060C17]">
-                      Loading Secure Payment Gateway...
+                      Connecting to Secure Gateway...
                     </p>
-                    <p className="text-xs text-slate-500 mt-1 max-w-xs">
-                      Connecting to Paddle for tax-inclusive billing and instant payment verification.
+                    <p className="text-xs text-slate-500 mt-1 max-w-xs leading-relaxed">
+                      Loading Paddle encrypted payment fields and verifying tax compliance.
                     </p>
+
+                    {/* Subtle Payment Skeleton Outline */}
+                    <div className="w-full max-w-sm mt-5 space-y-2.5 opacity-40 pointer-events-none">
+                      <div className="h-9 bg-slate-200 rounded-xl animate-pulse" />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="h-9 bg-slate-200 rounded-xl animate-pulse" />
+                        <div className="h-9 bg-slate-200 rounded-xl animate-pulse" />
+                      </div>
+                      <div className="h-10 bg-[#723CFB]/30 rounded-xl animate-pulse mt-3" />
+                    </div>
                   </div>
                 )}
 
@@ -709,25 +824,29 @@ function CheckoutContent() {
                 */}
                 <div 
                   id="paddle-checkout-container" 
-                  className="paddle-checkout-container w-full min-h-[460px]"
+                  className="paddle-checkout-container w-full min-h-[380px]"
                 />
 
-                {/* Secondary Fallback button if user has aggressive browser blockers */}
-                <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+                {/* Fallback button if user has aggressive browser ad/tracker blockers */}
+                <div className="mt-4 pt-3 border-t border-slate-100 text-center">
                   <button
                     onClick={openOverlayPaddle}
                     disabled={isLaunchingOverlay}
                     className="text-xs text-slate-500 hover:text-[#723CFB] font-medium transition-colors inline-flex items-center gap-1.5"
                   >
-                    <span>Trouble viewing the payment fields?</span>
+                    <span>Having trouble viewing the payment fields?</span>
                     <span className="underline font-semibold">Open in modal window</span>
-                    {isLaunchingOverlay && <RefreshCw className="w-3 h-3 animate-spin" />}
+                    {isLaunchingOverlay ? (
+                      <RefreshCw className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <ExternalLink className="w-3 h-3" />
+                    )}
                   </button>
                 </div>
               </div>
 
               {/* Footer Trust Signal */}
-              <div className="bg-slate-50/60 px-6 py-3.5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2">
+              <div className="bg-slate-50/60 px-5 sm:px-6 py-3.5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2">
                 <div className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>Backed by 14-day refund guarantee</span>
@@ -747,21 +866,16 @@ function CheckoutContent() {
 
 export default function SkillnavoCheckoutPage() {
   return (
-    <>
-      <Script
-        src="https://cdn.paddle.com/paddle/v2/paddle.js"
-        strategy="afterInteractive"
-      />
-      <Suspense
-        fallback={
-          <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#723CFB]" />
-          </div>
-        }
-      >
-        <CheckoutContent />
-      </Suspense>
-    </>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#723CFB]" />
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
   )
 }
+
 

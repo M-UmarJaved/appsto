@@ -108,6 +108,14 @@ export default function ProductDetailPage() {
 
       console.log('🔑 Using client token:', token)
       
+      // Set environment to sandbox before initialization (Paddle v2 requirement)
+      if (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === 'sandbox') {
+        window.Paddle.Environment?.set('sandbox')
+        console.log('✅ Paddle initialized in SANDBOX mode')
+      } else {
+        console.log('✅ Paddle initialized in PRODUCTION mode')
+      }
+
       // Initialize Paddle Billing with client-side token + Custom Theme
       window.Paddle.Initialize({
         token: token,
@@ -171,14 +179,6 @@ export default function ProductDetailPage() {
           }
         }
       })
-
-      // Set environment to sandbox
-      if (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === 'sandbox') {
-        window.Paddle.Environment.set('sandbox')
-        console.log('✅ Paddle initialized in SANDBOX mode')
-      } else {
-        console.log('✅ Paddle initialized in PRODUCTION mode')
-      }
 
       setPaddleReady(true)
     } catch (error) {

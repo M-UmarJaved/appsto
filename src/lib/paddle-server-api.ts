@@ -31,12 +31,13 @@ const CACHE_TTL_MS = 60 * 1000 // 60 seconds for fast synchronization
 
 export async function fetchLivePaddlePricesServer(
   priceIds: string[],
-  countryCode?: string
+  countryCode?: string,
+  bypassCache = false
 ): Promise<LivePriceResult> {
   const cacheKey = (countryCode || 'GLOBAL').toUpperCase()
   const cached = pricingCache.get(cacheKey)
 
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+  if (!bypassCache && cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
     return cached.data
   }
 
