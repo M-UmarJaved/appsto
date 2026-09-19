@@ -266,8 +266,9 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
         continue
       }
       
-      // Validate amount is reasonable
-      if (amount <= 0) {
+      // Validate amount is reasonable (allow 0 for free trials / Skillnavo subscriptions)
+      const isZeroAllowed = customData?.product_slug === 'skillnavo' || Boolean(customData?.trial_eligible) || Boolean(data.subscription_id)
+      if (amount < 0 || (amount === 0 && !isZeroAllowed)) {
         console.error('❌ Invalid amount detected:', amount)
         console.error('⚠️ Skipping item - amount must be greater than 0')
         continue
@@ -433,8 +434,8 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
           console.log('🚀 Dispatching instant subscription unlock sync to Skillnavo for:', customerEmail || skillnavoUserId)
           try {
             const isTrialTransaction =
-              (amount === 0 || amount === '0' || !amount) &&
-              (customData?.trial_eligible || customData?.plan_slug?.includes('pro') || customData?.plan?.includes('pro'))
+              (amount === 0 || !amount) &&
+              (Boolean(customData?.trial_eligible) || customData?.plan_slug?.includes('pro') || customData?.plan?.includes('pro'))
             const txStatus = isTrialTransaction ? 'trialing' : 'active'
             const nowIso = new Date().toISOString()
             const trialEndIso = new Date(Date.now() + 7 * 86400000).toISOString()
