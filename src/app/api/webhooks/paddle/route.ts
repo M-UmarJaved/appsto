@@ -432,6 +432,13 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
         if (skillnavoUserId || customerEmail) {
           console.log('🚀 Dispatching instant subscription unlock sync to Skillnavo for:', customerEmail || skillnavoUserId)
           try {
+            const isTrialTransaction =
+              (amount === 0 || amount === '0' || !amount) &&
+              (customData?.trial_eligible || customData?.plan_slug?.includes('pro') || customData?.plan?.includes('pro'))
+            const txStatus = isTrialTransaction ? 'trialing' : 'active'
+            const nowIso = new Date().toISOString()
+            const trialEndIso = new Date(Date.now() + 7 * 86400000).toISOString()
+
             await dispatchSkillnavoSync({
               event: 'subscription.created',
               event_id: transactionId + '_tx_completed',
@@ -441,9 +448,11 @@ async function handleTransactionCompleted(data: any, isSimulation: boolean = fal
               customer_name: customerName,
               skillnavo_user_id: skillnavoUserId,
               plan: customData?.plan_slug || customData?.plan || pricingPlan.plan_slug,
-              status: 'active',
+              status: txStatus,
               currency: currency,
               price: amount,
+              current_period_start: nowIso,
+              current_period_end: isTrialTransaction ? trialEndIso : null,
             })
 
             // Mark checkout session as completed

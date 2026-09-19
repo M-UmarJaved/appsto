@@ -53,7 +53,7 @@ function PaymentSuccessContent() {
     }
   }, [sessionToken, searchParams])
 
-  const redirectUrl = `https://skillnavo.com/billing/success?tier=${encodeURIComponent(tier)}&returnTo=${encodeURIComponent(returnTo)}`
+  const redirectUrl = `https://skillnavo.com/billing/success?tier=${encodeURIComponent(tier)}&returnTo=${encodeURIComponent(returnTo)}${sessionToken ? `&session=${encodeURIComponent(sessionToken)}` : ''}`
 
   // Countdown timer from 3 to 0, then auto-redirect
   useEffect(() => {
