@@ -143,14 +143,6 @@ export default function Footer() {
                 <Mail className="w-4 h-4 text-slate-400" />
                 support@appsto.software
               </motion.a>
-              <motion.a 
-                href="mailto:skillnavoteams@gmail.com" 
-                className="flex items-center gap-2 text-slate-600 hover:text-[#723CFB] transition-colors text-sm"
-                whileHover={{ x: 4 }}
-              >
-                <Mail className="w-4 h-4 text-[#723CFB]" />
-                skillnavoteams@gmail.com
-              </motion.a>
             </div>
             
             {/* Legal Links */}

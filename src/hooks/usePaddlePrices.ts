@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { fetchPaddlePrices } from '@/lib/paddle-api';
-import { SKILLNAVO_PADDLE_PRICE_IDS } from '@/lib/currency';
+
 
 // Declare Paddle types
 declare global {
@@ -41,7 +41,7 @@ export const PADDLE_PRICE_IDS = {
   studio: 'pri_01khb8rm4c5rs6vxw4byzyhhnw',
 };
 
-export { SKILLNAVO_PADDLE_PRICE_IDS };
+
 
 export function usePaddlePrices(priceIds?: string[]): UsePaddlePricesResult {
   const [prices, setPrices] = useState<Map<string, PaddlePriceData>>(new Map());
@@ -165,11 +165,8 @@ export function usePaddlePrices(priceIds?: string[]): UsePaddlePricesResult {
       return;
     }
 
-    // Use default price IDs (both DeskSweep and Skillnavo) if none provided
-    const idsToFetch = priceIds || [
-      ...Object.values(PADDLE_PRICE_IDS),
-      ...Object.values(SKILLNAVO_PADDLE_PRICE_IDS),
-    ];
+    // Use default price IDs (DeskSweep) if none provided
+    const idsToFetch = priceIds || Object.values(PADDLE_PRICE_IDS);
 
     // Validate price IDs
     if (!idsToFetch || idsToFetch.length === 0) {

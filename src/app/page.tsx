@@ -14,7 +14,6 @@ import {
   Target,
   BarChart3,
   Layers,
-  Cpu,
   Plus,
   Users,
   Activity,
@@ -200,7 +199,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Flagship Applications Section (Skillnavo Priority & DeskSweep) */}
+      {/* Featured Application Section (DeskSweep) */}
       <section className="py-16 sm:py-24 bg-[#FAFAFA] border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -209,129 +208,20 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="mb-16 text-center max-w-3xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-50 border border-purple-100 text-[#723CFB] text-xs font-semibold mb-4">
-              <Sparkles className="w-3.5 h-3.5 text-[#723CFB]" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-100 text-amber-600 text-xs font-semibold mb-4">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               <span>Flagship Software</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-bold text-[#060C17] mb-4">
-              Featured Applications
+              Featured Application
             </h2>
             <p className="text-lg text-slate-600">
-              Built for performance, engineered for scale. Explore our premier software tools designed for ambitious creators and developers.
+              Built for performance, engineered for focus. Explore our premier desktop utility designed to organize your digital workspace.
             </p>
           </motion.div>
 
           <div className="space-y-12">
-            {/* 1. Skillnavo Flagship Card (Top Priority) */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ type: 'spring', stiffness: 80 }}
-              className="relative rounded-3xl overflow-hidden bg-white border-2 border-purple-200/80 shadow-xl hover:shadow-2xl transition-all"
-            >
-              <Link href="/products/skillnavo" className="group block">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                  {/* Left Section - Content */}
-                  <div className="p-6 sm:p-10 md:p-12 flex flex-col justify-between bg-white">
-                    <div>
-                      <div className="flex items-center gap-3 mb-6">
-                        <Image
-                          src="/Skillnavo/SkillnavoIcon.png"
-                          alt="Skillnavo Logo"
-                          width={48}
-                          height={48}
-                          className="rounded-xl shadow-xs"
-                        />
-                        <div>
-                          <span className="text-xs font-bold text-[#723CFB] uppercase tracking-wider block">AI Platform • Flagship SaaS</span>
-                          <span className="text-xs text-slate-500">Subscription Platform</span>
-                        </div>
-                      </div>
-                      
-                      <h3 className="text-2xl md:text-3xl font-bold text-[#060C17] mb-3">Skillnavo</h3>
-                      <p className="text-sm font-semibold text-[#723CFB] mb-4">
-                        Master Modern Software Engineering with AI Diagnostics
-                      </p>
-                      <p className="text-base text-slate-600 leading-relaxed mb-6">
-                        Personalized engineering roadmaps, interactive code diagnostics, real-time AI mentoring, and verified certificates designed for ambitious developers.
-                      </p>
-                      
-                      {/* Features Tags */}
-                      <div className="flex flex-wrap gap-2 mb-8">
-                        {['AI Code Diagnostics', 'Personalized Roadmaps', 'Interactive Coding', 'Verified Certificates'].map((tag, j) => (
-                          <motion.span 
-                            key={j} 
-                            className="px-3 py-1.5 bg-purple-50 rounded-lg text-xs font-semibold text-[#723CFB] border border-purple-100"
-                            initial={{ opacity: 0, y: 10 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 + j * 0.1 }}
-                            whileHover={{ scale: 1.05 }}
-                          >
-                            {tag}
-                          </motion.span>
-                        ))}
-                      </div>
-
-                      {/* Quick Stats */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {[
-                          { label: '50K+ Inferences', Icon: Cpu },
-                          { label: '4.9★ Rating', Icon: Star },
-                          { label: '100+ Roadmaps', Icon: Target }
-                        ].map((stat, idx) => (
-                          <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: 0.3 + idx * 0.1 }}
-                            className="text-left"
-                          >
-                            <div className="flex items-center gap-2 mb-1">
-                              <stat.Icon className="w-4 h-4 text-[#723CFB]" />
-                              <p className="text-sm font-bold text-[#060C17]">{stat.label.split(' ')[0]}</p>
-                            </div>
-                            <p className="text-xs text-slate-500">{stat.label.split(' ')[1]}</p>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* CTA Button */}
-                    <div className="mt-8">
-                      <motion.button
-                        whileHover={{ x: 5 }}
-                        className="flex items-center gap-2 px-6 py-3.5 bg-[#723CFB] hover:bg-[#5F27E5] text-white font-semibold rounded-xl transition-all shadow-md shadow-purple-500/20"
-                      >
-                        Explore Skillnavo
-                        <ArrowUpRight className="w-4 h-4" />
-                      </motion.button>
-                    </div>
-                  </div>
-
-                  {/* Right Section - Product Image */}
-                  <div className="relative bg-slate-50 p-0 flex items-center justify-center min-h-96 lg:min-h-full border-t lg:border-t-0 lg:border-l border-slate-100">
-                    <motion.div 
-                      className="relative w-full h-full overflow-hidden"
-                      whileHover={{ scale: 1.02 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <Image
-                        src="/Skillnavo/Skillnavo.png"
-                        alt="Skillnavo AI Platform Interface"
-                        width={1200}
-                        height={800}
-                        className="w-full h-full object-cover"
-                        priority
-                      />
-                    </motion.div>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-
-            {/* 2. DeskSweep Featured Card */}
+            {/* DeskSweep Featured Card */}
             <motion.div
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}

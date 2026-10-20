@@ -14,10 +14,8 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
                      pathname?.startsWith('/reset-password')
   
   const isLinkPage = pathname?.startsWith('/links/')
-  const isCheckoutPage = pathname?.startsWith('/skillnavo/checkout') ||
-                         pathname?.startsWith('/skillnavo/payment-success')
 
-  if (isAuthPage || isLinkPage || isCheckoutPage) {
+  if (isAuthPage || isLinkPage) {
     return <>{children}</>
   }
 

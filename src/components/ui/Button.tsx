@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import { ButtonHTMLAttributes, forwardRef } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'marketplace' | 'skillnavo' | 'accent'
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'marketplace' | 'accent'
   size?: 'sm' | 'md' | 'lg'
   isLoading?: boolean
   asChild?: boolean
@@ -19,9 +19,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'relative overflow-hidden group',
           {
-            // Primary, Accent, and Skillnavo variants (#723CFB)
+            // Primary and Accent variants (#723CFB)
             'bg-[#723CFB] text-white hover:bg-[#5F27E5] focus:ring-[#723CFB] shadow-sm shadow-purple-500/20':
-              variant === 'primary' || variant === 'accent' || variant === 'skillnavo',
+              variant === 'primary' || variant === 'accent',
             // Marketplace variant (Crisp Dark Slate)
             'bg-[#060C17] text-white hover:bg-slate-800 focus:ring-slate-900 shadow-sm':
               variant === 'marketplace',
