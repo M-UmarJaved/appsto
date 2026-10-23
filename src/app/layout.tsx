@@ -16,18 +16,12 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://appsto.software'),
   title: {
-    default: 'Appsto - The Software Marketplace',
+    default: 'Appsto - Desktop Software & Productivity Studio',
     template: '%s | Appsto'
   },
-  description: 'The premier marketplace for student entrepreneurs and solo developers to buy and sell software tools like DeskSweep. Secure licensing, instant delivery, and exceptional support.',
+  description: 'Independent software studio building high-performance desktop productivity tools including DeskSweep. Direct licensing, instant delivery, and dedicated customer support.',
   keywords: [
-    'software marketplace',
-    'student entrepreneur',
-    'buy software',
-    'sell software',
     'DeskSweep',
-    'digital ocean',
-    'saas marketplace',
     'desktop applications',
     'software licensing',
     'instant delivery',
@@ -35,8 +29,8 @@ export const metadata: Metadata = {
     'productivity tools',
     'indie software',
     'developer tools',
-    'business applications',
-    'cloud software'
+    'desktop utilities',
+    'windows utilities'
   ],
   authors: [{ name: 'Appsto', url: 'https://appsto.software' }],
   creator: 'Muhammad Umar Javed',
@@ -64,8 +58,8 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: 'Appsto - The Software Marketplace',
-    description: 'The premier marketplace for software tools. Buy and sell applications with secure licensing and instant delivery.',
+    title: 'Appsto - Desktop Software & Productivity Studio',
+    description: 'Independent software studio building high-performance desktop productivity tools including DeskSweep. Direct licensing and instant delivery.',
     url: 'https://appsto.software',
     siteName: 'Appsto',
     locale: 'en_US',
@@ -75,14 +69,14 @@ export const metadata: Metadata = {
         url: '/Logo.png',
         width: 1200,
         height: 630,
-        alt: 'Appsto - Software Marketplace',
+        alt: 'Appsto - Software Studio',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Appsto - The Software Marketplace',
-    description: 'The premier marketplace for student entrepreneurs and solo developers to buy and sell software tools.',
+    title: 'Appsto - Desktop Software & Productivity Studio',
+    description: 'Independent software studio building high-performance desktop productivity tools including DeskSweep.',
     images: ['/Logo.png'],
   },
   alternates: {

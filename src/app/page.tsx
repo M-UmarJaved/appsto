@@ -52,7 +52,7 @@ export default function HomePage() {
             '@type': 'WebSite',
             name: 'Appsto',
             url: 'https://appsto.software',
-            description: 'The premier marketplace for student entrepreneurs and solo developers to buy and sell software tools like DeskSweep.',
+            description: 'Independent software studio building high-performance desktop productivity applications including DeskSweep.',
             publisher: {
               '@type': 'Organization',
               name: 'Appsto.Software',
@@ -121,7 +121,7 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.9 }}
             className="text-lg md:text-xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            The software and SaaS marketplace. Discover, purchase, and manage professional applications with secure licensing, instant delivery, and lifetime support—all in one powerful platform.
+            Independent desktop software studio. Discover, purchase, and manage professional productivity applications with secure licensing, instant delivery, and lifetime support—all built directly by Appsto.
           </motion.p>
           
           {/* CTA Button + Social Proof Row */}
@@ -138,7 +138,7 @@ export default function HomePage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <span>Explore Marketplace</span>
+                <span>Explore Applications</span>
                 <ArrowUpRight className="w-4 h-4 text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </motion.button>
             </Link>

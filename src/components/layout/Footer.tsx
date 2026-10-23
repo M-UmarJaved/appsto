@@ -62,7 +62,7 @@ export default function Footer() {
               </motion.div>
             </Link>
             <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-              The modern software and SaaS marketplace. Authoritative licensing, instant checkout, and seamless creator integrations.
+              Independent desktop software studio. Authoritative licensing, instant checkout, and direct customer support for creators and professionals.
             </p>
           </motion.div>
 

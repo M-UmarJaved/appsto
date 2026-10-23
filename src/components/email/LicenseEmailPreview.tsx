@@ -184,7 +184,7 @@ export default function LicenseEmailPreview({
               Thank you for choosing <strong>Appsto</strong>
             </p>
             <p className="text-gray-500 text-xs mb-4">
-              Professional software marketplace for desktop applications
+              Professional desktop software studio
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-500">
               <a href="https://appsto.software/privacy" className="hover:text-brand-600">Privacy Policy</a>

@@ -81,7 +81,7 @@ export default function SupportPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed"
             >
-              Enterprise-grade support for your SaaS marketplace experience. From licensing to technical troubleshooting, our expert team ensures your success.
+              Dedicated support for all Appsto software products. From licensing to technical troubleshooting, our expert team ensures your success.
             </motion.p>
           </div>
         </div>

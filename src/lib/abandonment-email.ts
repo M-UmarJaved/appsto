@@ -80,7 +80,7 @@ export async function sendCartRecoveryEmail({
       </div>
     </div>
     <div class="footer">
-      <p>Appsto Software Marketplace &amp; Skillnavo Platform • Secure payments processed by Paddle</p>
+      <p>Appsto Software Studio • Secure payments processed by Paddle</p>
       <p>If you did not initiate this checkout, please disregard this email.</p>
     </div>
   </div>

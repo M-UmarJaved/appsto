@@ -8,14 +8,14 @@ import { motion } from 'motion/react'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import { supabase, type Product } from '@/lib/supabase'
-import { formatPrice as formatPriceUtil } from '@/lib/utils'
 import { Package, ArrowRight, ArrowUpRight, Sparkles, CheckCircle, Star } from 'lucide-react'
 import { usePaddlePrices, PADDLE_PRICE_IDS } from '@/hooks/usePaddlePrices'
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'one_time' | 'subscription'>('all')
+  // Always initialize with approved in-house product (DeskSweep) so the page is never blank
+  const [products, setProducts] = useState<Product[]>(getMockProducts())
+  const [loading, setLoading] = useState(false)
+  const [filter, setFilter] = useState<'all' | 'one_time'>('all')
   const { prices: paddlePrices, isLoading: paddleLoading } = usePaddlePrices()
 
   useEffect(() => {
@@ -30,18 +30,20 @@ export default function ProductsPage() {
         .eq('is_active', true)
         .order('created_at', { ascending: false })
 
-      if (error) {
-        console.error('Error loading products:', error)
-        setProducts(getMockProducts().filter((p) => p.slug !== 'skillnavo'))
+      const defaultProducts = getMockProducts()
+      if (error || !data || data.length === 0) {
+        setProducts(defaultProducts)
       } else {
-        const raw = data || getMockProducts()
-        setProducts(raw.filter((p) => p.slug !== 'skillnavo'))
+        const approved = data.filter((p) => p.slug !== 'skillnavo')
+        if (approved.length === 0 || !approved.some((p) => p.slug === 'desksweep')) {
+          setProducts(defaultProducts)
+        } else {
+          setProducts(approved)
+        }
       }
     } catch (err) {
-      console.error('Error:', err)
-      setProducts(getMockProducts().filter((p) => p.slug !== 'skillnavo'))
-    } finally {
-      setLoading(false)
+      console.error('Error loading products from Supabase:', err)
+      setProducts(getMockProducts())
     }
   }
 
@@ -73,7 +75,7 @@ export default function ProductsPage() {
                 className="inline-flex items-center gap-2 bg-purple-50 px-3.5 py-1.5 rounded-full mb-5 border border-purple-100 shadow-xs"
               >
                 <Sparkles className="w-3.5 h-3.5 text-[#723CFB]" />
-                <span className="text-[#723CFB] font-semibold text-xs">Curated Software & SaaS</span>
+                <span className="text-[#723CFB] font-semibold text-xs">Desktop Software &amp; Utilities</span>
               </motion.div>
               
               <motion.h1 
@@ -82,7 +84,7 @@ export default function ProductsPage() {
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-5 text-[#060C17]"
               >
-                Appsto Catalog
+                Appsto Software Catalog
               </motion.h1>
               
               <motion.p 
@@ -91,7 +93,7 @@ export default function ProductsPage() {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed"
               >
-                Discover high-utility desktop software and modern applications. Authoritative licensing, multi-currency checkout, and instant delivery.
+                Explore our high-performance desktop productivity tools. Authoritative licensing, multi-currency checkout via Paddle, and instant license key delivery.
               </motion.p>
             </div>
 
@@ -104,8 +106,8 @@ export default function ProductsPage() {
             >
               <div className="inline-flex bg-white rounded-full p-1.5 border border-slate-200 shadow-sm">
                 {[
-                  { key: 'all', label: 'All Products' },
-                  { key: 'one_time', label: 'One-Time Purchase' }
+                  { key: 'all', label: 'All Applications' },
+                  { key: 'one_time', label: 'Lifetime Licenses' }
                 ].map((tab) => (
                   <button
                     key={tab.key}
@@ -129,7 +131,7 @@ export default function ProductsPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {loading ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {[1, 2, 3].map((i) => (
+                {[1].map((i) => (
                   <motion.div 
                     key={i} 
                     className="bg-white border border-slate-200 rounded-2xl h-[480px] shadow-sm"
@@ -150,25 +152,25 @@ export default function ProductsPage() {
                 >
                   <Package className="w-20 h-20 text-slate-300 mx-auto mb-4" />
                 </motion.div>
-                <h3 className="text-2xl font-bold text-[#060C17] mb-2">No products found</h3>
-                <p className="text-slate-500">Check back soon for new applications!</p>
+                <h3 className="text-2xl font-bold text-[#060C17] mb-2">No applications found</h3>
+                <p className="text-slate-500">Check back soon for new software tools!</p>
               </motion.div>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
                 {filteredProducts.map((product, index) => (
                   <motion.div
                     key={product.id}
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    whileHover={{ y: -10 }}
+                    whileHover={{ y: -8 }}
                     className="group"
                   >
                     <Card
                       hover
                       className="relative overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:border-amber-200 rounded-3xl h-full transition-all duration-300"
                     >
-                      {/* Native Product Brand Tag */}
+                      {/* Product Brand Tag */}
                       <div className="absolute top-4 right-4 z-10">
                         <div className="bg-[#F59E0B] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-xs flex items-center gap-1.5 uppercase tracking-wider">
                           <Sparkles className="w-3 h-3" /> LIFETIME ACCESS
@@ -180,25 +182,13 @@ export default function ProductsPage() {
                         <div 
                           className="w-full h-52 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 overflow-hidden relative border border-slate-200/60"
                         >
-                          {product.slug === 'desksweep' ? (
-                            <Image
-                              src="/DeskSweep/DeskSweepLogo.png"
-                              alt={product.name}
-                              width={200}
-                              height={200}
-                              className="object-contain transition-all group-hover:scale-105 duration-300 p-4"
-                            />
-                          ) : product.icon_url ? (
-                            <Image
-                              src={product.icon_url}
-                              alt={product.name}
-                              width={140}
-                              height={140}
-                              className="object-contain transition-all group-hover:scale-105 duration-300"
-                            />
-                          ) : (
-                            <Package className="w-20 h-20 text-slate-400" />
-                          )}
+                          <Image
+                            src="/DeskSweep/DeskSweepLogo.png"
+                            alt={product.name}
+                            width={200}
+                            height={200}
+                            className="object-contain transition-all group-hover:scale-105 duration-300 p-4"
+                          />
                         </div>
                         
                         {/* Product Type Badge */}
@@ -308,16 +298,16 @@ export default function ProductsPage() {
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(114,60,251,0.05)_0%,_transparent_70%)] pointer-events-none" />
               <div className="relative z-10">
                 <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 text-[#060C17]">
-                  Looking for Specific Software?
+                  Have a Question or Feature Request?
                 </h2>
                 <p className="text-slate-600 mb-8 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
-                  We are constantly onboarding innovative desktop utilities and software tools. Reach out to request a tool or partner with our marketplace.
+                  We are actively developing and expanding our suite of desktop utilities. Reach out directly to our engineering team with feedback or questions.
                 </p>
                 <Link href="/contact">
                   <button 
                     className="inline-flex items-center gap-2 bg-[#060C17] hover:bg-slate-800 text-white font-semibold py-3.5 px-8 rounded-full shadow-md transition-all text-sm"
                   >
-                    Contact Marketplace Team
+                    Contact Support Team
                     <ArrowUpRight className="w-4 h-4" />
                   </button>
                 </Link>
@@ -330,7 +320,7 @@ export default function ProductsPage() {
   )
 }
 
-// Mock products for demo/development
+// Approved in-house products
 function getMockProducts(): Product[] {
   return [
     {
@@ -360,7 +350,7 @@ function getMockProducts(): Product[] {
         memory: '4GB RAM minimum',
         storage: '100MB available space'
       },
-      icon_url: '',
+      icon_url: '/DeskSweep/DeskSweepLogo.png',
       is_active: true,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

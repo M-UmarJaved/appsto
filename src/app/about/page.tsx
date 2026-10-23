@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link';
-import { Target, Users, Zap, Shield, Code, TrendingUp, ArrowUpRight, Sparkles, Store, Key, Lock, Settings } from 'lucide-react';
+import { Target, Users, Zap, Shield, Code, TrendingUp, ArrowUpRight, Sparkles, Layout, Key, Lock, Settings } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export default function AboutPage() {
@@ -9,60 +9,59 @@ export default function AboutPage() {
     {
       icon: Shield,
       title: 'Enterprise Security',
-      description: 'Every transaction is protected by military-grade encryption. Our partnership with Paddle ensures PCI-DSS compliance, secure tokenization, and fraud prevention. Your business data and payment information remain completely private and protected at all times.',
+      description: 'Every transaction is protected by industry-standard encryption. Our partnership with Paddle as our authorized Merchant of Record ensures PCI-DSS compliance, secure tokenization, and strict fraud prevention. Your payment data remains completely private and secure.',
     },
     {
       icon: Zap,
       title: 'Instant Delivery',
-      description: 'Purchase today, activate in seconds. Our automated delivery system sends license keys immediately upon payment confirmation. No delays, no manual processing—just instant access to the software your business needs to move forward.',
+      description: 'Purchase today, activate in seconds. Our automated license generation system sends license keys immediately upon payment confirmation. No delays, no manual processing—just instant access to your software.',
     },
     {
       icon: Code,
-      title: 'Quality Curated Software',
-      description: 'Every application in our marketplace undergoes rigorous vetting. We partner exclusively with established vendors offering production-ready, enterprise-grade solutions. Our curation process ensures you invest in reliable, professionally maintained software.',
+      title: 'In-House Engineering Excellence',
+      description: 'Every application published by Appsto is designed, built, and maintained directly by our software engineering team. We prioritize native performance, modern architecture (.NET 8 for desktop), low memory footprints, and intuitive UI.',
     },
     {
       icon: Users,
-      title: 'Customer Success First',
-      description: 'Your success drives ours. Our dedicated support team provides multi-channel assistance, comprehensive documentation, and proactive guidance. Backed by our 14-day money-back guarantee and transparent policies, we ensure complete satisfaction with every purchase.',
+      title: 'Direct Customer Support',
+      description: 'We stand behind the software we build. Our team provides fast email assistance, comprehensive documentation, and proactive guidance. Backed by our 14-day money-back guarantee, we ensure complete satisfaction with every purchase.',
     }
   ];
 
   const whatWeDo = [
     {
-      title: 'Curated Software Marketplace',
-      description: 'Appsto is your destination for discovering premium desktop productivity tools. We launch with DeskSweep, a powerful file organization solution, and are actively expanding our catalog with carefully vetted applications that deliver real value. Every product undergoes rigorous quality testing before joining our marketplace.',
-      icon: Store
+      title: 'Proprietary Desktop Software',
+      description: 'Appsto is an independent software studio dedicated to engineering high-performance desktop productivity tools. Our flagship application, DeskSweep, is an intelligent file organizer and desktop management solution built in-house to help users keep their workspaces clean and focused.',
+      icon: Layout
     },
     {
-      title: 'Simple, Fair Licensing',
-      description: 'We believe software licensing should be straightforward. Choose One-Time Lifetime Licenses with instant delivery—pay once, own forever. No hidden fees, no confusing subscription tiers. Your license includes all features, free updates, and priority email support. Multi-device options available for teams and families.',
+      title: 'Simple, Honest Licensing',
+      description: 'We believe software licensing should be straightforward. Choose One-Time Lifetime Licenses with instant delivery—pay once, own forever. No hidden fees, no recurring subscriptions. Your license includes all core features, free updates, and priority customer support.',
       icon: Key
     },
     {
-      title: 'Secure Payment Processing',
-      description: 'Your security is our priority. All transactions use industry-standard encryption and secure payment gateways. We never store your payment information, and every purchase is protected by our 14-day money-back guarantee. Shop with confidence knowing your data and investment are safe.',
+      title: 'Authorized Merchant of Record',
+      description: 'All payments are handled securely through Paddle, our authorized Merchant of Record. This ensures localized multi-currency pricing, sales tax and VAT compliance, and secure checkout with credit cards and PayPal.',
       icon: Lock
     },
     {
-      title: 'Instant License Delivery',
-      description: 'No waiting, no hassle. Purchase DeskSweep and receive your license key instantly via email. Our streamlined activation process gets you up and running in minutes. Access your licenses anytime from your email or account, with easy device management and transfer options when you need them.',
+      title: 'Instant License Activation',
+      description: 'Purchase DeskSweep and receive your license key instantly via email and on-screen. Our streamlined activation gets you up and running on Windows 10/11 in seconds, with easy device management whenever you upgrade your computer.',
       icon: Settings
     },
   ];
 
   const roadmap = [
-    { title: 'Expanded Product Catalog', desc: 'Launching new productivity tools across categories: design software, developer utilities, creative applications, and business automation tools—all hand-picked for quality and value' },
-    { title: 'User License Management', desc: 'Complete license management system with easy access to your purchase history, download links, device tracking, and one-click reinstallation for all your purchased software' },
-    { title: 'Multi-Currency Support', desc: 'Already supporting USD, INR, and PKR with automatic location detection. Expanding to EUR, GBP, and more currencies to serve customers in every corner of the globe' },
-    { title: 'Customer Review System', desc: 'Verified buyer reviews, star ratings, and detailed feedback to help you make informed decisions. Authentic testimonials from real users building trust in our community' },
-    { title: 'Team & Volume Licensing', desc: 'Special pricing for businesses, educational institutions, and organizations. Centralized billing, easy seat management, and flexible license transfers for growing teams' },
-    { title: 'Mobile App Launch', desc: 'Native iOS and Android apps for managing licenses on the go. Quick access to download links, activation codes, and 24/7 support from any device, anywhere' },
+    { title: 'DeskSweep Continuous Evolution', desc: 'Active development on intelligent file-sorting rules, smart pattern matching, automated background scheduling, and performance optimizations' },
+    { title: 'User License Management', desc: 'Centralized license management system with easy access to your purchase history, direct download links, and one-click re-activation' },
+    { title: 'Global Multi-Currency Pricing', desc: 'Supporting localized multi-currency checkout worldwide via Paddle with automatic geo-location detection' },
+    { title: 'Comprehensive Knowledge Base', desc: 'Step-by-step guides, video tutorials, and best-practice workflows to help you get the most out of your desktop utilities' },
+    { title: 'Team & Volume Licensing', desc: 'Volume license options for creative studios, developers, and distributed teams with streamlined multi-seat activation' },
   ];
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] overflow-hidden">
-      {/* Hero Section with subtle purple glow background */}
+      {/* Hero Section with subtle glow background */}
       <section className="relative pt-32 pb-20">
         {/* Background gradients */}
         <div className="absolute inset-0 bg-[#FAFAFA]" />
@@ -90,7 +89,7 @@ export default function AboutPage() {
               className="inline-flex items-center gap-2 bg-purple-50 border border-purple-200/60 px-4 py-2 rounded-full mb-6"
             >
               <Sparkles className="w-4 h-4 text-[#723CFB]" />
-              <span className="text-[#723CFB] font-semibold text-sm">About Our Platform</span>
+              <span className="text-[#723CFB] font-semibold text-sm">Independent Software Studio</span>
             </motion.div>
             
             <motion.h1 
@@ -108,7 +107,7 @@ export default function AboutPage() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed"
             >
-              Your trusted digital marketplace for premium desktop software. Currently featuring DeskSweep, our flagship file organization solution, with an expanding catalog of professional-grade applications designed to boost productivity and streamline workflows for individuals and teams worldwide.
+              Appsto is an independent desktop software studio and direct publisher. We design and build focused productivity tools like DeskSweep, our flagship file organization software, built to keep your workspace clutter-free and your workflow efficient.
             </motion.p>
           </div>
         </div>
@@ -148,7 +147,7 @@ export default function AboutPage() {
                 <h2 className="text-4xl font-bold text-[#060C17]">Our Mission</h2>
               </div>
               <p className="text-lg md:text-xl leading-relaxed text-slate-600 max-w-4xl">
-                To revolutionize how people discover and purchase desktop productivity software. Starting with DeskSweep, our mission is to curate a marketplace of exceptional tools that solve real problems—offering transparent pricing, secure licensing, and instant delivery that puts the customer experience first. We&apos;re building trust, one quality product at a time.
+                To engineer clean, distraction-free desktop software that solves tangible everyday problems. Starting with DeskSweep, our mission is to build software with transparent one-time pricing, instant license delivery, and respect for user privacy—putting customer experience and product quality first.
               </p>
             </div>
           </motion.div>
@@ -158,157 +157,97 @@ export default function AboutPage() {
       {/* What We Do Section */}
       <section className="py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-[#060C17] mb-12 text-center"
-          >
-            What We Do
-          </motion.h2>
-          
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-white rounded-3xl p-10 md:p-12 border border-slate-200 shadow-xl"
+            className="text-center mb-16"
           >
-            <div className="space-y-6">
-              {whatWeDo.map((item, index) => (
-                <motion.div 
+            <h2 className="text-4xl font-bold text-[#060C17] mb-4">
+              What We Do
+            </h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Delivering high-performance software with simplicity, security, and direct support.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {whatWeDo.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <motion.div
                   key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ x: 10, backgroundColor: 'rgba(114, 60, 251, 0.03)' }}
-                  className="group rounded-2xl p-6 transition-all duration-300"
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -8 }}
+                  className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-xl hover:border-purple-200 transition-all duration-300"
                 >
-                  <h3 className="text-xl font-bold text-[#060C17] mb-3 flex items-center gap-3">
-                    <motion.div 
-                      className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center"
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                    >
-                      <item.icon className="w-5 h-5 text-[#723CFB]" />
-                    </motion.div>
-                    <span>
-                      {item.title}
-                    </span>
+                  <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center mb-6 border border-purple-100">
+                    <Icon className="w-7 h-7 text-[#723CFB]" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#060C17] mb-3">
+                    {item.title}
                   </h3>
-                  <p className="text-slate-600 leading-relaxed pl-12">
+                  <p className="text-slate-600 leading-relaxed text-base">
                     {item.description}
                   </p>
                 </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section className="py-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-[#060C17] mb-12 text-center"
-          >
-            Our Core Values
-          </motion.h2>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            {values.map((value, index) => (
-              <motion.div 
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ 
-                  y: -6, 
-                  boxShadow: '0 20px 30px -10px rgba(114, 60, 251, 0.08)'
-                }}
-                className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm group hover:border-[#723CFB]/30 transition-all"
-              >
-                <div className="flex items-start gap-5">
-                  <motion.div 
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center bg-[#723CFB] shadow-md shadow-purple-500/20"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ type: 'spring', stiffness: 300 }}
-                  >
-                    <value.icon className="w-7 h-7 text-white" />
-                  </motion.div>
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-[#060C17] mb-4">
-                      {value.title}
-                    </h3>
-                    <p className="text-slate-600 leading-relaxed">
-                      {value.description}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20">
+      {/* Values Section */}
+      <section className="py-20 bg-slate-50 border-y border-slate-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative bg-white border-2 border-slate-200 rounded-3xl p-12 md:p-16 text-center overflow-hidden shadow-xl"
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
           >
-            {/* Subtle purple accent glow */}
-            <div className="absolute -top-24 -left-24 w-72 h-72 bg-purple-100 rounded-full blur-3xl pointer-events-none opacity-60" />
-            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-purple-100 rounded-full blur-3xl pointer-events-none opacity-60" />
-            
-            <div className="relative z-10">
-              <motion.h2 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-4xl md:text-5xl font-bold text-[#060C17] mb-6"
-              >
-                Ready to Explore?
-              </motion.h2>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="text-slate-600 mb-10 max-w-2xl mx-auto text-lg leading-relaxed"
-              >
-                Browse our curated collection of enterprise SaaS solutions. Find the perfect tools to scale your business, streamline operations, and drive innovation.
-              </motion.p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/products">
-                  <motion.button 
-                    className="group flex items-center justify-center gap-3 bg-[#723CFB] hover:bg-[#5F27E5] text-white font-semibold py-4 px-8 rounded-full shadow-lg shadow-purple-500/25 transition-all"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Browse Products
-                    <ArrowUpRight className="w-5 h-5 group-hover:rotate-45 transition-transform" />
-                  </motion.button>
-                </Link>
-                <Link href="/contact">
-                  <motion.button 
-                    className="flex items-center justify-center gap-3 bg-white border-2 border-slate-200 hover:border-slate-300 text-[#060C17] font-semibold py-4 px-8 rounded-full transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Contact Us
-                  </motion.button>
-                </Link>
-              </div>
-            </div>
+            <h2 className="text-4xl font-bold text-[#060C17] mb-4">
+              Our Core Principles
+            </h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Built on transparency, engineering rigor, and customer trust.
+            </p>
           </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {values.map((value, index) => {
+              const Icon = value.icon;
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-purple-100">
+                      <Icon className="w-6 h-6 text-[#723CFB]" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-[#060C17] mb-2">
+                        {value.title}
+                      </h3>
+                      <p className="text-slate-600 leading-relaxed text-sm">
+                        {value.description}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -333,7 +272,7 @@ export default function AboutPage() {
               </h2>
             </div>
             <p className="text-lg text-slate-600 leading-relaxed mb-6">
-              We&apos;re just getting started. From our first product, DeskSweep, to becoming a comprehensive software marketplace, our roadmap is focused on sustainable growth, customer satisfaction, and delivering exceptional value:
+              Starting with our flagship utility, DeskSweep, our engineering roadmap is focused on expanding our in-house suite of native productivity tools, continuous performance updates, and dedicated customer support:
             </p>
             <ul className="space-y-4">
               {roadmap.map((item, index) => (
@@ -355,6 +294,22 @@ export default function AboutPage() {
                 </motion.li>
               ))}
             </ul>
+
+            <div className="mt-10 pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-sm text-slate-500">
+                Have questions or need technical support? We&apos;re here to help.
+              </p>
+              <Link href="/contact">
+                <motion.button 
+                  className="flex items-center gap-2 bg-[#060C17] hover:bg-slate-800 text-white font-semibold py-3 px-6 rounded-xl text-sm transition-all shadow-sm"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Contact Support
+                  <ArrowUpRight className="w-4 h-4" />
+                </motion.button>
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>

@@ -293,7 +293,7 @@ export function generatePurchaseEmailHTML(data: PurchaseEmailData): string {
     <!-- Header -->
     <div class="header">
       <h2 class="logo">Appsto</h2>
-      <p class="header-subtitle">The Software Marketplace</p>
+      <p class="header-subtitle">Desktop Software Studio</p>
     </div>
 
     <!-- Content -->
@@ -401,7 +401,7 @@ export function generatePurchaseEmailHTML(data: PurchaseEmailData): string {
     <!-- Footer -->
     <div class="footer">
       <p class="footer-text">
-        <strong>Appsto - The Software Marketplace</strong><br>
+        <strong>Appsto Software Studio</strong><br>
         Empowering student entrepreneurs and solo developers worldwide
       </p>
       
